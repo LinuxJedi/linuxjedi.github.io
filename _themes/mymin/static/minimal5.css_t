@@ -11,10 +11,11 @@
 
 /* General style */
 body {
-    background-color:white;
-    font-family: Helvetica, Arial, 'Liberation Sans', FreeSans, sans-serif;
+    background-color: #F8FAFB;
+    font-family: "PT Sans",Helvetica,Arial,sans-serif;
     margin: auto;
     max-width: 1000px;
+    color: #444;
 }
 
 a:link, a:visited, a:active {
@@ -48,13 +49,12 @@ header h1 {
 
 header h2 {
     font-size: 110%;
-    font-style: italic;
     margin: 0px;
 }
 
 /* Page navigation */
 nav {
-    background-color: #1829AB;
+    background-color: #E8EAEB;
     font-size: 125%;
     font-weight: bold;
     height: 2em;
@@ -64,7 +64,7 @@ nav {
 }
 
 nav a:link, nav a:visited, nav a:active, nav a:hover {
-    color: white;
+    color: #444;
 }
 
 nav ul, nav ol {
@@ -124,11 +124,11 @@ aside.sidebar h1 {
 /* Meta */
 div.postmeta {
     margin-top: 40px;
-    font-style: italic;
+    font-size: 80%;
+    color: #93A4AD;
 }
 
 div.timestamp {
-    font-style: italic;
     margin-top: 0;
     padding-bottom: 0;
 }

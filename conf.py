@@ -11,7 +11,7 @@ import tinkerer.paths
 project = 'LinuxJedi\'s /dev/null'
 
 # Change this to the tagline of your blog
-tagline = 'The /dev/null of a Linux Jedi'
+tagline = 'The /dev/null ramblings of a Linux Jedi'
 
 # Change this to the description of your blog
 description = 'LinuxJedi\'s Technical Blog'
