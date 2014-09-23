@@ -9,10 +9,11 @@
  * :license: FreeBSD, see LICENSE file
  */
 
-/* General style */
+@import url(http://fonts.googleapis.com/css?family=Maven+Pro:400,700,400italic,700italic);
+@import url(http://fonts.googleapis.com/css?family=Source+Code+Pro);/* General style */
 body {
     background-color: #F8FAFB;
-    font-family: "PT Sans",Helvetica,Arial,sans-serif;
+    font-family: 'Maven Pro', Helvetica, Arial, sans-serif;
     margin: auto;
     max-width: 1000px;
     color: #444;
@@ -35,6 +36,9 @@ h1 a:link, h1 a:visited, h1 a:active, h1 a:hover {
 a.readmore {
   font-weight:bold;
 }
+
+
+code, kbd, pre, samp { font-family: 'Source Code Pro', monospace, serif; line-height: 1.4em; }
 
 /* Header */
 header {
@@ -83,6 +87,10 @@ nav li {
 
 li.quicklink { 
     display: none; 
+}
+
+div#searchbox input {
+    width: 160px;
 }
 
 /* Content */
@@ -185,8 +193,8 @@ div.year_separator {
 
 /* Archive */
 div.archive_link {
-    border-top: 1px dashed black;
-    border-bottom: 1px dashed black;
+    border-top: 1px dashed #808080;
+    border-bottom: 1px dashed #808080;
     font-size: 120%;
     margin-top: 24px;
     padding: 24px 0;
