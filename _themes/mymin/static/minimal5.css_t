@@ -117,6 +117,10 @@ aside.sidebar {
     padding: 0 40px;
 }
 
+aside.sidebar h1 {
+    font-size: 150%;
+}
+
 /* Meta */
 div.postmeta {
     margin-top: 40px;
