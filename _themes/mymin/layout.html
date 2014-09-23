@@ -61,3 +61,15 @@
 
 {%- block navigation -%}
 {%- endblock -%}
+
+{%- block footer -%}
+<footer class="wrapper">
+  {%- if show_copyright -%}
+  {% trans copyright=copyright|e -%}&copy; Copyright {{ copyright }}. {% endtrans -%}
+  <br />The LinuxJedi logo and the content of this blog is licensed under a <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_GB">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.<br />
+  {%- endif -%}
+  {%- if show_sphinx -%}
+  Powered by <a href="http://www.tinkerer.me/">Tinkerer</a> and <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  {%- endif -%}
+</footer>
+{%- endblock -%}
