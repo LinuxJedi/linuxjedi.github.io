@@ -44,6 +44,21 @@ a.readmore {
 
 code, kbd, pre, samp { font-family: {{ code_font }}; line-height: 1.4em; }
 
+.highlight pre {
+    background-color: #F0F0F0;
+    border: 1px solid #CCC;
+    font-size: .8em;
+    padding: 0.5em;
+    border-radius: 2px;
+}
+
+.docutils.literal {
+    background-color: #F0F0F0;
+    border: 1px solid #F8FAFB;
+    border-radius: 8px; padding: 2px 4px;
+}
+
+
 /* Header */
 header {
     margin-bottom: 48px;
