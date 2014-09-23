@@ -198,12 +198,12 @@ div.year h2 {
 div.post_separator {
     width: 100%;
     margin: 20px 0;
-    border-top: 1px dashed black;
+    border-top: 1px dashed #808080;
 }
 
 div.year_separator {
     width: 100%;
-    border-top: 1px dashed black;
+    border-top: 1px dashed #808080;
 }
 
 /* Archive */
