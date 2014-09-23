@@ -29,7 +29,7 @@
   </nav>
   <header role="banner">
     <hgroup>
-    <h1><a href="{{ pathto(pages[0][0]) }}"><img src="/_static/LinuxJedi_head.png" alt="{{ shorttitle|e }}" /></a></h1>
+    <h1><a href="{{ pathto(pages[0][0]) }}"><img src="{{ pathto('_static/LinuxJedi_head.png', 1) }}" alt="{{ shorttitle|e }}" /></a></h1>
     {%- if tagline -%}<h2>{{ tagline|e }}</h2>{%- endif -%}
     </hgroup>
   </header>
