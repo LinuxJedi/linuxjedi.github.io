@@ -23,7 +23,7 @@ author = 'Andrew (LinuxJedi) Hutchings'
 copyright = '2014, ' + author
 
 # Change this to your blog root URL (required for RSS feed)
-website = 'http://linuxjedi.github.io/blog/html/'
+website = 'http://linuxjedi.co.uk/blog/html/'
 
 # **************************************************************
 # More tweaks you can do
