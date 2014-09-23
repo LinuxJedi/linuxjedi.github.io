@@ -1,6 +1,11 @@
 Sitemap
 =======
 
+.. toctree:
+   :hidden:
+
+   404.rst
+
 .. toctree::
    :maxdepth: 1
 
