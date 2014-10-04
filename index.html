@@ -31,7 +31,34 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">libAttachSQL Benchmarks With Sysbench</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/04/blogging-platforms/">Blogging Platforms</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2014-10-04T22:16:00">
+                Sat 04 Oct 2014, 22:16
+        </abbr>
+
+<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/blog.html">Blog</a><a href="http://linuxjedi.co.uk/tag/linuxjedi.html">LinuxJedi</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>A couple of weeks ago I ditched Blogger as my main blogging platform.  The main reason for this was the editing tools were breaking posts containing code.  Whilst it is a great platform for basic blogging, it is not suitable for developers blogs.</p>
+<p>So, I was on the hunt for blogging platforms that would make it easy for me to write posts that contain technical content and is not expensive to run.  I also don't want to be maintaining my own web server, I may be capable of doing this but I don't want the time overhead.</p>
+<p>I tried several things out that met some of my requirements but many didn't fit all.  Wordpress was probably the closest, but I had trouble bending the free templates to my will.</p>
+<p>With many on my team at HP's Advanced Technology Group using <a class="reference external" href="https://pages.github.com/">GitHub Pages</a> for blog posts I thought I would give it a try.  Most of the team are trying out Jekyll which looks really good, but isn't for me.  I prefer <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> to Markdown and use it every day for the <a class="reference external" href="http://docs.libattachsql.org">libAttachSQL documentation</a>.</p>
+<p>On my journey I came across <a class="reference external" href="http://tinkerer.me/">Tinkerer</a> which is a layer on top of <a class="reference external" href="http://sphinx-doc.org/">Python Sphinx</a> to generate a blog site from RST files.  This was great for me because Sphinx is the renderer used for libAttachSQL's docs both in the build system and <a class="reference external" href="https://readthedocs.org/">Read The Docs</a>.  I created a new blog on this hosted on GitHub Pages and <a class="reference external" href="https://disqus.com/">Disqus</a> for comments.</p>
+<p>I had several minor problems with Tinkerer, many of which I worked around, but the main flaw was no timestamp support for blog posts.  All blog posts would have a date but not a time, so in the RSS feeds it would be as if they were posted at midnight.  If you are posting at 22:00 it means in feed aggregators your post would end up below many others posted that day and multiple posts in a day could be in any order.</p>
+<p>Today I bumped into a blogging platform called <a class="reference external" href="http://blog.getpelican.com/">Pelican</a>.  It too uses RST files to generate the site, but supports metadata in the RST files to signify things such as time of post.  It was incredibly easy to port my Tinkerer posts over so I gave it a try.</p>
+<p>I have ended up with generation scripts, RST files and a theme I have modified in a <a class="reference external" href="https://github.com/LinuxJedi/linuxjedi.co.uk">GitHub repo</a> and the generated content in my <a class="reference external" href="https://github.com/LinuxJedi/linuxjedi.github.io">GitHub Pages Repo</a>.  Pelican has a built-in HTTP server which makes it easy to preview your generated HTML before it is uploaded to the site.</p>
+<p>In conclusion, Tinkerer is a great platform, but Pelican feels more mature and it seems to have a wider community around it.  I also found its templates much easier to edit.  Both platforms have an Open Source feel to the way you create and publish content which is fantastic for my usage.  I think I have finally found a blogging platform I can settle with.</p>
+
+        </article></aside><!-- /#featured -->
+                <h1>Other articles</h1>
+                <hr />
+                    <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/" rel="bookmark" title="Permalink to libAttachSQL Benchmarks With Sysbench">libAttachSQL Benchmarks With Sysbench</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2014-10-03T21:28:00">
                 Fri 03 Oct 2014, 21:28
@@ -41,61 +68,10 @@
 <p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>This week I have been spending a little bit of time creating a module for <a class="reference external" href="https://launchpad.net/sysbench">Sysbench</a> so that it can use <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> as a database driver.  The reason for doing this is twofold:</p>
 <ol class="arabic simple">
-<li><a class="reference external" href="http://krow.net/">Brian</a> (my boss at HP's Advanced Technology Group) said now would be a good time to benchmark libAttachSQL</li>
-<li>I really needed more than a few basic queries to shake out bugs in the library, and a benchmark is a good way to shove a few million through it</li>
-</ol>
-<p>On the bug front, it did find a total of 5 bugs, a couple of them serious.  Which is great, the more testing and bug finding the better.  These have all been fixed in <a class="reference external" href="http://github.com/libattachsql/libattachsql">GitHub</a> and will be part of the upcoming 0.5.0 release.</p>
-<div class="section" id="the-test-setup">
-<h2>The Test Setup</h2>
-<p>To benchmark I used an HP Z620, 6-core Xeon with 16GB RAM and an SSD.  The OS was Antergos Linux (Arch with a nicer theme) and the server was MySQL 5.6.20 compiled from source.  The only real tweaks I've made to the out-of-box config that would make any difference are:</p>
-<div class="highlight"><pre><span class="na">innodb_buffer_pool_size</span><span class="o">=</span><span class="s">3G</span>
-<span class="na">innodb_locks_unsafe_for_binlog</span><span class="o">=</span><span class="s">1</span>
-<span class="na">innodb_buffer_pool_instances</span><span class="o">=</span><span class="s">8</span>
-<span class="na">thread_cache</span><span class="o">=</span><span class="s">256</span>
-<span class="na">query_cache_type</span><span class="o">=</span><span class="s">0</span>
-<span class="na">query_cache_size</span><span class="o">=</span><span class="s">0</span>
-<span class="na">max_connections</span><span class="o">=</span><span class="s">20020</span>
-<span class="na">max_user_connections</span><span class="o">=</span><span class="s">20000</span>
-</pre></div>
-<p>The <a class="reference external" href="https://github.com/libattachsql/sysbench">Sysbench in libAttachSQL's GitHub</a> was used which just has the additional driver for libAttachSQL.  Once I'm 100% happy with the driver I offer it as an upstream branch.  libAttachSQL master is used, partly due to the bug fixes and partly because there has been a large API change in master for improved error handling.</p>
-<p>For both libmysqlclient and libAttachSQL the connections were made using Unix Domain Sockets.  For the sysbench setup I just left it at the default number of rows.  The Sysbench driver for libAttachSQL enables the semi-blocking mode which is better performance for single-connection-per-thread applications.</p>
-</div>
-<div class="section" id="select-test">
-<h2>Select Test</h2>
-<p>First the basic select test was run, which queries for random single integers in a table.  This was run with the MySQL driver as follows:</p>
-<div class="highlight"><pre>sysbench --test<span class="o">=</span>sysbench/tests/db/select.lua --db-driver<span class="o">=</span>mysql --mysql-socket<span class="o">=</span>/tmp/mysql.sock --mysql-user<span class="o">=</span><span class="nb">test</span> --mysql-password<span class="o">=</span><span class="nb">test</span> --mysql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span>8 --max-requests<span class="o">=</span>1000000 run
-</pre></div>
-<p>And libAttachSQL:</p>
-<div class="highlight"><pre>sysbench --test<span class="o">=</span>sysbench/tests/db/select.lua --db-driver<span class="o">=</span>attachsql --attachsql-socket<span class="o">=</span>/tmp/mysql.sock --attachsql-user<span class="o">=</span><span class="nb">test</span> --attachsql-password<span class="o">=</span><span class="nb">test</span> --attachsql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span>8 --max-requests<span class="o">=</span>1000000 run
-</pre></div>
-<p>The results were as follows:</p>
-<img alt="" src="images/select_benchmark.png" />
-<p>I am pretty impressed with these results so far, since I have done no optimisation work on the code.  I originally wanted the first GA to have performance on-par with libmysqlclient and it looks like that goal has been met.</p>
-</div>
-<div class="section" id="select-random-points">
-<h2>Select Random Points</h2>
-<p>I used the &quot;Select Random Points&quot; benchmark because it is one of the only ones that comes with Sysbench which uses Prepared Statements.  It selects 10 random integers from a table per query.</p>
-<p>As before this was run on using libmysqlclient with:</p>
-<div class="highlight"><pre>sysbench --test<span class="o">=</span>sysbench/tests/db/select_random_points.lua --db-driver<span class="o">=</span>mysql --mysql-socket<span class="o">=</span>/tmp/mysql.sock --mysql-user<span class="o">=</span><span class="nb">test</span> --mysql-password<span class="o">=</span><span class="nb">test</span> --mysql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span>8 --max-requests<span class="o">=</span>1000000 run
-</pre></div>
-<p>And with libAttachSQL:</p>
-<div class="highlight"><pre>sysbench --test<span class="o">=</span>sysbench/tests/db/select_random_points.lua --db-driver<span class="o">=</span>attachsql --attachsql-socket<span class="o">=</span>/tmp/mysql.sock --attachsql-user<span class="o">=</span><span class="nb">test</span> --attachsql-password<span class="o">=</span><span class="nb">test</span> --attachsql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span>8 --max-requests<span class="o">=</span>1000000 run
-</pre></div>
-<p>The results were as follows:</p>
-<img alt="" src="images/select_random_points_benchmark.png" />
-<p>Again there isn't a lot in it.  libmysqlclient is edging slightly over libAttachSQL in most of this chart.  I believe it is because in the libAttachSQL driver I told it to convert all results to string outputs.  This will add additional overhead.  Next week I will tweak the driver to make sure that the conversion isn't done.</p>
-</div>
-<div class="section" id="conclusion">
-<h2>Conclusion</h2>
-<p>I'm very happy with these Sysbench tests because not only has it bashed libAttachSQL with a sledgehammer it has given me some idea of the performance.  I'm happy enough with these figures to not do any performance tuning until after the first GA release.</p>
-<p>At some point soon I will also benchmark the single-threaded multi-connection performance of libAttachSQL.  This is not something I can easily compare to libmysqlclient (there is an API to do it, but it is an unofficial/unsupported API).  But it will be a good test for the use case I originally designed the library for.</p>
-<p>I am no benchmarking expert and I know many of you who reading this are (especially Percona).  Is there anything I missed or could have done better?  Please let me know in the comments.</p>
-</div>
-
-        </article></aside><!-- /#featured -->
-                <h1>Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
+<li><a class="reference external" href="http://krow.net/">Brian</a> (my boss at HP's Advanced Technology Group) said now would be a good time to ...</li></ol>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/libattachsql-query-example/" rel="bookmark" title="Permalink to libAttachSQL Query Example">libAttachSQL Query Example</a></h1>

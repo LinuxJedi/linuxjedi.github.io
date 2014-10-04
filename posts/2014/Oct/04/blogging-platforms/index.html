@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null - General</title>
+        <title>Blogging Platforms</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link href='http://linuxjedi.co.uk/theme/images/favicon.ico' rel='icon' type='image/x-icon'/>
@@ -29,9 +29,11 @@
                 </ul></nav>
         </header><!-- /#banner -->
 
-     <section id="content" class="body">
-        <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/04/blogging-platforms/">Blogging Platforms</a></h1>
+<section id="content" class="body">
+<article>
+        <header> <h1 class="entry-title"><a href="posts/2014/Oct/04/blogging-platforms/"
+        rel="bookmark" title="Permalink to Blogging Platforms">Blogging Platforms</a></h1>  </header>
+        <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2014-10-04T22:16:00">
                 Sat 04 Oct 2014, 22:16
@@ -39,7 +41,7 @@
 
 <p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
 <p>tags: <a href="http://linuxjedi.co.uk/tag/blog.html">Blog</a><a href="http://linuxjedi.co.uk/tag/linuxjedi.html">LinuxJedi</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>A couple of weeks ago I ditched Blogger as my main blogging platform.  The main reason for this was the editing tools were breaking posts containing code.  Whilst it is a great platform for basic blogging, it is not suitable for developers blogs.</p>
+        <p>A couple of weeks ago I ditched Blogger as my main blogging platform.  The main reason for this was the editing tools were breaking posts containing code.  Whilst it is a great platform for basic blogging, it is not suitable for developers blogs.</p>
 <p>So, I was on the hunt for blogging platforms that would make it easy for me to write posts that contain technical content and is not expensive to run.  I also don't want to be maintaining my own web server, I may be capable of doing this but I don't want the time overhead.</p>
 <p>I tried several things out that met some of my requirements but many didn't fit all.  Wordpress was probably the closest, but I had trouble bending the free templates to my will.</p>
 <p>With many on my team at HP's Advanced Technology Group using <a class="reference external" href="https://pages.github.com/">GitHub Pages</a> for blog posts I thought I would give it a try.  Most of the team are trying out Jekyll which looks really good, but isn't for me.  I prefer <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> to Markdown and use it every day for the <a class="reference external" href="http://docs.libattachsql.org">libAttachSQL documentation</a>.</p>
@@ -49,30 +51,22 @@
 <p>I have ended up with generation scripts, RST files and a theme I have modified in a <a class="reference external" href="https://github.com/LinuxJedi/linuxjedi.co.uk">GitHub repo</a> and the generated content in my <a class="reference external" href="https://github.com/LinuxJedi/linuxjedi.github.io">GitHub Pages Repo</a>.  Pelican has a built-in HTTP server which makes it easy to preview your generated HTML before it is uploaded to the site.</p>
 <p>In conclusion, Tinkerer is a great platform, but Pelican feels more mature and it seems to have a wider community around it.  I also found its templates much easier to edit.  Both platforms have an Open Source feel to the way you create and publish content which is fantastic for my usage.  I think I have finally found a blogging platform I can settle with.</p>
 
-        </article></aside><!-- /#featured -->
-                <h1>Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/new-blog/" rel="bookmark" title="Permalink to New Blog!">New Blog!</a></h1>
-                </header>
+        </div><!-- /.entry-content -->
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "posts/2014/Oct/04/blogging-platforms/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://linuxjedi.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
 
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2014-09-23T16:45:00">
-                Tue 23 Sep 2014, 16:45
-        </abbr>
-
-<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/linuxjedi.html">LinuxJedi</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Blogger is a great blogging platform.  Unfortunately it is really difficut to create content that has marked-up code in it.  Which as a developer is a requirement.  Therefore LinuxJedi's /dev/null has now moved to this GitHub pages site using <a class="reference external" href="http://tinkerer.me/">Tinkerer</a> to build it.</p>
-<p>The old site and content ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Sep/23/new-blog/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-</ol><!-- /#posts-list -->
-</section><!-- /#content -->
+</article>
+</section>
 
         <aside id="sidebar">
 <div class="widget" id="conference" role="conference">
