@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null</title>
+        <title>libAttachSQL Benchmarks With Sysbench</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link href="http://linuxjedi.co.uk/" type="application/atom+xml" rel="alternate" title="LinuxJedi's /dev/null ATOM Feed" />
@@ -28,9 +28,11 @@
                 </ul></nav>
         </header><!-- /#banner -->
 
-     <section id="content" class="body">
-        <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">libAttachSQL Benchmarks With Sysbench</a></h1>
+<section id="content" class="body">
+<article>
+        <header> <h1 class="entry-title"><a href="posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/"
+        rel="bookmark" title="Permalink to libAttachSQL Benchmarks With Sysbench">libAttachSQL Benchmarks With Sysbench</a></h1>  </header>
+        <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2014-10-03T21:28:00">
                 Fri 03 Oct 2014, 21:28
@@ -38,7 +40,7 @@
 
 <p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
 <p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>This week I have been spending a little bit of time creating a module for <a class="reference external" href="https://launchpad.net/sysbench">Sysbench</a> so that it can use <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> as a database driver.  The reason for doing this is twofold:</p>
+        <p>This week I have been spending a little bit of time creating a module for <a class="reference external" href="https://launchpad.net/sysbench">Sysbench</a> so that it can use <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> as a database driver.  The reason for doing this is twofold:</p>
 <ol class="arabic simple">
 <li><a class="reference external" href="http://krow.net/">Brian</a> (my boss at HP's Advanced Technology Group) said now would be a good time to benchmark libAttachSQL</li>
 <li>I really needed more than a few basic queries to shake out bugs in the library, and a benchmark is a good way to shove a few million through it</li>
@@ -91,47 +93,22 @@
 <p>I am no benchmarking expert and I know many of you who reading this are (especially Percona).  Is there anything I missed or could have done better?  Please let me know in the comments.</p>
 </div>
 
-        </article></aside><!-- /#featured -->
-                <h1>Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/libattachsql-query-example/" rel="bookmark" title="Permalink to libAttachSQL Query Example">libAttachSQL Query Example</a></h1>
-                </header>
+        </div><!-- /.entry-content -->
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://linuxjedi.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
 
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2014-09-23T23:02:00">
-                Tue 23 Sep 2014, 23:02
-        </abbr>
-
-<p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>I was asked some questions on IRC last night about how the query example in libAttachSQL's code base works.  For those who missed previous posts, <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> is a lightweight, non-blocking, Apache 2.0 licensed C connector for MySQL servers which I am developing for HP's Advanced Technology Group ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Sep/23/libattachsql-query-example/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/new-blog/" rel="bookmark" title="Permalink to New Blog!">New Blog!</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2014-09-23T16:45:00">
-                Tue 23 Sep 2014, 16:45
-        </abbr>
-
-<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/linuxjedi.html">LinuxJedi</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Blogger is a great blogging platform.  Unfortunately it is really difficut to create content that has marked-up code in it.  Which as a developer is a requirement.  Therefore LinuxJedi's /dev/null has now moved to this GitHub pages site using <a class="reference external" href="http://tinkerer.me/">Tinkerer</a> to build it.</p>
-<p>The old site and content ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Sep/23/new-blog/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-</ol><!-- /#posts-list -->
-</section><!-- /#content -->
+</article>
+</section>
 
         <aside id="sidebar">
 <div class="widget" id="conference" role="conference">
@@ -146,7 +123,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                         <h2>Categories</h2>
                         <ul>
                            <li ><a href="http://linuxjedi.co.uk/category/general.html">General</a></li>
-                           <li ><a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a></li>
                         </ul>
                 </div>
         </aside><!-- /#sidebar -->

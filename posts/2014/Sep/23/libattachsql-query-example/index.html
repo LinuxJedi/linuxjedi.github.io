@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>libAttachSQL Query Example</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
+        <link href="http://linuxjedi.co.uk/" type="application/atom+xml" rel="alternate" title="LinuxJedi's /dev/null ATOM Feed" />
+
+
+        <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://linuxjedi.co.uk/css/ie.css"/>
+                <script src="http://linuxjedi.co.uk/js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://linuxjedi.co.uk/css/ie6.css"/><![endif]-->
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+          <h1><a href="http://linuxjedi.co.uk/index.html"><img src="http://linuxjedi.co.uk/theme/images/LinuxJedi_head.png" alt="LinuxJedi's /dev/null" /><br /><strong>The /dev/null ramblings of a Linux Jedi</strong></a></h1>
+                <nav><ul>
+                    <li ><a href="http://linuxjedi.co.uk/about-linuxjedi.html">About LinuxJedi</a></li>
+                <li><a href="http://linuxjedi.co.uk/">Archives</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+<section id="content" class="body">
+<article>
+        <header> <h1 class="entry-title"><a href="posts/2014/Sep/23/libattachsql-query-example/"
+        rel="bookmark" title="Permalink to libAttachSQL Query Example">libAttachSQL Query Example</a></h1>  </header>
+        <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-09-23T23:02:00">
+                Tue 23 Sep 2014, 23:02
+        </abbr>
+
+<p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>I was asked some questions on IRC last night about how the query example in libAttachSQL's code base works.  For those who missed previous posts, <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> is a lightweight, non-blocking, Apache 2.0 licensed C connector for MySQL servers which I am developing for HP's Advanced Technology Group.</p>
+<p>In this blog post I'm going to break down <a class="reference external" href="https://github.com/libattachsql/libattachsql/blob/master/examples/basic_query.c">a basic query example</a> and explain what is happening at each step. It is possible that this syntax may change slightly by the time we hit GA but it will be similar to this.</p>
+<div class="highlight"><pre><span class="cp">#include &lt;libattachsql-1.0/attachsql.h&gt;</span>
+<span class="cp">#include &lt;stddef.h&gt;</span>
+<span class="cp">#include &lt;stdio.h&gt;</span>
+<span class="cp">#include &lt;string.h&gt;</span>
+</pre></div>
+<p>Only one include is needed for the library itself, <tt class="docutils literal"><span class="pre">libattachsql-1.0/attachsql.h</span></tt>. The others are used for other functions in the code.</p>
+<div class="highlight"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+  <span class="kt">attachsql_connect_t</span> <span class="o">*</span><span class="n">con</span><span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="n">attachsql_error_st</span> <span class="o">*</span><span class="n">error</span><span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">query</span><span class="o">=</span> <span class="s">&quot;SELECT * FROM t1 WHERE name=&#39;fred&#39;&quot;</span><span class="p">;</span>
+  <span class="kt">attachsql_return_t</span> <span class="n">ret</span><span class="o">=</span> <span class="n">ATTACHSQL_RETURN_NONE</span><span class="p">;</span>
+  <span class="n">attachsql_query_row_st</span> <span class="o">*</span><span class="n">row</span><span class="p">;</span>
+  <span class="kt">uint16_t</span> <span class="n">columns</span><span class="p">,</span> <span class="n">current_column</span><span class="p">;</span>
+</pre></div>
+<p>Here we have setup a few required variables:</p>
+<ul class="simple">
+<li><tt class="docutils literal">con</tt> is the connection object used throughout this example</li>
+<li><tt class="docutils literal">error</tt> is an error struct which is set when an error occurs</li>
+<li><tt class="docutils literal">query</tt> this is a constant containing the query we wish to execute</li>
+<li><tt class="docutils literal">ret</tt> is where the return code is store for the network functions</li>
+<li><tt class="docutils literal">row</tt> holds the row results</li>
+<li><tt class="docutils literal">columns</tt> and <tt class="docutils literal">current_column</tt> are used for iterating though the result</li>
+</ul>
+<div class="highlight"><pre><span class="n">con</span><span class="o">=</span> <span class="n">attachsql_connect_create</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">3306</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;testdb&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</pre></div>
+<p>This function creates the connection object.  A connection is not actually made at this point, we are just setting things up.</p>
+<div class="highlight"><pre><span class="n">error</span><span class="o">=</span> <span class="n">attachsql_query</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="n">query</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</pre></div>
+<p>This starts the process of connecting to the MySQL server and sending the query.  The last two parameters are for a way to escape data at the client end in a similar way to prepared statements.  I'll cover this in another blog post.</p>
+<div class="highlight"><pre><span class="k">while</span> <span class="p">((</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">ATTACHSQL_RETURN_EOF</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">error</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">))</span>
+<span class="p">{</span>
+  <span class="n">ret</span><span class="o">=</span> <span class="n">attachsql_connect_poll</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
+</pre></div>
+<p>This is where the magic happens.  Whilst we haven't hit a query EOF or an error we are repeatedly polling the connection to see if we have have a row ready in the network buffer.</p>
+<p>Not only this but a non-blocking DNS lookup, connection and handshake is made here, so it is likely poll will be called several times.  There is an API call to make the connection explicit rather than implicit on the first query and it will need to call <tt class="docutils literal">attachsql_connect_poll()</tt> in the same way.</p>
+<div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">ATTACHSQL_RETURN_ROW_READY</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">continue</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>If we don't have a row yet continue polling until we do.  In a real-world application you can have other tasks on your main thread going on here and/or poll many connections on a single thread.</p>
+<div class="highlight"><pre><span class="n">row</span><span class="o">=</span> <span class="n">attachsql_query_row_get</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
+</pre></div>
+<p>Process the row and return an array of pointers to the network read buffer for parts of the row.</p>
+<div class="highlight"><pre><span class="n">columns</span><span class="o">=</span> <span class="n">attachsql_query_column_count</span><span class="p">(</span><span class="n">con</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="n">current_column</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">current_column</span> <span class="o">&lt;</span> <span class="n">columns</span><span class="p">;</span> <span class="n">current_column</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%.*s &quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">row</span><span class="p">[</span><span class="n">current_column</span><span class="p">].</span><span class="n">length</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">current_column</span><span class="p">].</span><span class="n">data</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</pre></div>
+<p>Iterate through the columns in the row and print out the result.  Technically we only need to call <tt class="docutils literal">attachsql_query_column_count()</tt> once when the first row is ready in the buffer.</p>
+<div class="highlight"><pre>  <span class="n">attachsql_query_row_next</span><span class="p">(</span><span class="n">con</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>This tells the library that we are done with this row and are ready to retrieve the next, which brings us back to polling.</p>
+<div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">error</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error occurred: %s&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">-&gt;</span><span class="n">msg</span><span class="p">);</span>
+  <span class="n">attachsql_error_free</span><span class="p">(</span><span class="n">error</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>If we have broken out of the loop due to an error, print that out and free the error object.</p>
+<div class="highlight"><pre>  <span class="n">attachsql_query_close</span><span class="p">(</span><span class="n">con</span><span class="p">);</span>
+  <span class="n">attachsql_connect_destroy</span><span class="p">(</span><span class="n">con</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>Close the query and destroy the connection.  All done!</p>
+
+        </div><!-- /.entry-content -->
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "posts/2014/Sep/23/libattachsql-query-example/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://linuxjedi.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
+
+</article>
+</section>
+
+        <aside id="sidebar">
+<div class="widget" id="conference" role="conference">
+<h2>Percona Live London</h2>
+<a href="http://www.percona.com/live/london-2014/"><img width="123" height="123" title="Percona Live London, November 3-4, 2014" alt="Percona Live London, November 3-4, 2014" src="http://s0.percona.com/percona-live/pluk14/123x123_UKSpeaking_14.png" /></a>
+</div><div class="widget" id="book" role="book">
+<h2>MySQL 5.1 Plugins Development</h2>
+<a href="https://www.packtpub.com/mysql-5-1-plugins-development/book"><img border="0" style="float:left" src="http://linuxjedi.co.uk/theme/images/0608OS_MockupCover_sm.png" />
+MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now available from Packt Publishing.</a>
+<br style="clear:left;" />
+</div>                <div class="widget">
+                        <h2>Categories</h2>
+                        <ul>
+                           <li ><a href="http://linuxjedi.co.uk/category/general.html">General</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a></li>
+                        </ul>
+                </div>
+        </aside><!-- /#sidebar -->
+
+        <footer id="footer" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+                </address><!-- /#about -->
+                <p>The LinuxJedi logo and the content of this blog is licensed under a <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_GB">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</p>
+                <p>The theme is «notmyidea-lxj», a modified version of «notmyidea-cms», the default theme.</p>
+        </footer><!-- /#footer -->
+
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-55086889-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+</body>
+</html>

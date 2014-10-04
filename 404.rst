@@ -1,4 +1,0 @@
-The URL you requested was not found.
-====================================
-
-You may have been trying to access an archived blog post, in which case you can find it on my old `Blogger based blog <http://thelinuxjedi.blogspot.com>`_.  Alternatively you can go to the `home of this blog <http://linuxjedi.co.uk>`_.
