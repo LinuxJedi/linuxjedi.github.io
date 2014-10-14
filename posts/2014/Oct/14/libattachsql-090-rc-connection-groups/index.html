@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null - MySQL</title>
+        <title>libAttachSQL 0.9.0 RC - Connection Groups</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link href='http://linuxjedi.co.uk/theme/images/favicon.ico' rel='icon' type='image/x-icon'/>
@@ -29,9 +29,11 @@
                 </ul></nav>
         </header><!-- /#banner -->
 
-     <section id="content" class="body">
-        <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/14/libattachsql-090-rc-connection-groups/">libAttachSQL 0.9.0 RC - Connection Groups</a></h1>
+<section id="content" class="body">
+<article>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/14/libattachsql-090-rc-connection-groups/"
+        rel="bookmark" title="Permalink to libAttachSQL 0.9.0 RC - Connection Groups">libAttachSQL 0.9.0 RC - Connection Groups</a></h1>  </header>
+        <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2014-10-14T17:14:00">
                 Tue 14 Oct 2014, 17:14
@@ -39,7 +41,7 @@
 
 <p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
 <p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>It has been just over 4 months since I started working on <a class="reference external" href="http://libattachsql.org">libAttachSQL</a> for HP's Advanced Technology Group.  Today marks the first (and hopefully only) RC release of the library.</p>
+        <p>It has been just over 4 months since I started working on <a class="reference external" href="http://libattachsql.org">libAttachSQL</a> for HP's Advanced Technology Group.  Today marks the first (and hopefully only) RC release of the library.</p>
 <div class="section" id="connection-groups">
 <h2>Connection Groups</h2>
 <p>The only real new feature that has been added to 0.9.0 is the concept of connection groups which is something I'm pretty excited about.  Internally libAttachSQL uses event loops to supply the non-blocking API.  Connection Groups join a bunch of connections together into a group that uses a single event loop.  This makes things much more efficient internally and makes applications easier to code too.</p>
@@ -105,66 +107,22 @@
 <p>libAttachSQL 0.9.0RC is out today, there is a source release as well as packages for RHEL &amp; CentOS 6/7 64bit as well as an Ubuntu PPA 12.04/14.04 32bit and 64bit.  Links to all these can be found on the news section of the <a class="reference external" href="http://libattachsql.org/">libAttachSQL site</a>.</p>
 </div>
 
-        </article></aside><!-- /#featured -->
-                <h1>Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/" rel="bookmark" title="Permalink to libAttachSQL Second Beta, After the Sledgehammer">libAttachSQL Second Beta, After the Sledgehammer</a></h1>
-                </header>
+        </div><!-- /.entry-content -->
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "posts/2014/Oct/14/libattachsql-090-rc-connection-groups/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://linuxjedi.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
 
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2014-10-08T20:52:00">
-                Wed 08 Oct 2014, 20:52
-        </abbr>
-
-<p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Last week I <a class="reference external" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">blogged about getting sysbench working with libAttachSQL</a>.  This was not only an exercise in performance but also the first real test for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a>.</p>
-<p>Before I had done this testing the most the early Alpha and Beta releases of libAttachSQL had gone through is a few basic queries ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/" rel="bookmark" title="Permalink to libAttachSQL Benchmarks With Sysbench">libAttachSQL Benchmarks With Sysbench</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2014-10-03T21:28:00">
-                Fri 03 Oct 2014, 21:28
-        </abbr>
-
-<p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>This week I have been spending a little bit of time creating a module for <a class="reference external" href="https://launchpad.net/sysbench">Sysbench</a> so that it can use <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> as a database driver.  The reason for doing this is twofold:</p>
-<ol class="arabic simple">
-<li><a class="reference external" href="http://krow.net/">Brian</a> (my boss at HP's Advanced Technology Group) said now would be a good time to ...</li></ol>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/libattachsql-query-example/" rel="bookmark" title="Permalink to libAttachSQL Query Example">libAttachSQL Query Example</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2014-09-23T23:02:00">
-                Tue 23 Sep 2014, 23:02
-        </abbr>
-
-<p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>I was asked some questions on IRC last night about how the query example in libAttachSQL's code base works.  For those who missed previous posts, <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> is a lightweight, non-blocking, Apache 2.0 licensed C connector for MySQL servers which I am developing for HP's Advanced Technology Group ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Sep/23/libattachsql-query-example/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-</ol><!-- /#posts-list -->
-</section><!-- /#content -->
+</article>
+</section>
 
         <aside id="sidebar">
 <div class="widget" id="conference" role="conference">
