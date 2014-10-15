@@ -71,7 +71,7 @@
 <div class="highlight"><pre>sysbench --test<span class="o">=</span>sysbench/tests/db/select.lua --db-driver<span class="o">=</span>attachsql --attachsql-socket<span class="o">=</span>/tmp/mysql.sock --attachsql-user<span class="o">=</span><span class="nb">test</span> --attachsql-password<span class="o">=</span><span class="nb">test</span> --attachsql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span>8 --max-requests<span class="o">=</span>1000000 run
 </pre></div>
 <p>The results were as follows:</p>
-<img alt="" src="images/select_benchmark.png" />
+<img alt="" src="/images/select_benchmark.png" />
 <p>I am pretty impressed with these results so far, since I have done no optimisation work on the code.  I originally wanted the first GA to have performance on-par with libmysqlclient and it looks like that goal has been met.</p>
 </div>
 <div class="section" id="select-random-points">
@@ -84,7 +84,7 @@
 <div class="highlight"><pre>sysbench --test<span class="o">=</span>sysbench/tests/db/select_random_points.lua --db-driver<span class="o">=</span>attachsql --attachsql-socket<span class="o">=</span>/tmp/mysql.sock --attachsql-user<span class="o">=</span><span class="nb">test</span> --attachsql-password<span class="o">=</span><span class="nb">test</span> --attachsql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span>8 --max-requests<span class="o">=</span>1000000 run
 </pre></div>
 <p>The results were as follows:</p>
-<img alt="" src="images/select_random_points_benchmark.png" />
+<img alt="" src="/images/select_random_points_benchmark.png" />
 <p>Again there isn't a lot in it.  libmysqlclient is edging slightly over libAttachSQL in most of this chart.  I believe it is because in the libAttachSQL driver I told it to convert all results to string outputs.  This will add additional overhead.  Next week I will tweak the driver to make sure that the conversion isn't done.</p>
 </div>
 <div class="section" id="conclusion">

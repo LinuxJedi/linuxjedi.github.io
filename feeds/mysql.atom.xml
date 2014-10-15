@@ -110,7 +110,7 @@
 &lt;div class="highlight"&gt;&lt;pre&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;attachsql --attachsql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --attachsql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The results were as follows:&lt;/p&gt;
-&lt;img alt="" src="images/select_benchmark.png" /&gt;
+&lt;img alt="" src="/images/select_benchmark.png" /&gt;
 &lt;p&gt;I am pretty impressed with these results so far, since I have done no optimisation work on the code.  I originally wanted the first GA to have performance on-par with libmysqlclient and it looks like that goal has been met.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="select-random-points"&gt;
@@ -123,7 +123,7 @@
 &lt;div class="highlight"&gt;&lt;pre&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select_random_points.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;attachsql --attachsql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --attachsql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The results were as follows:&lt;/p&gt;
-&lt;img alt="" src="images/select_random_points_benchmark.png" /&gt;
+&lt;img alt="" src="/images/select_random_points_benchmark.png" /&gt;
 &lt;p&gt;Again there isn't a lot in it.  libmysqlclient is edging slightly over libAttachSQL in most of this chart.  I believe it is because in the libAttachSQL driver I told it to convert all results to string outputs.  This will add additional overhead.  Next week I will tweak the driver to make sure that the conversion isn't done.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="conclusion"&gt;
