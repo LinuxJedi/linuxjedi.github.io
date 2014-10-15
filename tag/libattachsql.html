@@ -31,7 +31,37 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/14/libattachsql-090-rc-connection-groups/">libAttachSQL 0.9.0 RC - Connection Groups</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/15/libattachsql-single-thread-vs-libmysqlclient-multi-thread/">libAttachSQL Single Thread vs. libmysqlclient Multi Thread</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2014-10-15T20:01:00">
+                Wed 15 Oct 2014, 20:01
+        </abbr>
+
+<p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>I have recently <a class="reference external" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">posted up benchmarks</a> of <a class="reference external" href="http://libattachsql.org">libAttachSQL</a> vs. libmysqlclient using sysbench.  Whilst these are great and shows the results I hoped for, this isn't what we designed libAttachSQL for.  It was designed for non-blocking many connections per thread.</p>
+<p>With this in mind I spent today knocking up a quick benchmark tool which replicates the Sysbench &quot;Select&quot; test but using libAttachSQL's connection groups on a single thread.  The code for this can be seen in the new <a class="reference external" href="https://github.com/libattachsql/attachbench">AttachBench</a> GitHub tree.  Of course the secondary reason for this is to try and hammer the connection groups feature, which of course did find a bug when I scaled to around 32 connections.  This has been fixed in libAttachSQL's master ready for the next release and is what I am using for these benchmarks.</p>
+<div class="section" id="the-test">
+<h2>The Test</h2>
+<p>I used the exact same test rig and configuration as the previous Sysbench tests and as before the test was run with 1,000,000 queries.  The AttachBench tool executed was as follows:</p>
+<div class="highlight"><pre>attachbench --db<span class="o">=</span>sbtest --user<span class="o">=</span><span class="nb">test</span> --pass<span class="o">=</span><span class="nb">test</span> --db<span class="o">=</span>testdb --queries<span class="o">=</span>1000000 --connections<span class="o">=</span>32 --host<span class="o">=</span>/tmp/mysql.sock --port<span class="o">=</span>0
+</pre></div>
+<p>I've added the results to the previous select test to the graph for comparison.  The two &quot;Select&quot; result sets are for Sysbench with one connection per thread.  The third is with AttachBench running the same queries, just with many connections in a single thread.</p>
+<img alt="" src="/images/select_single_thread.png" />
+<p>This exceeded my expectations.  Having many connections in a single thread actually outperforms many threads with one connection.  It is early days and there is much more testing and improvement that can be done.  But I'm very encouraged by these results.</p>
+<p>I'll be talking more about libAttachSQL and these results at <a class="reference external" href="http://www.percona.com/live/london-2014/sessions/libattachsql-next-generation-c-connector-mysql">Percona Live London next month</a> so please come along if you are in the area.</p>
+</div>
+
+        </article></aside><!-- /#featured -->
+                <h1>Other articles</h1>
+                <hr />
+                    <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/14/libattachsql-090-rc-connection-groups/" rel="bookmark" title="Permalink to libAttachSQL 0.9.0 RC - Connection Groups">libAttachSQL 0.9.0 RC - Connection Groups</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2014-10-14T17:14:00">
                 Tue 14 Oct 2014, 17:14
@@ -42,73 +72,10 @@
                 <p>It has been just over 4 months since I started working on <a class="reference external" href="http://libattachsql.org">libAttachSQL</a> for HP's Advanced Technology Group.  Today marks the first (and hopefully only) RC release of the library.</p>
 <div class="section" id="connection-groups">
 <h2>Connection Groups</h2>
-<p>The only real new feature that has been added to 0.9.0 is the concept of connection groups which is something I'm pretty excited about.  Internally libAttachSQL uses event loops to supply the non-blocking API.  Connection Groups join a bunch of connections together into a group that uses a single event loop.  This makes things much more efficient internally and makes applications easier to code too.</p>
-<p>Here is a simplified example of how to use it (for a more detailed example see our <a class="reference external" href="http://docs.libattachsql.org/en/latest/api/examples.html#group-conncetions">example in the documentation</a>).</p>
-<p>First we need to create the group and add connections to it:</p>
-<div class="highlight"><pre><span class="n">group</span><span class="o">=</span> <span class="n">attachsql_group_create</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
-<span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="n">attachsql_connect_create</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">3306</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;testdb&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
-<span class="n">attachsql_group_add_connection</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
-<span class="n">attachsql_connect_set_callback</span><span class="p">(</span><span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">callbk</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">con_no</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</pre></div>
-<p>The <tt class="docutils literal">con</tt> array is just an array of connection objects and <tt class="docutils literal">con_no</tt> is just an array of integers so that the callback that I'll show shortly knows which connection number it is (only useful for displaying in this example).  The last three lines there will be repeated multiple times with different array numbers to add connections.</p>
-<p>We now send queries to the connections:</p>
-<div class="highlight"><pre><span class="n">attachsql_query</span><span class="p">(</span><span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">strlen</span><span class="p">(</span><span class="n">query1</span><span class="p">),</span> <span class="n">query1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
-<span class="n">attachsql_query</span><span class="p">(</span><span class="n">con</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">strlen</span><span class="p">(</span><span class="n">query2</span><span class="p">),</span> <span class="n">query2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
-</pre></div>
-<p>And so forth until we have sent a query to all the connections we want.</p>
-<p>Finally we want to run the connection group until complete:</p>
-<div class="highlight"><pre><span class="k">while</span><span class="p">(</span><span class="n">done_count</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="n">attachsql_group_run</span><span class="p">(</span><span class="n">group</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-<p>In this example <tt class="docutils literal">done_count</tt> is simply a global integer which increments as each callback hits EOF.  You could conceivably run various other parts of your application here and then call <tt class="docutils literal">attachsql_group_run()</tt> again when ready.</p>
-<p>I'm going to paste the whole callback here because it should be mostly self-explanatory, it is called when an event occurs and the code reacts to the event:</p>
-<div class="highlight"><pre><span class="kt">void</span> <span class="nf">callbk</span><span class="p">(</span><span class="kt">attachsql_connect_t</span> <span class="o">*</span><span class="n">current_con</span><span class="p">,</span> <span class="kt">attachsql_events_t</span> <span class="n">events</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">context</span><span class="p">,</span> <span class="kt">attachsql_error_t</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">con_no</span><span class="o">=</span> <span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">context</span><span class="p">;</span>
-  <span class="n">attachsql_query_row_st</span> <span class="o">*</span><span class="n">row</span><span class="p">;</span>
-  <span class="kt">uint16_t</span> <span class="n">columns</span><span class="p">,</span> <span class="n">col</span><span class="p">;</span>
-  <span class="k">switch</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
-  <span class="p">{</span>
-    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_CONNECTED</span>:
-      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Connected event on con %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">con_no</span><span class="p">);</span>
-      <span class="k">break</span><span class="p">;</span>
-    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_ERROR</span>:
-      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error exists on con %d: %d&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">con_no</span><span class="p">,</span> <span class="n">attachsql_error_code</span><span class="p">(</span><span class="n">error</span><span class="p">));</span>
-      <span class="n">attachsql_error_free</span><span class="p">(</span><span class="n">error</span><span class="p">);</span>
-      <span class="k">break</span><span class="p">;</span>
-    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_EOF</span>:
-      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Connection %d finished</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">con_no</span><span class="p">);</span>
-      <span class="n">done_count</span><span class="o">++</span><span class="p">;</span>
-      <span class="n">attachsql_query_close</span><span class="p">(</span><span class="n">current_con</span><span class="p">);</span>
-      <span class="k">break</span><span class="p">;</span>
-    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_ROW_READY</span>:
-      <span class="n">row</span><span class="o">=</span> <span class="n">attachsql_query_row_get</span><span class="p">(</span><span class="n">current_con</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
-      <span class="n">columns</span><span class="o">=</span> <span class="n">attachsql_query_column_count</span><span class="p">(</span><span class="n">current_con</span><span class="p">);</span>
-      <span class="k">for</span> <span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">columns</span><span class="p">;</span> <span class="n">col</span><span class="o">++</span><span class="p">)</span>
-      <span class="p">{</span>
-        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Con: %d, Column: %d, Length: %zu, Data: %.*s &quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">con_no</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="n">length</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="n">length</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="n">data</span><span class="p">);</span>
-      <span class="p">}</span>
-      <span class="n">attachsql_query_row_next</span><span class="p">(</span><span class="n">current_con</span><span class="p">);</span>
-      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-      <span class="k">break</span><span class="p">;</span>
-    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_NONE</span>:
-      <span class="k">break</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-<p>The EOF call happens when we reach the end of the result set.  You could easily make this a job server here sending more queries when the previous queries are complete.  ROW_READY should be familiar to anyone who has seen previous examples of libAttachSQL.</p>
-</div>
-<div class="section" id="release-and-packages">
-<h2>Release and Packages</h2>
-<p>libAttachSQL 0.9.0RC is out today, there is a source release as well as packages for RHEL &amp; CentOS 6/7 64bit as well as an Ubuntu PPA 12.04/14.04 32bit and 64bit.  Links to all these can be found on the news section of the <a class="reference external" href="http://libattachsql.org/">libAttachSQL site</a>.</p>
-</div>
-
-        </article></aside><!-- /#featured -->
-                <h1>Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
+<p>The only real new feature that has been added to 0.9.0 is the concept of ...</p></div>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/14/libattachsql-090-rc-connection-groups/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/" rel="bookmark" title="Permalink to libAttachSQL Second Beta, After the Sledgehammer">libAttachSQL Second Beta, After the Sledgehammer</a></h1>
