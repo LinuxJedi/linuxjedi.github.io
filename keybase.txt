@@ -1,0 +1,66 @@
+==================================================================
+https://keybase.io/linuxjedi
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://linuxjedi.co.uk
+  * I am linuxjedi (https://keybase.io/linuxjedi) on keybase.
+  * I have a public key with fingerprint C3E2 8A89 AA03 771D E6BC  F1FA 97C5 5BCB B102 9076
+
+To claim this, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "fingerprint": "c3e28a89aa03771de6bcf1fa97c55bcbb1029076",
+            "host": "keybase.io",
+            "key_id": "97c55bcbb1029076",
+            "uid": "9465e688d38044ab454f8ba833ab1300",
+            "username": "linuxjedi"
+        },
+        "service": {
+            "hostname": "linuxjedi.co.uk",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1413545676,
+    "expire_in": 157680000,
+    "prev": "0cec968e2428a30bbdbcc60f694f531df3feb883fa613fc4929cbbb26c2671a5",
+    "seqno": 4,
+    "tag": "signature"
+}
+
+with the aforementioned key, yielding the PGP signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v1.1.3
+Comment: https://keybase.io/crypto
+
+yMHlAnicbZFbSBRRGMdnvZSZllj0FGiTlaFsMzvX3V6WyjADy7Cki45zzpzR0XVm
+nb2alwpUpItkFj5FhSVpEhgWxvYgoQ+6GQWWJWgUJRkoIelD9zNdXqLzcjjf9/v/
+v8sZSo4lEm0dw0ejfTHng7bo4GKAKHR/f1RLAkOpIV21ZCX6damaXoZMr6npftJF
+QgY5RFl0yjLFCAKtIB5AlVZlpwA5DkAAaMrhpASezCbLDZ+lwDZA9iG7ZuAYfkia
+gqP/4QO/EyzPIV4UFUakWFYGLMeqIpBFhpEBzVCUBfqQqctVCNMeTQ+EK5CikfXZ
+JA4HNYispq3a/yJ2aNgDlVjvNQ2/AQ0PTpb7/V6XpfXXeC04hID0x0YCmq7g2bEg
+iEyfZuiki8Yk9GuWL83SDMdyvMBnkyjs1UwkaRbBCbxI4WOVQUFsSUEEnbyIHCxe
+HEMBoAAIeUrlnazKMbSiMioCosioMk8zKmSdDideC3Dw0MELtMyR1mDVukG6WNym
+XIYtfVqZLvsDJiLrHw4eiyNsicSy+Bjr94jEFSl///TzjwTinnvBnrJ7fPliw6GV
+pW2fyI2Pi78eWRqDxxea2tMyNxMnh3dUt8SVjAEh/vr7i518qHCmp+7Onp3uzMbY
+vaVXt/YbFSOXmqferelqm+5KKsgInevmiY+3Rg+HO1+cCmSdqWrYMNr7umj9/sbO
+LaeLJ9WBSFNyuu3LXH6tJ/Yp5SjaPlF0cP7ElWvcjdwLYalkpuXA2bT5/rmEu7u6
+Pfr0psnQ/RFp1nyV+SbQVdA89XaVfcI2E53tX5c3n7P0HOaszh9vv/zB2fMtIt3u
+zWpNfikN5E5NByvTn4S4zrpidytb4Qsn9aWmRtqrIjejeUNL0thw6doHSc/2dWSA
+bengJ78pF1g=
+=Ukik
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/linuxjedi
+
+==================================================================
+
