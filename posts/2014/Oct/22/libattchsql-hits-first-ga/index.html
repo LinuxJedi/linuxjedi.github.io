@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>libAttchSQL Hits First GA!</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
+        <link href='http://linuxjedi.co.uk/theme/images/favicon.ico' rel='icon' type='image/x-icon'/>
+        <link href="http://linuxjedi.co.uk/" type="application/atom+xml" rel="alternate" title="LinuxJedi's /dev/null ATOM Feed" />
+
+
+        <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://linuxjedi.co.uk/css/ie.css"/>
+                <script src="http://linuxjedi.co.uk/js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://linuxjedi.co.uk/css/ie6.css"/><![endif]-->
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+          <h1><a href="http://linuxjedi.co.uk/index.html"><img src="http://linuxjedi.co.uk/theme/images/LinuxJedi_head.png" alt="LinuxJedi's /dev/null" /><br /><strong>The /dev/null ramblings of a Linux Jedi</strong></a></h1>
+                <nav><ul>
+                    <li ><a href="http://linuxjedi.co.uk/about-linuxjedi.html">About LinuxJedi</a></li>
+                <li><a href="http://linuxjedi.co.uk/">Archives</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+<section id="content" class="body">
+<article>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/22/libattchsql-hits-first-ga/"
+        rel="bookmark" title="Permalink to libAttchSQL Hits First GA!">libAttchSQL Hits First GA!</a></h1>  </header>
+        <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-10-22T11:35:00">
+                Wed 22 Oct 2014, 11:35
+        </abbr>
+
+<p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>We have come a long way since the first code was put down for <a class="reference external" href="http://libattachsql.org">libAttachSQL</a> on the 4th July.  It has been a fantastic project to work on so I am very pleased to announce our first GA release.</p>
+<p>For those who haven't seen it so far libAttachSQL is a non-blocking, lightweight C API for MySQL servers.  It is Apache 2.0 licensed so is compatible with most Open Source and commercial licensing.  HP's Advanced Technology Group saw a need in this field not just for HP itself but for other companies and projects too.</p>
+<p>As for the GA release itself, there are not many changes over the RC release beyond stability fixes.  A full list can be seen in the <a class="reference external" href="http://docs.libattachsql.org/en/latest/appendix/version_history.html#version-1-0">version history documentation</a>.</p>
+<p>In addition to the GA release we have recently had a driver for <a class="reference external" href="https://launchpad.net/sysbench">Sysbench</a> merged into their trunk so libAttachSQL can be used for benchmarking MySQL servers.  We have also started work on a tool called <a class="reference external" href="https://github.com/libattachsql/attachbench">AttachBench</a> which when complete will run similar MySQL tests as Sysbench but will allow for multiple connections per thread (something libAttachSQL excels at).  At the moment AttachBench requires the tables from Sysbench's &quot;Select&quot; test already setup and I don't recommend tinkering with it yet unless you don't mind getting a bit dirty.</p>
+<p>With the release of libAttachSQL 1.0.0 we have also launched a new website on <a class="reference external" href="http://libattachsql.org">libattachsql.org</a>.  It is a basic Pelican based site (very much like this blog) but will make it much easier for anyone to add content, just like this blog all the source is in <a class="reference external" href="https://github.com/libattachsql/libattachsql.org">RST files on GitHub</a>.</p>
+<p>Download links for libAttachSQL 1.0.0 can be found on the <a class="reference external" href="http://libattachsql.org/posts/2014/Oct/21/version-100-ga-released/">News section</a> of the project website.  There is a source package as well as packages for RHEL/CentOS 6.x and 7.x.  Packages for Ubuntu 12.04 and 14.04 are waiting to be built in the PPA at time of posting.  We hope to have releases for more operating systems in the near future.</p>
+<p>Rest assured we are not stopping here.  I already have ideas of what I want to see in 1.1 and we have some spin-off projects planned.  If you would like to learn more please come along to my talk on libAttachSQL at <a class="reference external" href="http://www.percona.com/live/london-2014/sessions/libattachsql-next-generation-c-connector-mysql">Percona Live London</a>.  I'm also talking to several people outside of HP to see what they would like in libAttachSQL and am happy to talk to anyone else who wants to know more and has feedback.</p>
+<p>Many thanks to everyone who has helped us get this far.</p>
+
+        </div><!-- /.entry-content -->
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "posts/2014/Oct/22/libattchsql-hits-first-ga/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://linuxjedi.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
+
+</article>
+</section>
+
+        <aside id="sidebar">
+<div class="widget" id="conference" role="conference">
+<h2>Percona Live London</h2>
+<a href="http://www.percona.com/live/london-2014/"><img width="123" height="123" title="Percona Live London, November 3-4, 2014" alt="Percona Live London, November 3-4, 2014" src="http://s0.percona.com/percona-live/pluk14/123x123_UKSpeaking_14.png" /></a>
+</div><div class="widget" id="book" role="book">
+<h2>MySQL 5.1 Plugins Development</h2>
+<a href="https://www.packtpub.com/mysql-5-1-plugins-development/book"><img border="0" style="float:left" src="http://linuxjedi.co.uk/theme/images/0608OS_MockupCover_sm.png" />
+MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now available from Packt Publishing.</a>
+<br style="clear:left;" />
+</div><div class='widget' id='twitter_feed'>
+<h2>Twitter Feed</h2>
+<a class="twitter-timeline" width="280" height="300" href="https://twitter.com/LinuxJedi" data-widget-id="269020197594210304">Tweets by @LinuxJedi</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</div>                <div class="widget">
+                        <h2>Categories</h2>
+                        <ul>
+                           <li ><a href="http://linuxjedi.co.uk/category/general.html">General</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a></li>
+                        </ul>
+                </div>
+        </aside><!-- /#sidebar -->
+
+        <footer id="footer" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+                </address><!-- /#about -->
+                <p>The LinuxJedi logo and the content of this blog is licensed under a <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_GB">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</p>
+                <p>The theme is «notmyidea-lxj», a modified version of «notmyidea-cms», the default theme.</p>
+        </footer><!-- /#footer -->
+
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-55086889-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+</body>
+</html>
