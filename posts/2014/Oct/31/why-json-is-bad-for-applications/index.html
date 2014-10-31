@@ -50,8 +50,12 @@
 <h2>The solution</h2>
 <p>For many applications the data you are sending is directly from a database or at least data that has been modified since being read from a database.  So you will likely want the data model for your messages to match this as much as possible.  This is where <a class="reference external" href="https://developers.google.com/protocol-buffers/">Google's Protocol Buffers</a> fit nicely.</p>
 <p>Protocol Buffers allow you to specify a schema for the data in a human readable format, it actually looks a little like a database schema.  They will automatically validate the data for you and have versioning built-in.  This means you can make your code easily backwards and forwards compatible.</p>
-<p>There is a positive and negative side to the data transfer of Protocol Buffers.  It is a binary protocol.  This means it takes up minimal bandwidth on the wire but also means that it is very hard to interpret the data without the schema.  The same could be said if you were given InnoDB table data without the schemas.  It also means it may be possible to compress the data further with something like LZO or DEFLATE.</p>
+<p>There is a positive and negative side to the data transfer of Protocol Buffers.  It is a binary protocol.  This means it takes up minimal bandwidth on the wire but also means that it is not human readable and difficult to figure out which data is for which field (although should not be used for security through obscurity).  The same could be said if you were given InnoDB table data without the schemas.  It also means it may be possible to compress the data further with something like LZO or DEFLATE.</p>
 <p>I recommend application developers consider Protocol Buffers instead of JSON when they are next developing a server/client application.</p>
+<div class="note">
+<p class="first admonition-title">Note</p>
+<p class="last">I updated this article to explain the binary protocol a little better.  Thanks to Antony Curtis for pointing it out.</p>
+</div>
 </div>
 
         </div><!-- /.entry-content -->
