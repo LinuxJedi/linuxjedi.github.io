@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null - General</title>
+        <title>Why JSON is bad for applications</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link href='http://linuxjedi.co.uk/theme/images/favicon.ico' rel='icon' type='image/x-icon'/>
@@ -29,9 +29,11 @@
                 </ul></nav>
         </header><!-- /#banner -->
 
-     <section id="content" class="body">
-        <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/31/why-json-is-bad-for-applications/">Why JSON is bad for applications</a></h1>
+<section id="content" class="body">
+<article>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/31/why-json-is-bad-for-applications/"
+        rel="bookmark" title="Permalink to Why JSON is bad for applications">Why JSON is bad for applications</a></h1>  </header>
+        <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2014-10-31T15:22:00">
                 Fri 31 Oct 2014, 15:22
@@ -39,7 +41,7 @@
 
 <p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
 <p>tags: <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Today I read an article about how company X has improved things by amongst other things ditching JSON after 2 years of using it.  Before I start on this subject I should say that JSON does have its place.  If you have a web application where a browser is talking to a web server and in particular uses JavaScript then JSON is a good fit.</p>
+        <p>Today I read an article about how company X has improved things by amongst other things ditching JSON after 2 years of using it.  Before I start on this subject I should say that JSON does have its place.  If you have a web application where a browser is talking to a web server and in particular uses JavaScript then JSON is a good fit.</p>
 <p>I've discussed this issue several times before with <a class="reference external" href="http://krow.net/">Brian Aker</a> who works with me at HP's Advanced Technology Group and in the past I have been hit with the issues I'm going to talk about here.</p>
 <p>JSON is human readable and easy to parse, that cannot be denied and for prototyping is good in a pinch.  The first problem comes when you need to validate data.  I've been stung many times by one end trying to read/write the JSON in a slightly different format to the other end, the end result is always not pretty.  This is one advantage that XML and SOAP has going for it over JSON since validation is easier.  I'm personally not a fan of XML but there are many who are.</p>
 <p>There are additional problems when you start using mobile platforms.  Mobile networks are unreliable, you may have a good 3G signal but it is possible to only get dial-up speed through it due to all the other users.  JSON is verbose, XML more so which requires more data transfer.  Whilst this can be resolved with protocol compression it will require additional decoding on the client side to do this.  In addition data conversion will be needed in many cases for numeric fields.</p>
@@ -52,48 +54,22 @@
 <p>I recommend application developers consider Protocol Buffers instead of JSON when they are next developing a server/client application.</p>
 </div>
 
-        </article></aside><!-- /#featured -->
-                <h1>Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/04/blogging-platforms/" rel="bookmark" title="Permalink to Blogging Platforms">Blogging Platforms</a></h1>
-                </header>
+        </div><!-- /.entry-content -->
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "posts/2014/Oct/31/why-json-is-bad-for-applications/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://linuxjedi.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
 
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2014-10-04T22:16:00">
-                Sat 04 Oct 2014, 22:16
-        </abbr>
-
-<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/blog.html">Blog</a><a href="http://linuxjedi.co.uk/tag/linuxjedi.html">LinuxJedi</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>A couple of weeks ago I ditched Blogger as my main blogging platform.  The main reason for this was the editing tools were breaking posts containing code.  Whilst it is a great platform for basic blogging, it is not suitable for developers blogs.</p>
-<p>So, I was on the hunt for ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/04/blogging-platforms/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/new-blog/" rel="bookmark" title="Permalink to New Blog!">New Blog!</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2014-09-23T16:45:00">
-                Tue 23 Sep 2014, 16:45
-        </abbr>
-
-<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/linuxjedi.html">LinuxJedi</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Blogger is a great blogging platform.  Unfortunately it is really difficut to create content that has marked-up code in it.  Which as a developer is a requirement.  Therefore LinuxJedi's /dev/null has now moved to this GitHub pages site using <a class="reference external" href="http://tinkerer.me/">Tinkerer</a> to build it.</p>
-<p>The old site and content ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Sep/23/new-blog/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-</ol><!-- /#posts-list -->
-</section><!-- /#content -->
+</article>
+</section>
 
         <aside id="sidebar">
 <div class="widget" id="conference" role="conference">
