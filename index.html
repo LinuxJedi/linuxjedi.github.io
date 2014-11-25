@@ -31,30 +31,19 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/31/why-json-is-bad-for-applications/">Why JSON is bad for applications</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Nov/25/autotools-and-mac-universal-binaries/">Autotools and Mac Universal binaries</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2014-10-31T15:22:00">
-                Fri 31 Oct 2014, 15:22
+        <abbr class="published" title="2014-11-25T16:38:00+00:00">
+                Tue 25 Nov 2014, 16:38
         </abbr>
 
 <p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Today I read an article about how company X has improved things by amongst other things ditching JSON after 2 years of using it.  Before I start on this subject I should say that JSON does have its place.  If you have a web application where a browser is talking to a web server and in particular uses JavaScript then JSON is a good fit.</p>
-<p>I've discussed this issue several times before with <a class="reference external" href="http://krow.net/">Brian Aker</a> who works with me at HP's Advanced Technology Group and in the past I have been hit with the issues I'm going to talk about here.</p>
-<p>JSON is human readable and easy to parse, that cannot be denied and for prototyping is good in a pinch.  The first problem comes when you need to validate data.  I've been stung many times by one end trying to read/write the JSON in a slightly different format to the other end, the end result is always not pretty.  This is one advantage that XML and SOAP has going for it over JSON since validation is easier.  I'm personally not a fan of XML but there are many who are.</p>
-<p>There are additional problems when you start using mobile platforms.  Mobile networks are unreliable, you may have a good 3G signal but it is possible to only get dial-up speed through it due to all the other users.  JSON is verbose, XML more so which requires more data transfer.  Whilst this can be resolved with protocol compression it will require additional decoding on the client side to do this.  In addition data conversion will be needed in many cases for numeric fields.</p>
-<p>The biggest problem with JSON is versioning.  As you add more features to your application there will likely come a time where you need to change the data structure for your messages.  Often you can't guarantee that your client is using the same version of the software as your server so backwards and forwards compatibility problems can arise.  Resolving these often makes the JSON messages very complex to create and decode.  This is not as much of a problem for web applications because the browser usually grabs an update version of the JavaScript on execution.  So changing the data format at any time is easy as long as both ends agree on the format.</p>
-<div class="section" id="the-solution">
-<h2>The solution</h2>
-<p>For many applications the data you are sending is directly from a database or at least data that has been modified since being read from a database.  So you will likely want the data model for your messages to match this as much as possible.  This is where <a class="reference external" href="https://developers.google.com/protocol-buffers/">Google's Protocol Buffers</a> fit nicely.</p>
-<p>Protocol Buffers allow you to specify a schema for the data in a human readable format, it actually looks a little like a database schema.  They will automatically validate the data for you and have versioning built-in.  This means you can make your code easily backwards and forwards compatible.</p>
-<p>There is a positive and negative side to the data transfer of Protocol Buffers.  It is a binary protocol.  This means it takes up minimal bandwidth on the wire but also means that it is not human readable and difficult to figure out which data is for which field (although should not be used for security through obscurity).  The same could be said if you were given InnoDB table data without the schemas.  It also means it may be possible to compress the data further with something like LZO or DEFLATE.</p>
-<p>I recommend application developers consider Protocol Buffers instead of JSON when they are next developing a server/client application.</p>
-<div class="note">
-<p class="first admonition-title">Note</p>
-<p class="last">I updated this article to explain the binary protocol a little better.  Thanks to Antony Curtis for pointing it out.</p>
-</div>
-</div>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/autotools.html">Autotools</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Recently I have been working on a Python based wrapper for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> and found that when testing on a Mac I was having trouble compiling the wrapper.  It turns out that Python included in Mac operating systems uses a universal binary (also called fat binary) format and since libAttachSQL is not compiled that way it would not link correctly.</p>
+<p>For those who have never come across this, Universal binaries were originally intended to contain executables for multiple platforms (such as PPC and i386) to ease hardware transition.  The OS will only load the compatible part into memory and use that.  Python as well as several other current Mac binaries are compiled to have i386 and x86_64 binaries in one package.</p>
+<p>Compiling a Universal binary is actually relatively easy but I didn't want to put the hard work on the use who is compiling the library and I wanted something I could use in other projects in the future.  So I have created an m4 script which can be used with Autotools to build Universal binaries.  This can be found in my <a class="reference external" href="https://github.com/LinuxJedi/m4scripts">m4 scripts GitHub repository</a>.</p>
+<p>The script in question is called <tt class="docutils literal">ax_mac_universal.m4</tt> and when the <tt class="docutils literal">AX_UNIVERSAL_BINARY</tt> macro is used it will automatically detect if the environment supports universal binaries and add the necessary compiler flags to build them.  It also adds <tt class="docutils literal"><span class="pre">--enable-universal-binary</span></tt> to configure so that you can force this feature on/off at will.</p>
+<p>This script will be included as part of the upcoming libAttachSQL 1.0.2 release.</p>
 
         </article></aside><!-- /#featured -->
                 <h1>Other articles</h1>
@@ -62,12 +51,29 @@
                     <ol id="posts-list" class="hfeed">
         <li><article class="hentry">
                 <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/31/why-json-is-bad-for-applications/" rel="bookmark" title="Permalink to Why JSON is bad for applications">Why JSON is bad for applications</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2014-10-31T15:22:00+00:00">
+                Fri 31 Oct 2014, 15:22
+        </abbr>
+
+<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Today I read an article about how company X has improved things by amongst other things ditching JSON after 2 years of using it.  Before I start on this subject I should say that JSON does have its place.  If you have a web application where a browser is talking ...</p>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/31/why-json-is-bad-for-applications/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
+        <li><article class="hentry">
+                <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/22/libattchsql-hits-first-ga/" rel="bookmark" title="Permalink to libAttchSQL Hits First GA!">libAttchSQL Hits First GA!</a></h1>
                 </header>
 
                 <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-10-22T11:35:00">
+        <abbr class="published" title="2014-10-22T11:35:00+01:00">
                 Wed 22 Oct 2014, 11:35
         </abbr>
 
@@ -85,7 +91,7 @@
 
                 <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-10-15T20:01:00">
+        <abbr class="published" title="2014-10-15T20:01:00+01:00">
                 Wed 15 Oct 2014, 20:01
         </abbr>
 
@@ -103,7 +109,7 @@
 
                 <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-10-14T17:14:00">
+        <abbr class="published" title="2014-10-14T17:14:00+01:00">
                 Tue 14 Oct 2014, 17:14
         </abbr>
 
@@ -123,7 +129,7 @@
 
                 <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-10-08T20:52:00">
+        <abbr class="published" title="2014-10-08T20:52:00+01:00">
                 Wed 08 Oct 2014, 20:52
         </abbr>
 
@@ -141,7 +147,7 @@
 
                 <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-10-04T22:16:00">
+        <abbr class="published" title="2014-10-04T22:16:00+01:00">
                 Sat 04 Oct 2014, 22:16
         </abbr>
 
@@ -159,7 +165,7 @@
 
                 <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-10-03T21:28:00">
+        <abbr class="published" title="2014-10-03T21:28:00+01:00">
                 Fri 03 Oct 2014, 21:28
         </abbr>
 
@@ -178,7 +184,7 @@
 
                 <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-09-23T23:02:00">
+        <abbr class="published" title="2014-09-23T23:02:00+01:00">
                 Tue 23 Sep 2014, 23:02
         </abbr>
 
@@ -195,7 +201,7 @@
 
                 <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-09-23T16:45:00">
+        <abbr class="published" title="2014-09-23T16:45:00+01:00">
                 Tue 23 Sep 2014, 16:45
         </abbr>
 

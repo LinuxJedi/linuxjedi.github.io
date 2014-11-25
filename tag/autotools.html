@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null</title>
+        <title>LinuxJedi's /dev/null - Autotools</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link href='http://linuxjedi.co.uk/theme/images/favicon.ico' rel='icon' type='image/x-icon'/>
@@ -29,32 +29,25 @@
                 </ul></nav>
         </header><!-- /#banner -->
 
-<section id="content" class="body">
-<h1>Archives for LinuxJedi's /dev/null</h1>
+     <section id="content" class="body">
+        <aside id="featured"><article>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Nov/25/autotools-and-mac-universal-binaries/">Autotools and Mac Universal binaries</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2014-11-25T16:38:00+00:00">
+                Tue 25 Nov 2014, 16:38
+        </abbr>
 
-<dl>
-    <dt>Tue 25 Nov 2014, 16:38</dt>
-    <dd><a href='posts/2014/Nov/25/autotools-and-mac-universal-binaries/'>Autotools and Mac Universal binaries</a></dd>
-    <dt>Fri 31 Oct 2014, 15:22</dt>
-    <dd><a href='posts/2014/Oct/31/why-json-is-bad-for-applications/'>Why JSON is bad for applications</a></dd>
-    <dt>Wed 22 Oct 2014, 11:35</dt>
-    <dd><a href='posts/2014/Oct/22/libattchsql-hits-first-ga/'>libAttchSQL Hits First GA!</a></dd>
-    <dt>Wed 15 Oct 2014, 20:01</dt>
-    <dd><a href='posts/2014/Oct/15/libattachsql-single-thread-vs-libmysqlclient-multi-thread/'>libAttachSQL Single Thread vs. libmysqlclient Multi Thread</a></dd>
-    <dt>Tue 14 Oct 2014, 17:14</dt>
-    <dd><a href='posts/2014/Oct/14/libattachsql-090-rc-connection-groups/'>libAttachSQL 0.9.0 RC - Connection Groups</a></dd>
-    <dt>Wed 08 Oct 2014, 20:52</dt>
-    <dd><a href='posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/'>libAttachSQL Second Beta, After the Sledgehammer</a></dd>
-    <dt>Sat 04 Oct 2014, 22:16</dt>
-    <dd><a href='posts/2014/Oct/04/blogging-platforms/'>Blogging Platforms</a></dd>
-    <dt>Fri 03 Oct 2014, 21:28</dt>
-    <dd><a href='posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/'>libAttachSQL Benchmarks With Sysbench</a></dd>
-    <dt>Tue 23 Sep 2014, 23:02</dt>
-    <dd><a href='posts/2014/Sep/23/libattachsql-query-example/'>libAttachSQL Query Example</a></dd>
-    <dt>Tue 23 Sep 2014, 16:45</dt>
-    <dd><a href='posts/2014/Sep/23/new-blog/'>New Blog!</a></dd>
-</dl>
-</section>
+<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/autotools.html">Autotools</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Recently I have been working on a Python based wrapper for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> and found that when testing on a Mac I was having trouble compiling the wrapper.  It turns out that Python included in Mac operating systems uses a universal binary (also called fat binary) format and since libAttachSQL is not compiled that way it would not link correctly.</p>
+<p>For those who have never come across this, Universal binaries were originally intended to contain executables for multiple platforms (such as PPC and i386) to ease hardware transition.  The OS will only load the compatible part into memory and use that.  Python as well as several other current Mac binaries are compiled to have i386 and x86_64 binaries in one package.</p>
+<p>Compiling a Universal binary is actually relatively easy but I didn't want to put the hard work on the use who is compiling the library and I wanted something I could use in other projects in the future.  So I have created an m4 script which can be used with Autotools to build Universal binaries.  This can be found in my <a class="reference external" href="https://github.com/LinuxJedi/m4scripts">m4 scripts GitHub repository</a>.</p>
+<p>The script in question is called <tt class="docutils literal">ax_mac_universal.m4</tt> and when the <tt class="docutils literal">AX_UNIVERSAL_BINARY</tt> macro is used it will automatically detect if the environment supports universal binaries and add the necessary compiler flags to build them.  It also adds <tt class="docutils literal"><span class="pre">--enable-universal-binary</span></tt> to configure so that you can force this feature on/off at will.</p>
+<p>This script will be included as part of the upcoming libAttachSQL 1.0.2 release.</p>
+
+        </article></aside><!-- /#featured -->
+</ol><!-- /#posts-list -->
+</section><!-- /#content -->
 
         <aside id="sidebar">
 <div class="widget" id="conference" role="conference">

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>libAttachSQL Second Beta, After the Sledgehammer</title>
+        <title>Autotools and Mac Universal binaries</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link href='http://linuxjedi.co.uk/theme/images/favicon.ico' rel='icon' type='image/x-icon'/>
@@ -31,39 +31,28 @@
 
 <section id="content" class="body">
 <article>
-      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/"
-        rel="bookmark" title="Permalink to libAttachSQL Second Beta, After the Sledgehammer">libAttachSQL Second Beta, After the Sledgehammer</a></h1>  </header>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Nov/25/autotools-and-mac-universal-binaries/"
+        rel="bookmark" title="Permalink to Autotools and Mac Universal binaries">Autotools and Mac Universal binaries</a></h1>  </header>
         <div class="entry-content">
 <footer class="post-info">
-        <abbr class="published" title="2014-10-08T20:52:00+01:00">
-                Wed 08 Oct 2014, 20:52
+        <abbr class="published" title="2014-11-25T16:38:00+00:00">
+                Tue 25 Nov 2014, 16:38
         </abbr>
 
-<p>In <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a>. </p>
-<p>tags: <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
-        <p>Last week I <a class="reference external" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">blogged about getting sysbench working with libAttachSQL</a>.  This was not only an exercise in performance but also the first real test for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a>.</p>
-<p>Before I had done this testing the most the early Alpha and Beta releases of libAttachSQL had gone through is a few basic queries.  So, the first thing I did when I got the sysbench driver working was slap it with 1,000,000 queries.  It pretty much exploded instantly on that.  Over the course of this release I have probably hit it with over 100,000,000 queries and things run a lot smoother.</p>
-<p>This has led to today's release of libAttachSQL 0.5.0.  As far as changes go this release has the <a class="reference external" href="http://docs.libattachsql.org/en/latest/appendix/version_history.html#version-0-5">biggest changelog so far</a>.  Here is a summary of the major points:</p>
-<ul class="simple">
-<li>11 major bugs fixes, most of them crashing bugs</li>
-<li>Lots more documentation and examples</li>
-<li>More tests</li>
-<li>A couple of minor features</li>
-<li>A new semi-blocking mode</li>
-<li>A more consistent API for error handling</li>
-</ul>
-<p>These last two points I should talk about a bit more.  The semi-blocking mode lets the networking code block until data is received (but not until it is all received).  For applications which access using one connection per thread this will increase performance, but will decrease performance for many connections per thread (which is what libAttachSQL was originally designed for).</p>
-<p>The error handling has moved from a user accessible struct to a type which is used in function calls.  In addition the way this is returned to the user application has been made consistent across the whole API.  This means that the API is not backwards compatible with 0.4.0.</p>
-<p>For those wishing to try out the connector the 0.5.0 beta source release <a class="reference external" href="https://github.com/libattachsql/libattachsql/releases/tag/v0.5.0">can be found on GitHub</a>.  The documentation is on <a class="reference external" href="http://docs.libattachsql.org/en/latest/">Read The Docs</a>.</p>
-<p>This will be the last beta for libAttachSQL.  The next release will be 0.9.0 RC which will hopefully be a short cycle to our first GA release.  We have many more goodies planned after GA.  Watch this space!</p>
-<p>As always if you have any questions please get in touch either via. the comments below, the <a class="reference external" href="irc://chat.freenode.net/libAttachSQL">#libAttachSQL Freenode channel</a> or any other means.</p>
+<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a><a href="http://linuxjedi.co.uk/tag/autotools.html">Autotools</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>Recently I have been working on a Python based wrapper for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> and found that when testing on a Mac I was having trouble compiling the wrapper.  It turns out that Python included in Mac operating systems uses a universal binary (also called fat binary) format and since libAttachSQL is not compiled that way it would not link correctly.</p>
+<p>For those who have never come across this, Universal binaries were originally intended to contain executables for multiple platforms (such as PPC and i386) to ease hardware transition.  The OS will only load the compatible part into memory and use that.  Python as well as several other current Mac binaries are compiled to have i386 and x86_64 binaries in one package.</p>
+<p>Compiling a Universal binary is actually relatively easy but I didn't want to put the hard work on the use who is compiling the library and I wanted something I could use in other projects in the future.  So I have created an m4 script which can be used with Autotools to build Universal binaries.  This can be found in my <a class="reference external" href="https://github.com/LinuxJedi/m4scripts">m4 scripts GitHub repository</a>.</p>
+<p>The script in question is called <tt class="docutils literal">ax_mac_universal.m4</tt> and when the <tt class="docutils literal">AX_UNIVERSAL_BINARY</tt> macro is used it will automatically detect if the environment supports universal binaries and add the necessary compiler flags to build them.  It also adds <tt class="docutils literal"><span class="pre">--enable-universal-binary</span></tt> to configure so that you can force this feature on/off at will.</p>
+<p>This script will be included as part of the upcoming libAttachSQL 1.0.2 release.</p>
 
         </div><!-- /.entry-content -->
         <div class="comments">
         <h2>Comments !</h2>
             <div id="disqus_thread"></div>
             <script type="text/javascript">
-               var disqus_identifier = "posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/";
+               var disqus_identifier = "posts/2014/Nov/25/autotools-and-mac-universal-binaries/";
                (function() {
                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                dsq.src = 'http://linuxjedi.disqus.com/embed.js';
@@ -91,8 +80,8 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
 </div>                <div class="widget">
                         <h2>Categories</h2>
                         <ul>
-                           <li ><a href="http://linuxjedi.co.uk/category/general.html">General</a></li>
-                           <li class="active"><a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/general.html">General</a></li>
+                           <li ><a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a></li>
                         </ul>
                 </div>
         </aside><!-- /#sidebar -->
