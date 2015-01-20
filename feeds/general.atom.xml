@@ -17,7 +17,7 @@
 &lt;/div&gt;
 &lt;div class="section" id="my-big-dumb-mistake"&gt;
 &lt;h2&gt;My Big Dumb Mistake&lt;/h2&gt;
-&lt;img alt="" src="images/droids.jpg" /&gt;
+&lt;img alt="" src="/images/droids.jpg" /&gt;
 &lt;p&gt;Whilst debugging this I found the problem was in &lt;tt class="docutils literal"&gt;cbargs&lt;/tt&gt;, for some reason the pointers to &lt;tt class="docutils literal"&gt;pycon&lt;/tt&gt; and alike were slightly different to when they were set.  After some time going over it again and again in GDB and watching the pointers get incremented it suddenly hit me.  The incrementation was happening during reference increment functions inside &lt;tt class="docutils literal"&gt;Py_BuildValue&lt;/tt&gt;.  Which makes sense because the one first items in a &lt;tt class="docutils literal"&gt;PyObject&lt;/tt&gt; structure is the reference count.  I was supposed to pass pointers, not pointers to pointers.  The &lt;tt class="docutils literal"&gt;Py_BuildValue&lt;/tt&gt; function has no type checking so was taking whatever you passed to it as a pointer to a structure.&lt;/p&gt;
 &lt;p&gt;So the question many of you would be asking is: why did you pass pointers to pointers?  That is easy to answer...  Earlier in the code I have been using the &lt;a class="reference external" href="https://docs.python.org/2/c-api/arg.html#c.PyArg_ParseTuple"&gt;PyArg_ParseTuple&lt;/a&gt; and similar functions which are on the same documentation page, using a similar API and I assumed the API was consistent with no examples to show me otherwise.  The fix was to simply remove the &lt;tt class="docutils literal"&gt;&amp;amp;&lt;/tt&gt; symbols from the above code.&lt;/p&gt;
 &lt;/div&gt;
