@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>LinuxJedi's /dev/null - Documentation</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
+        <link href='http://linuxjedi.co.uk/theme/images/favicon.ico' rel='icon' type='image/x-icon'/>
+        <link href="http://linuxjedi.co.uk/" type="application/atom+xml" rel="alternate" title="LinuxJedi's /dev/null ATOM Feed" />
+
+
+        <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://linuxjedi.co.uk/css/ie.css"/>
+                <script src="http://linuxjedi.co.uk/js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="http://linuxjedi.co.uk/css/ie6.css"/><![endif]-->
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+          <h1><a href="http://linuxjedi.co.uk/index.html"><img src="http://linuxjedi.co.uk/theme/images/LinuxJedi_head.png" alt="LinuxJedi's /dev/null" /><br /><strong>The /dev/null ramblings of a Linux Jedi</strong></a></h1>
+                <nav><ul>
+                    <li ><a href="http://linuxjedi.co.uk/about-linuxjedi.html">About LinuxJedi</a></li>
+                <li><a href="http://linuxjedi.co.uk/">Archives</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+     <section id="content" class="body">
+        <aside id="featured"><article>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/20/the-pointer-corruption-bug/">The Pointer Corruption Bug</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2015-01-20T09:16:00+00:00">
+                Tue 20 Jan 2015, 09:16
+        </abbr>
+
+<p>In <a href="http://linuxjedi.co.uk/category/general.html">General</a>. </p>
+<p>tags: <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a><a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a><a href="http://linuxjedi.co.uk/tag/c.html">C</a><a href="http://linuxjedi.co.uk/tag/python.html">Python</a><a href="http://linuxjedi.co.uk/tag/api.html">API</a><a href="http://linuxjedi.co.uk/tag/documentation.html">Documentation</a><a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a></p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Or an alternative name for this post...</p>
+<div class="section" id="why-api-docs-should-have-examples">
+<h2>Why API Docs Should Have Examples</h2>
+<p>As part of my continuation of libAttachSQL for HP's Advanced Technology Group I have recently been focusing on a Python based wrapper called pyAttachSQL.  This is currently at an alpha level of release with no package builds yet.</p>
+<p>Today I want to talk about one (silly on my part) very frustrating bug I found whilst working on pyAttachSQL and why this means API docs should have examples for every call.</p>
+</div>
+<div class="section" id="the-crash">
+<h2>The Crash</h2>
+<p>Whilst writing the group connection functions I was using a <a class="reference external" href="https://docs.python.org/2/c-api/arg.html#c.Py_BuildValue">Py_BuildValue</a> call to generate parameters to use in a callback <a class="reference external" href="https://docs.python.org/2/c-api/object.html#c.PyObject_CallObject">PyObject_CallObject</a>.  So the code looked a little like this:</p>
+<div class="highlight"><pre><span class="n">cbargs</span><span class="o">=</span> <span class="n">Py_BuildValue</span><span class="p">(</span><span class="s">&quot;iOOO&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">events</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pycon</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pycon</span><span class="o">-&gt;</span><span class="n">query</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">cb_args</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="n">PyObject_CallObject</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">cb_func</span><span class="p">,</span> <span class="n">cbargs</span><span class="p">);</span>
+<span class="n">Py_DECREF</span><span class="p">(</span><span class="n">cbargs</span><span class="p">);</span>
+</pre></div>
+<p>Those who are Python API veterans will be able to see straight away where I went wrong but I am quite new to the API.  The code was segfaulting on <tt class="docutils literal">PyObject_CallObject</tt>.</p>
+</div>
+<div class="section" id="my-big-dumb-mistake">
+<h2>My Big Dumb Mistake</h2>
+<img alt="" src="images/droids.jpg" />
+<p>Whilst debugging this I found the problem was in <tt class="docutils literal">cbargs</tt>, for some reason the pointers to <tt class="docutils literal">pycon</tt> and alike were slightly different to when they were set.  After some time going over it again and again in GDB and watching the pointers get incremented it suddenly hit me.  The incrementation was happening during reference increment functions inside <tt class="docutils literal">Py_BuildValue</tt>.  Which makes sense because the one first items in a <tt class="docutils literal">PyObject</tt> structure is the reference count.  I was supposed to pass pointers, not pointers to pointers.  The <tt class="docutils literal">Py_BuildValue</tt> function has no type checking so was taking whatever you passed to it as a pointer to a structure.</p>
+<p>So the question many of you would be asking is: why did you pass pointers to pointers?  That is easy to answer...  Earlier in the code I have been using the <a class="reference external" href="https://docs.python.org/2/c-api/arg.html#c.PyArg_ParseTuple">PyArg_ParseTuple</a> and similar functions which are on the same documentation page, using a similar API and I assumed the API was consistent with no examples to show me otherwise.  The fix was to simply remove the <tt class="docutils literal">&amp;</tt> symbols from the above code.</p>
+</div>
+<div class="section" id="lessons-learnt">
+<h2>Lessons Learnt</h2>
+<p>I guess there is two lessons I have learnt from this:</p>
+<ol class="arabic simple">
+<li>Don't assume that an API is consistent</li>
+<li>Add examples for every API call in the documentation</li>
+</ol>
+<p>I'll shortly be opening a ticket for libAttachSQL and pyAttachSQL to implement the second item.</p>
+</div>
+
+        </article></aside><!-- /#featured -->
+</ol><!-- /#posts-list -->
+</section><!-- /#content -->
+
+        <aside id="sidebar">
+<div class="widget" id="book" role="book">
+<h2>MySQL 5.1 Plugins Development</h2>
+<a href="https://www.packtpub.com/mysql-5-1-plugins-development/book"><img border="0" style="float:left" src="http://linuxjedi.co.uk/theme/images/0608OS_MockupCover_sm.png" />
+MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now available from Packt Publishing.</a>
+<br style="clear:left;" />
+</div><div class='widget' id='twitter_feed'>
+<h2>Twitter Feed</h2>
+<a class="twitter-timeline" width="280" height="300" href="https://twitter.com/LinuxJedi" data-widget-id="269020197594210304">Tweets by @LinuxJedi</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</div>                <div class="widget">
+                        <h2>Categories</h2>
+                        <ul>
+                           <li ><a href="http://linuxjedi.co.uk/category/general.html">General</a></li>
+                           <li ><a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a></li>
+                        </ul>
+                </div>
+        </aside><!-- /#sidebar -->
+
+        <footer id="footer" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>, which takes great advantages of <a href="http://python.org">python</a>.
+                </address><!-- /#about -->
+                <p>The LinuxJedi logo and the content of this blog is licensed under a <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.en_GB">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</p>
+                <p>The theme is «notmyidea-lxj», a modified version of «notmyidea-cms», the default theme.</p>
+        </footer><!-- /#footer -->
+
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    try {
+        var pageTracker = _gat._getTracker("UA-55086889-1");
+    pageTracker._trackPageview();
+    } catch(err) {}</script>
+</body>
+</html>
