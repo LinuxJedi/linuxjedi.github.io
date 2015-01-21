@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LinuxJedi's /dev/null</title><link>http://linuxjedi.co.uk/</link><description>The /dev/null ramblings of a Linux Jedi</description><atom:link href="http://linuxjedi.co.uk/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Tue, 20 Jan 2015 09:16:00 +0000</lastBuildDate><item><title>The Pointer Corruption Bug</title><link>http://linuxjedi.co.uk/posts/2015/Jan/20/the-pointer-corruption-bug/</link><description>&lt;p&gt;Or an alternative name for this post...&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LinuxJedi's /dev/null</title><link>http://linuxjedi.co.uk/</link><description>The /dev/null ramblings of a Linux Jedi</description><atom:link href="http://linuxjedi.co.uk/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 21 Jan 2015 19:30:00 +0000</lastBuildDate><item><title>Webserver Concealing</title><link>http://linuxjedi.co.uk/posts/2015/Jan/21/webserver-concealing/</link><description>&lt;p&gt;Right now there are bots on the internet scanning every IP possible for vulnerable servers.  This is a fact of life on the internet.  This means you need to keep any internet facing machines as secure as possible.&lt;/p&gt;
+&lt;p&gt;Whilst it is no panacea one step you can take to hide the version of the web server software you are using.  If there is a zero-day bug a bot or malicious person is scanning for and you are vulnerable this can help hide it.&lt;/p&gt;
+&lt;p&gt;I was recently looking at an SSL problem with a local high school and found the server was reporting the following:&lt;/p&gt;
+&lt;pre class="literal-block"&gt;
+Server:Apache/2.2.15 (Novell)
+X-Powered-By:PHP/5.3.3
+&lt;/pre&gt;
+&lt;p&gt;There are several problems here, all are solvable:&lt;/p&gt;
+&lt;ol class="arabic simple"&gt;
+&lt;li&gt;Novell is unmaintained.  There are no security updates.  This needs replacing with something such as a Linux distribution or FreeBSD which does get updates.&lt;/li&gt;
+&lt;li&gt;Apache 2.2.15 and PHP 5.3.3 are both around 4-5 years old.  They have dozens of known bugs and secrity flaws which are fixed in newer versions.&lt;/li&gt;
+&lt;li&gt;The server version is advertised.  I was able to find this information easily which means any hacker can, then he can cross-reference with known security flaws and do whatever he wants with this server.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Clearly the first thing that should be done here is to update the server and its software packages.  But in addition it is possible to hide the versions used so at least one of these three points is eliminated.&lt;/p&gt;
+&lt;p&gt;First to hide the Apache server version we simply need to add one line to the configuration file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;ServerTokens&lt;/span&gt; prod
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The server will now only announce that it is running Apache but no server version or OS used.&lt;/p&gt;
+&lt;p&gt;As for PHP, you can turn the announcement off completely with the following in your php.ini file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="na"&gt;expose_php&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;off&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This is only one small security improvement, but having many layers of security will help dramatically to protect your servers.  I only recommend this after dealing with things like software updates, firewalls, code security audits, etc...&lt;/p&gt;
+&lt;p&gt;As a side note, if you are using PHP I highly recommend using &lt;a class="reference external" href="http://suhosin.org/"&gt;Suhosin&lt;/a&gt; to help secure your server installation.&lt;/p&gt;
+</description><pubDate>Wed, 21 Jan 2015 19:30:00 +0000</pubDate><guid>tag:linuxjedi.co.uk,2015-01-21:posts/2015/Jan/21/webserver-concealing/</guid><category>HP</category><category>Advanced Technology Group</category><category>Security</category></item><item><title>The Pointer Corruption Bug</title><link>http://linuxjedi.co.uk/posts/2015/Jan/20/the-pointer-corruption-bug/</link><description>&lt;p&gt;Or an alternative name for this post...&lt;/p&gt;
 &lt;div class="section" id="why-api-docs-should-have-examples"&gt;
 &lt;h2&gt;Why API Docs Should Have Examples&lt;/h2&gt;
 &lt;p&gt;As part of my continuation of libAttachSQL for HP's Advanced Technology Group I have recently been focusing on a Python based wrapper called pyAttachSQL.  This is currently at an alpha level of release with no package builds yet.&lt;/p&gt;

@@ -34,48 +34,58 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/20/the-pointer-corruption-bug/">The Pointer Corruption Bug</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/21/webserver-concealing/">Webserver Concealing</a></h1>
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-20T09:16:00+00:00">Tue 20 Jan 2015, 09:16</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-21T19:30:00+00:00">Wed 21 Jan 2015, 19:30</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> <a href="http://linuxjedi.co.uk/tag/python.html">Python</a> <a href="http://linuxjedi.co.uk/tag/api.html">API</a> <a href="http://linuxjedi.co.uk/tag/documentation.html">Documentation</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Or an alternative name for this post...</p>
-<div class="section" id="why-api-docs-should-have-examples">
-<h2>Why API Docs Should Have Examples</h2>
-<p>As part of my continuation of libAttachSQL for HP's Advanced Technology Group I have recently been focusing on a Python based wrapper called pyAttachSQL.  This is currently at an alpha level of release with no package builds yet.</p>
-<p>Today I want to talk about one (silly on my part) very frustrating bug I found whilst working on pyAttachSQL and why this means API docs should have examples for every call.</p>
-</div>
-<div class="section" id="the-crash">
-<h2>The Crash</h2>
-<p>Whilst writing the group connection functions I was using a <a class="reference external" href="https://docs.python.org/2/c-api/arg.html#c.Py_BuildValue">Py_BuildValue</a> call to generate parameters to use in a callback <a class="reference external" href="https://docs.python.org/2/c-api/object.html#c.PyObject_CallObject">PyObject_CallObject</a>.  So the code looked a little like this:</p>
-<div class="highlight"><pre><span class="n">cbargs</span><span class="o">=</span> <span class="n">Py_BuildValue</span><span class="p">(</span><span class="s">&quot;iOOO&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">events</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pycon</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pycon</span><span class="o">-&gt;</span><span class="n">query</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">cb_args</span><span class="p">);</span>
-<span class="p">...</span>
-<span class="n">PyObject_CallObject</span><span class="p">(</span><span class="n">self</span><span class="o">-&gt;</span><span class="n">cb_func</span><span class="p">,</span> <span class="n">cbargs</span><span class="p">);</span>
-<span class="n">Py_DECREF</span><span class="p">(</span><span class="n">cbargs</span><span class="p">);</span>
-</pre></div>
-<p>Those who are Python API veterans will be able to see straight away where I went wrong but I am quite new to the API.  The code was segfaulting on <tt class="docutils literal">PyObject_CallObject</tt>.</p>
-</div>
-<div class="section" id="my-big-dumb-mistake">
-<h2>My Big Dumb Mistake</h2>
-<img alt="" src="/images/droids.jpg" />
-<p>Whilst debugging this I found the problem was in <tt class="docutils literal">cbargs</tt>, for some reason the pointers to <tt class="docutils literal">pycon</tt> and alike were slightly different to when they were set.  After some time going over it again and again in GDB and watching the pointers get incremented it suddenly hit me.  The incrementation was happening during reference increment functions inside <tt class="docutils literal">Py_BuildValue</tt>.  Which makes sense because the one first items in a <tt class="docutils literal">PyObject</tt> structure is the reference count.  I was supposed to pass pointers, not pointers to pointers.  The <tt class="docutils literal">Py_BuildValue</tt> function has no type checking so was taking whatever you passed to it as a pointer to a structure.</p>
-<p>So the question many of you would be asking is: why did you pass pointers to pointers?  That is easy to answer...  Earlier in the code I have been using the <a class="reference external" href="https://docs.python.org/2/c-api/arg.html#c.PyArg_ParseTuple">PyArg_ParseTuple</a> and similar functions which are on the same documentation page, using a similar API and I assumed the API was consistent with no examples to show me otherwise.  The fix was to simply remove the <tt class="docutils literal">&amp;</tt> symbols from the above code.</p>
-</div>
-<div class="section" id="lessons-learnt">
-<h2>Lessons Learnt</h2>
-<p>I guess there is two lessons I have learnt from this:</p>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Right now there are bots on the internet scanning every IP possible for vulnerable servers.  This is a fact of life on the internet.  This means you need to keep any internet facing machines as secure as possible.</p>
+<p>Whilst it is no panacea one step you can take to hide the version of the web server software you are using.  If there is a zero-day bug a bot or malicious person is scanning for and you are vulnerable this can help hide it.</p>
+<p>I was recently looking at an SSL problem with a local high school and found the server was reporting the following:</p>
+<pre class="literal-block">
+Server:Apache/2.2.15 (Novell)
+X-Powered-By:PHP/5.3.3
+</pre>
+<p>There are several problems here, all are solvable:</p>
 <ol class="arabic simple">
-<li>Don't assume that an API is consistent</li>
-<li>Add examples for every API call in the documentation</li>
+<li>Novell is unmaintained.  There are no security updates.  This needs replacing with something such as a Linux distribution or FreeBSD which does get updates.</li>
+<li>Apache 2.2.15 and PHP 5.3.3 are both around 4-5 years old.  They have dozens of known bugs and secrity flaws which are fixed in newer versions.</li>
+<li>The server version is advertised.  I was able to find this information easily which means any hacker can, then he can cross-reference with known security flaws and do whatever he wants with this server.</li>
 </ol>
-<p>I'll shortly be opening a ticket for libAttachSQL and pyAttachSQL to implement the second item.</p>
-</div>
+<p>Clearly the first thing that should be done here is to update the server and its software packages.  But in addition it is possible to hide the versions used so at least one of these three points is eliminated.</p>
+<p>First to hide the Apache server version we simply need to add one line to the configuration file:</p>
+<div class="highlight"><pre><span class="nb">ServerTokens</span> prod
+</pre></div>
+<p>The server will now only announce that it is running Apache but no server version or OS used.</p>
+<p>As for PHP, you can turn the announcement off completely with the following in your php.ini file:</p>
+<div class="highlight"><pre><span class="na">expose_php</span> <span class="o">=</span> <span class="s">off</span>
+</pre></div>
+<p>This is only one small security improvement, but having many layers of security will help dramatically to protect your servers.  I only recommend this after dealing with things like software updates, firewalls, code security audits, etc...</p>
+<p>As a side note, if you are using PHP I highly recommend using <a class="reference external" href="http://suhosin.org/">Suhosin</a> to help secure your server installation.</p>
 
         </article></aside><!-- /#featured -->
                 <h1><i class="fa fa-bars"></i> Other articles</h1>
                 <hr />
                     <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/20/the-pointer-corruption-bug/" rel="bookmark" title="Permalink to The Pointer Corruption Bug">The Pointer Corruption Bug</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-20T09:16:00+00:00">Tue 20 Jan 2015, 09:16</abbr></p>
+
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> <a href="http://linuxjedi.co.uk/tag/python.html">Python</a> <a href="http://linuxjedi.co.uk/tag/api.html">API</a> <a href="http://linuxjedi.co.uk/tag/documentation.html">Documentation</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Or an alternative name for this post...</p>
+<div class="section" id="why-api-docs-should-have-examples">
+<h2>Why API Docs Should Have Examples</h2>
+<p>As part of my continuation of libAttachSQL for HP's Advanced Technology Group I have recently been focusing on a Python based wrapper called pyAttachSQL.  This is currently at an alpha level of release with no package ...</p></div>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/20/the-pointer-corruption-bug/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/" rel="bookmark" title="Permalink to YubiKey for OS Logins">YubiKey for OS Logins</a></h1>
@@ -85,7 +95,7 @@
 <footer class="post-info">
     <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-19T16:14:00+00:00">Mon 19 Jan 2015, 16:14</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/yubikey.html">YubiKey</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>I have mentioned a few times in this blog that HP takes security very seriously and HP's Advanced Technology Group is always looking into new ways of making things secure.  Recently the team all got a <a class="reference external" href="https://www.yubico.com/products/yubikey-hardware/yubikey-neo/">YubiKey Neo</a> to use.  The initial idea was we would be trying the ...</p>
                 <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">read more</a>
@@ -130,7 +140,7 @@
 <footer class="post-info">
     <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-11-25T16:38:00+00:00">Tue 25 Nov 2014, 16:38</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/autotools.html">Autotools</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>Recently I have been working on a Python based wrapper for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> and found that when testing on a Mac I was having trouble compiling the wrapper.  It turns out that Python included in Mac operating systems uses a universal binary (also called fat binary) format and since libAttachSQL is ...</p>
                 <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Nov/25/autotools-and-mac-universal-binaries/">read more</a>
@@ -145,7 +155,7 @@
 <footer class="post-info">
     <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-31T15:22:00+00:00">Fri 31 Oct 2014, 15:22</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>Today I read an article about how company X has improved things by amongst other things ditching JSON after 2 years of using it.  Before I start on this subject I should say that JSON does have its place.  If you have a web application where a browser is talking ...</p>
                 <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/31/why-json-is-bad-for-applications/">read more</a>
@@ -201,22 +211,6 @@
                 <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/14/libattachsql-090-rc-connection-groups/">read more</a>
                 </div><!-- /.entry-content -->
         </article></li>
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/" rel="bookmark" title="Permalink to libAttachSQL Second Beta, After the Sledgehammer">libAttachSQL Second Beta, After the Sledgehammer</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-08T20:52:00+01:00">Wed 08 Oct 2014, 20:52</abbr></p>
-
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Last week I <a class="reference external" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">blogged about getting sysbench working with libAttachSQL</a>.  This was not only an exercise in performance but also the first real test for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a>.</p>
-<p>Before I had done this testing the most the early Alpha and Beta releases of libAttachSQL had gone through is a few basic queries ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
 </ol><!-- /#posts-list -->
         <h2><i class="fa fa-file-o"></i> Pages</h2>
         <hr />
@@ -244,8 +238,10 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
 </div>                <div class="widget">
                         <h2><i class="fa fa-home fa-lg"></i> Categories</h2>
                         <ul>
+                           <li ><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
+                           <li ><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
                         </ul>
                 </div>
                 <div class="widget blogroll">
@@ -347,7 +343,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Python
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-3">
                         <a href="http://linuxjedi.co.uk/tag/security.html">
                             Security
                         </a>

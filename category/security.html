@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null - HP</title>
+        <title>LinuxJedi's /dev/null - Security</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -32,53 +32,58 @@
         </header><!-- /#banner -->
 
 
- <section id="content" class="body">
- <ol id="posts-list" class="hfeed">
-
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/" rel="bookmark" title="Permalink to libAttachSQL Benchmarks With Sysbench">libAttachSQL Benchmarks With Sysbench</a></h1>
-                </header>
-
-                <div class="entry-content">
+     <section id="content" class="body">
+        <aside id="featured"><article>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/21/webserver-concealing/">Webserver Concealing</a></h1>
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-03T21:28:00+01:00">Fri 03 Oct 2014, 21:28</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-21T19:30:00+00:00">Wed 21 Jan 2015, 19:30</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>This week I have been spending a little bit of time creating a module for <a class="reference external" href="https://launchpad.net/sysbench">Sysbench</a> so that it can use <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> as a database driver.  The reason for doing this is twofold:</p>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Right now there are bots on the internet scanning every IP possible for vulnerable servers.  This is a fact of life on the internet.  This means you need to keep any internet facing machines as secure as possible.</p>
+<p>Whilst it is no panacea one step you can take to hide the version of the web server software you are using.  If there is a zero-day bug a bot or malicious person is scanning for and you are vulnerable this can help hide it.</p>
+<p>I was recently looking at an SSL problem with a local high school and found the server was reporting the following:</p>
+<pre class="literal-block">
+Server:Apache/2.2.15 (Novell)
+X-Powered-By:PHP/5.3.3
+</pre>
+<p>There are several problems here, all are solvable:</p>
 <ol class="arabic simple">
-<li><a class="reference external" href="http://krow.net/">Brian</a> (my boss at HP's Advanced Technology Group) said now would be a good time to ...</li></ol>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
+<li>Novell is unmaintained.  There are no security updates.  This needs replacing with something such as a Linux distribution or FreeBSD which does get updates.</li>
+<li>Apache 2.2.15 and PHP 5.3.3 are both around 4-5 years old.  They have dozens of known bugs and secrity flaws which are fixed in newer versions.</li>
+<li>The server version is advertised.  I was able to find this information easily which means any hacker can, then he can cross-reference with known security flaws and do whatever he wants with this server.</li>
+</ol>
+<p>Clearly the first thing that should be done here is to update the server and its software packages.  But in addition it is possible to hide the versions used so at least one of these three points is eliminated.</p>
+<p>First to hide the Apache server version we simply need to add one line to the configuration file:</p>
+<div class="highlight"><pre><span class="nb">ServerTokens</span> prod
+</pre></div>
+<p>The server will now only announce that it is running Apache but no server version or OS used.</p>
+<p>As for PHP, you can turn the announcement off completely with the following in your php.ini file:</p>
+<div class="highlight"><pre><span class="na">expose_php</span> <span class="o">=</span> <span class="s">off</span>
+</pre></div>
+<p>This is only one small security improvement, but having many layers of security will help dramatically to protect your servers.  I only recommend this after dealing with things like software updates, firewalls, code security audits, etc...</p>
+<p>As a side note, if you are using PHP I highly recommend using <a class="reference external" href="http://suhosin.org/">Suhosin</a> to help secure your server installation.</p>
+
+        </article></aside><!-- /#featured -->
+                <h1><i class="fa fa-bars"></i> Other articles</h1>
+                <hr />
+                    <ol id="posts-list" class="hfeed">
         <li><article class="hentry">
                 <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/libattachsql-query-example/" rel="bookmark" title="Permalink to libAttachSQL Query Example">libAttachSQL Query Example</a></h1>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/" rel="bookmark" title="Permalink to YubiKey for OS Logins">YubiKey for OS Logins</a></h1>
                 </header>
 
                 <div class="entry-content">
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-09-23T23:02:00+01:00">Tue 23 Sep 2014, 23:02</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-19T16:14:00+00:00">Mon 19 Jan 2015, 16:14</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>I was asked some questions on IRC last night about how the query example in libAttachSQL's code base works.  For those who missed previous posts, <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> is a lightweight, non-blocking, Apache 2.0 licensed C connector for MySQL servers which I am developing for HP's Advanced Technology Group ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Sep/23/libattachsql-query-example/">read more</a>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/yubikey.html">YubiKey</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>I have mentioned a few times in this blog that HP takes security very seriously and HP's Advanced Technology Group is always looking into new ways of making things secure.  Recently the team all got a <a class="reference external" href="https://www.yubico.com/products/yubikey-hardware/yubikey-neo/">YubiKey Neo</a> to use.  The initial idea was we would be trying the ...</p>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">read more</a>
                 </div><!-- /.entry-content -->
         </article></li>
 </ol><!-- /#posts-list -->
-        <h2><i class="fa fa-file-o"></i> Pages</h2>
-        <hr />
-        <ul class="pagination">
-                <li class="prev"><a href="http://linuxjedi.co.uk/tag/hp.html"><i class="fa fa-arrow-left fa-fw"></i></a>&nbsp;
-                </li>
-                    <li class=""><a
-                            href="http://linuxjedi.co.uk/tag/hp.html">1</a>&nbsp;</li>
-                    <li class="active"><a
-                            href="http://linuxjedi.co.uk/tag/hp2.html">2</a>&nbsp;</li>
-                <li class="next disabled"><i class="fa fa-arrow-right fa-fw"></i></li>
-        </ul>
 </section><!-- /#content -->
 
         <aside id="sidebar">
@@ -97,7 +102,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                            <li ><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
-                           <li ><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
                         </ul>
                 </div>
                 <div class="widget blogroll">
