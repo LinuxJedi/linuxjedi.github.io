@@ -461,7 +461,8 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 .list-inline{
     padding-left:0;
     margin-left:-5px;
-    list-style:none
+    list-style:none;
+    text-align: justify;
 }
 .list-inline>li {
     display:inline-block;
