@@ -223,6 +223,9 @@ img.left, figure.left {float: right; margin: 0 0 2em 2em;}
 		-webkit-border-bottom-left-radius: 5px;
 	}
 
+	ul.pagination {list-style: none; margin: 0 auto; font-size: 1.2em;}
+	ul.pagination li {float: left; display: inline; margin: 0;}
+
 /*
 	Featured
 *****************/
