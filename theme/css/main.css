@@ -99,6 +99,10 @@ ol {
     margin-bottom: 1px;
 }
 
+.post-info i.fa{
+    display: inline;
+}
+
 .readmore {  }
 
 .note {
