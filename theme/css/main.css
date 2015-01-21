@@ -249,7 +249,7 @@ img.left, figure.left {float: right; margin: 0 0 2em 2em;}
 	background: #fff;
 	overflow: hidden;
 	padding: 20px 20px;
-	width: 15%;
+	width: 17%;
 	
 	border-radius: 10px;
 	-moz-border-radius: 10px;
@@ -270,15 +270,15 @@ img.left, figure.left {float: right; margin: 0 0 2em 2em;}
 #sidebar a:link, #sidebar a {
 	color: #444;
 	display: block;
-	border-bottom: 1px solid #F4E3E3;
+/*	border-bottom: 1px solid #F4E3E3;*/
 	text-decoration: none;
 	padding: .3em .25em;
 }
 #sidebar li.active a {color: white;}
-
+/*
 #sidebar li:last-child,
 #sidebar li:last-child a {border: 0}
-
+*/
 #sidebar .blogroll li:nth-last-child(2),
 #sidebar .blogroll li:nth-last-child(3),
 #sidebar .blogroll li:nth-last-child(2) a,
@@ -291,7 +291,7 @@ img.left, figure.left {float: right; margin: 0 0 2em 2em;}
 		width: 100%;
 	}
 	
-	#sidebar .blogroll li {float: left; margin: 0 20px 0 0; width: 185px;}
+	#sidebar .blogroll li {margin: 0 20px 0 0; width: 185px;}
 	
 	
 	.social a {
@@ -428,3 +428,48 @@ li:last-child .hentry, #content > .hentry {border: 0; margin: 0;}
 	
 	#add-comment input[type='submit'] {float: right; margin: 0 .5em;}
 	#add-comment * {margin-bottom: .5em;}
+
+
+
+.list-group-item > .list-group {
+    margin-bottom: 0px;
+}
+
+.list-group-item .list-group-item:last-child {
+    padding-bottom: 0px;
+}
+
+.list-group-item {
+    border: none;
+}
+
+.tag-0 {
+    font-size: 12pt;
+}
+
+.tag-1 {
+    font-size: 11pt;
+}
+
+.tag-2 {
+    font-size: 10pt;
+}
+
+.tag-3 {
+    font-size: 9pt;
+}
+
+.tag-4 {
+    font-size: 8pt;
+}
+
+.list-inline{
+    padding-left:0;
+    margin-left:-5px;
+    list-style:none
+}
+.list-inline>li {
+    display:inline-block;
+    padding-right:5px;
+    padding-left:5px
+}
