@@ -34,25 +34,92 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/22/libattchsql-hits-first-ga/">libAttchSQL Hits First GA!</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/22/c-library-visibility/">C Library Visibility</a></h1>
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-22T09:25:00+00:00">Thu 22 Jan 2015, 09:25</abbr></p>
+
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> <a href="http://linuxjedi.co.uk/tag/api.html">API</a> <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>I was surprised by the recent <a class="reference external" href="http://mysqlserverteam.com/how-to-use-ssl-and-mysql-client-library-in-the-same-binary/">announcement</a> that MySQL are going to start to conceal the hidden function calls in their C connector.  Surprised because although this is great news I had expected them to do this years ago.  Working for HP's Advanced Technology Group I realise I take such things for granted.  For this blog post I'm going to talk about why it is important and how to do it.</p>
+<p>So, when you create a dynamic library in C the default thing that happens is every function call in that library effectively becomes a potential API call.  Whether you document every single function or not to make it official API is up to you but I suspect in 99.99% of cases there are private functions you don't want users to mess with.  Additionally holding the symbol information for every function so that you can link your application to it takes a massive amount of space, one such library I can think of is 8x bigger than it should be due to exposing every function call.</p>
+<p>In MySQL's case and likely others this can cause a problem with collisions during linking.  MySQL can use its bundled in YaSSL library to supply SSL, and due to the functions being exposed this can cause problems if your application links to libmysqlclient and OpenSSL since they both use the same public API calls in many places.</p>
+<p>RedHat and other distributions actually solve this in MySQL by stripping the binaries of unneeded symbols at compile time.  This is indeed one effective solution.  But I don't believe this is the correct solution.  In fact Ulrich Drepper in <a class="reference external" href="https://software.intel.com/sites/default/files/m/a/1/e/dsohowto.pdf">How To Write Shared Libraries</a> pretty much reserves this is a last resort.</p>
+<div class="section" id="link-time-visibility">
+<h2>Link Time Visibility</h2>
+<p>The solution I and many others recommend is using visibility at link time.  There are three parts to applying this:</p>
+<ol class="arabic simple">
+<li>The compiler flag</li>
+<li>An extra include file</li>
+<li>Marking the functions you want to be in the API as public</li>
+</ol>
+<p>I shall go through these steps for GCC, other compilers will be very similar and there is plenty of information on the internet about this.</p>
+<div class="section" id="compiler-flag">
+<h3>Compiler Flag</h3>
+<p>You simply need to add one compiler flag which will hide all function calls by default instead of exposing them all by default:</p>
+<pre class="literal-block">
+-fvisibility=hidden
+</pre>
+</div>
+<div class="section" id="include-file">
+<h3>Include File</h3>
+<p>This is one example taken from <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> and there is an example with more platform support on the <a class="reference external" href="https://gcc.gnu.org/wiki/Visibility">GCC Visibility manual page</a>.</p>
+<p>In this example you need to change <tt class="docutils literal">BUILDING_ASQL</tt> and <tt class="docutils literal">ASQL_API</tt> to suit your own naming.</p>
+<div class="highlight"><pre><span class="cp">#if defined(BUILDING_ASQL)</span>
+<span class="cp"># if defined(HAVE_VISIBILITY) &amp;&amp; HAVE_VISIBILITY</span>
+<span class="cp">#  define ASQL_API __attribute__ ((visibility(&quot;default&quot;)))</span>
+<span class="cp"># elif defined (__SUNPRO_C) &amp;&amp; (__SUNPRO_C &gt;= 0x550)</span>
+<span class="cp">#  define ASQL_API __global</span>
+<span class="cp"># elif defined(_MSC_VER)</span>
+<span class="cp">#  define ASQL_API extern __declspec(dllexport)</span>
+<span class="cp"># else</span>
+<span class="cp">#  define ASQL_API</span>
+<span class="cp"># endif </span><span class="cm">/* defined(HAVE_VISIBILITY) */</span><span class="cp"></span>
+<span class="cp">#else  </span><span class="cm">/* defined(BUILDING_ASQL) */</span><span class="cp"></span>
+<span class="cp"># if defined(_MSC_VER)</span>
+<span class="cp">#  define ASQL_API extern __declspec(dllimport)</span>
+<span class="cp"># else</span>
+<span class="cp">#  define ASQL_API</span>
+<span class="cp"># endif </span><span class="cm">/* defined(_MSC_VER) */</span><span class="cp"></span>
+<span class="cp">#endif </span><span class="cm">/* defined(BUILDING_ASQL) */</span><span class="cp"></span>
+</pre></div>
+</div>
+<div class="section" id="marking-public-api">
+<h3>Marking Public API</h3>
+<p>With the above include file you need to define <tt class="docutils literal">BUILDING_ASQL</tt> somewhere in your library compiling.  This makes sure that during the library compiling/linking all the functions can be seen but they will be hidden at link time from external applications.</p>
+<p>Then when you are defining an API call in your .h file you can do as follows:</p>
+<div class="highlight"><pre><span class="kt">int</span> <span class="nf">hidden_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">);</span>
+
+<span class="n">ASQL_API</span>
+<span class="kt">int</span> <span class="nf">public_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">);</span>
+</pre></div>
+<p>You can see here I have prepended the function declaration with <tt class="docutils literal">ASQL_API</tt> for any function I wish to be part of the public API.</p>
+</div>
+<div class="section" id="conclusion">
+<h3>Conclusion</h3>
+<p>If you leave undocumented API dangling people will tend to use it, which causes all sorts of issues when you want to change some of the internal functions.  Ideally when writing an API setting the visibility should be a very early step, but thankfully it is one that can easily be added to a project at any time.</p>
+</div>
+</div>
+
+        </article></aside><!-- /#featured -->
+                <h1><i class="fa fa-bars"></i> Other articles</h1>
+                <hr />
+                    <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/22/libattchsql-hits-first-ga/" rel="bookmark" title="Permalink to libAttchSQL Hits First GA!">libAttchSQL Hits First GA!</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
     <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-22T11:35:00+01:00">Wed 22 Oct 2014, 11:35</abbr></p>
 
 <p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>We have come a long way since the first code was put down for <a class="reference external" href="http://libattachsql.org">libAttachSQL</a> on the 4th July.  It has been a fantastic project to work on so I am very pleased to announce our first GA release.</p>
-<p>For those who haven't seen it so far libAttachSQL is a non-blocking, lightweight C API for MySQL servers.  It is Apache 2.0 licensed so is compatible with most Open Source and commercial licensing.  HP's Advanced Technology Group saw a need in this field not just for HP itself but for other companies and projects too.</p>
-<p>As for the GA release itself, there are not many changes over the RC release beyond stability fixes.  A full list can be seen in the <a class="reference external" href="http://docs.libattachsql.org/en/latest/appendix/version_history.html#version-1-0">version history documentation</a>.</p>
-<p>In addition to the GA release we have recently had a driver for <a class="reference external" href="https://launchpad.net/sysbench">Sysbench</a> merged into their trunk so libAttachSQL can be used for benchmarking MySQL servers.  We have also started work on a tool called <a class="reference external" href="https://github.com/libattachsql/attachbench">AttachBench</a> which when complete will run similar MySQL tests as Sysbench but will allow for multiple connections per thread (something libAttachSQL excels at).  At the moment AttachBench requires the tables from Sysbench's &quot;Select&quot; test already setup and I don't recommend tinkering with it yet unless you don't mind getting a bit dirty.</p>
-<p>With the release of libAttachSQL 1.0.0 we have also launched a new website on <a class="reference external" href="http://libattachsql.org">libattachsql.org</a>.  It is a basic Pelican based site (very much like this blog) but will make it much easier for anyone to add content, just like this blog all the source is in <a class="reference external" href="https://github.com/libattachsql/libattachsql.org">RST files on GitHub</a>.</p>
-<p>Download links for libAttachSQL 1.0.0 can be found on the <a class="reference external" href="http://libattachsql.org/posts/2014/Oct/21/version-100-ga-released/">News section</a> of the project website.  There is a source package as well as packages for RHEL/CentOS 6.x and 7.x.  Packages for Ubuntu 12.04 and 14.04 are waiting to be built in the PPA at time of posting.  We hope to have releases for more operating systems in the near future.</p>
-<p>Rest assured we are not stopping here.  I already have ideas of what I want to see in 1.1 and we have some spin-off projects planned.  If you would like to learn more please come along to my talk on libAttachSQL at <a class="reference external" href="http://www.percona.com/live/london-2014/sessions/libattachsql-next-generation-c-connector-mysql">Percona Live London</a>.  I'm also talking to several people outside of HP to see what they would like in libAttachSQL and am happy to talk to anyone else who wants to know more and has feedback.</p>
-<p>Many thanks to everyone who has helped us get this far.</p>
-
-        </article></aside><!-- /#featured -->
-                <h1><i class="fa fa-bars"></i> Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
+<p>For those who haven't seen it so far libAttachSQL is ...</p>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Oct/22/libattchsql-hits-first-ga/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2014/Oct/15/libattachsql-single-thread-vs-libmysqlclient-multi-thread/" rel="bookmark" title="Permalink to libAttachSQL Single Thread vs. libmysqlclient Multi Thread">libAttachSQL Single Thread vs. libmysqlclient Multi Thread</a></h1>
@@ -181,7 +248,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Advanced Technology Group
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-3">
                         <a href="http://linuxjedi.co.uk/tag/api.html">
                             API
                         </a>
@@ -206,7 +273,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Blog
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-3">
                         <a href="http://linuxjedi.co.uk/tag/c.html">
                             C
                         </a>
