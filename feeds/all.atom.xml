@@ -1,5 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>LinuxJedi's /dev/null</title><link href="http://linuxjedi.co.uk/" rel="alternate"></link><link href="http://linuxjedi.co.uk/feeds/all.atom.xml" rel="self"></link><id>http://linuxjedi.co.uk/</id><updated>2015-01-22T09:25:00+00:00</updated><entry><title>C Library Visibility</title><link href="http://linuxjedi.co.uk/posts/2015/Jan/22/c-library-visibility/" rel="alternate"></link><updated>2015-01-22T09:25:00+00:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-01-22:posts/2015/Jan/22/c-library-visibility/</id><summary type="html">&lt;p&gt;I was surprised by the recent &lt;a class="reference external" href="http://mysqlserverteam.com/how-to-use-ssl-and-mysql-client-library-in-the-same-binary/"&gt;announcement&lt;/a&gt; that MySQL are going to start to conceal the hidden function calls in their C connector.  Surprised because although this is great news I had expected them to do this years ago.  Working for HP's Advanced Technology Group I realise I take such things for granted.  For this blog post I'm going to talk about why it is important and how to do it.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>LinuxJedi's /dev/null</title><link href="http://linuxjedi.co.uk/" rel="alternate"></link><link href="http://linuxjedi.co.uk/feeds/all.atom.xml" rel="self"></link><id>http://linuxjedi.co.uk/</id><updated>2015-01-25T16:33:00+00:00</updated><entry><title>Working With Git</title><link href="http://linuxjedi.co.uk/posts/2015/Jan/25/working-with-git/" rel="alternate"></link><updated>2015-01-25T16:33:00+00:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-01-25:posts/2015/Jan/25/working-with-git/</id><summary type="html">&lt;p&gt;At a recent meeting HP's Advanced Technology Group has been agreeing on standards for working with git, covering mainly the collaboration and versioning aspects.  Today I will share with you how I do this in my Open Source projects which has some crossover with the group's work.&lt;/p&gt;
+&lt;div class="section" id="versioning"&gt;
+&lt;h2&gt;Versioning&lt;/h2&gt;
+&lt;p&gt;I use &lt;a class="reference external" href="http://semver.org/"&gt;Semantic Versioning&lt;/a&gt; everywhere I can.  In fact I used to pretty much use it everywhere before I knew it was a standard.  This means that I have my GitHub trees layed out so that 'master' is the latest stable code, v1.0 branch is the latest stable v1.0 code, v1.1 branch is the latest in v1.1 and so on.  I then create GPG signed tags from these branches to create releases as follows:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git checkout v1.1
+git tag -s v1.1.2 -m &lt;span class="s1"&gt;&amp;#39;Version 1.1.2 release&amp;#39;&lt;/span&gt;
+git push --tags
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="section" id="forking"&gt;
+&lt;h2&gt;Forking&lt;/h2&gt;
+&lt;p&gt;Even if it is just me working on a particular project I will always use forks and pull requests to work on code.  This model works well with &lt;a class="reference external" href="http://semver.org/"&gt;Travis CI&lt;/a&gt; because it can test code prior to merging and give feedback in the pull request.&lt;/p&gt;
+&lt;p&gt;For this example I'm assuming you are using SSH keys and two-factor authentication with Git, if you aren't you need to do this ASAP.  Instructions can be found on &lt;a class="reference external" href="https://github.com/blog/1614-two-factor-authentication"&gt;GitHub's blog&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;A fork is typically created as follows:&lt;/p&gt;
+&lt;ol class="arabic"&gt;
+&lt;li&gt;&lt;p class="first"&gt;Create a fork in GitHub, you can do this by clicking the fork button on a project.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p class="first"&gt;Grab a local copy of your fork to work with (replacing &lt;cite&gt;USERNAME&lt;/cite&gt; and &lt;cite&gt;Repository&lt;/cite&gt; with whatever is applicable to you):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git clone git@github.com:USERNAME/Repository
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p class="first"&gt;Then you should set the upstream remote so that you can easily grab the latest code as needed.  I've used HTTPS here because you don't need to be authenticated to do this unless it is a private repository:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git remote add upstream https://github.com/PROJECT/Repository
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;
+&lt;div class="section" id="starting-a-new-branch"&gt;
+&lt;h2&gt;Starting a New Branch&lt;/h2&gt;
+&lt;p&gt;Whenever you are starting a new group of work, create a new branch.  This holds true for features or just basic one line fixes.  In your fork:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git checkout master
+git pull --ff-only upstream master
+git push
+git checkout -b my_feature
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This pulls the latest code from the upstream master to your master, pushes that to your fork and then creates a new checkout based on that code.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="syncing-fork"&gt;
+&lt;h2&gt;Syncing Fork&lt;/h2&gt;
+&lt;p&gt;If you have worked on some code and at the same time someone else has merged code that may conflict (a pull request will tell you this straight away) you can merge upstream with your commits as follows:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git fetch upstream
+git merge upstream/master
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This fetches the upstream code into a local cache and then will merge it.  If there are conflicts they will be flagged for you to resolve.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="pull-requests"&gt;
+&lt;h2&gt;Pull Requests&lt;/h2&gt;
+&lt;p&gt;When your code is good and ready you can send it up as a pull request.  To do this you first need to push it up to your local repository:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;git push --set-upstream origin my_feature
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then when you go to the project's repository you will see a button to file a pull request.  If you are using continuous integration such as Travis CI you should wait for that to give a green result and preferably peer review too before clocking the merge button.&lt;/p&gt;
+&lt;/div&gt;
+</summary><category term="HP"></category><category term="Advanced Technology Group"></category><category term="Git"></category></entry><entry><title>C Library Visibility</title><link href="http://linuxjedi.co.uk/posts/2015/Jan/22/c-library-visibility/" rel="alternate"></link><updated>2015-01-22T09:25:00+00:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-01-22:posts/2015/Jan/22/c-library-visibility/</id><summary type="html">&lt;p&gt;I was surprised by the recent &lt;a class="reference external" href="http://mysqlserverteam.com/how-to-use-ssl-and-mysql-client-library-in-the-same-binary/"&gt;announcement&lt;/a&gt; that MySQL are going to start to conceal the hidden function calls in their C connector.  Surprised because although this is great news I had expected them to do this years ago.  Working for HP's Advanced Technology Group I realise I take such things for granted.  For this blog post I'm going to talk about why it is important and how to do it.&lt;/p&gt;
 &lt;p&gt;So, when you create a dynamic library in C the default thing that happens is every function call in that library effectively becomes a potential API call.  Whether you document every single function or not to make it official API is up to you but I suspect in 99.99% of cases there are private functions you don't want users to mess with.  Additionally holding the symbol information for every function so that you can link your application to it takes a massive amount of space, one such library I can think of is 8x bigger than it should be due to exposing every function call.&lt;/p&gt;
 &lt;p&gt;In MySQL's case and likely others this can cause a problem with collisions during linking.  MySQL can use its bundled in YaSSL library to supply SSL, and due to the functions being exposed this can cause problems if your application links to libmysqlclient and OpenSSL since they both use the same public API calls in many places.&lt;/p&gt;
 &lt;p&gt;RedHat and other distributions actually solve this in MySQL by stripping the binaries of unneeded symbols at compile time.  This is indeed one effective solution.  But I don't believe this is the correct solution.  In fact Ulrich Drepper in &lt;a class="reference external" href="https://software.intel.com/sites/default/files/m/a/1/e/dsohowto.pdf"&gt;How To Write Shared Libraries&lt;/a&gt; pretty much reserves this as a last resort.&lt;/p&gt;

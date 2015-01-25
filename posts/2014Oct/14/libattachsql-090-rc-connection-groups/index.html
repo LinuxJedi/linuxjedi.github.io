@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>libAttachSQL Query Example</title>
+        <title>libAttachSQL 0.9.0 RC - Connection Groups</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -33,93 +33,86 @@
 
 <section id="content" class="body">
 <article>
-      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/libattachsql-query-example/"
-        rel="bookmark" title="Permalink to libAttachSQL Query Example">libAttachSQL Query Example</a></h1>  </header>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/14/libattachsql-090-rc-connection-groups/"
+        rel="bookmark" title="Permalink to libAttachSQL 0.9.0 RC - Connection Groups">libAttachSQL 0.9.0 RC - Connection Groups</a></h1>  </header>
         <div class="entry-content">
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-09-23T23:02:00+01:00">Tue 23 Sep 2014, 23:02</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-14T17:14:00+01:00">Tue 14 Oct 2014, 17:14</abbr></p>
 
 <p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-        <p>I was asked some questions on IRC last night about how the query example in libAttachSQL's code base works.  For those who missed previous posts, <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> is a lightweight, non-blocking, Apache 2.0 licensed C connector for MySQL servers which I am developing for HP's Advanced Technology Group.</p>
-<p>In this blog post I'm going to break down <a class="reference external" href="https://github.com/libattachsql/libattachsql/blob/master/examples/basic_query.c">a basic query example</a> and explain what is happening at each step. It is possible that this syntax may change slightly by the time we hit GA but it will be similar to this.</p>
-<div class="highlight"><pre><span class="cp">#include &lt;libattachsql-1.0/attachsql.h&gt;</span>
-<span class="cp">#include &lt;stddef.h&gt;</span>
-<span class="cp">#include &lt;stdio.h&gt;</span>
-<span class="cp">#include &lt;string.h&gt;</span>
+        <p>It has been just over 4 months since I started working on <a class="reference external" href="http://libattachsql.org">libAttachSQL</a> for HP's Advanced Technology Group.  Today marks the first (and hopefully only) RC release of the library.</p>
+<div class="section" id="connection-groups">
+<h2>Connection Groups</h2>
+<p>The only real new feature that has been added to 0.9.0 is the concept of connection groups which is something I'm pretty excited about.  Internally libAttachSQL uses event loops to supply the non-blocking API.  Connection Groups join a bunch of connections together into a group that uses a single event loop.  This makes things much more efficient internally and makes applications easier to code too.</p>
+<p>Here is a simplified example of how to use it (for a more detailed example see our <a class="reference external" href="http://docs.libattachsql.org/en/latest/api/examples.html#group-conncetions">example in the documentation</a>).</p>
+<p>First we need to create the group and add connections to it:</p>
+<div class="highlight"><pre><span class="n">group</span><span class="o">=</span> <span class="n">attachsql_group_create</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="n">attachsql_connect_create</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">3306</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;testdb&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">attachsql_group_add_connection</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
+<span class="n">attachsql_connect_set_callback</span><span class="p">(</span><span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">callbk</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">con_no</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
 </pre></div>
-<p>Only one include is needed for the library itself, <tt class="docutils literal"><span class="pre">libattachsql-1.0/attachsql.h</span></tt>. The others are used for other functions in the code.</p>
-<div class="highlight"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<p>The <tt class="docutils literal">con</tt> array is just an array of connection objects and <tt class="docutils literal">con_no</tt> is just an array of integers so that the callback that I'll show shortly knows which connection number it is (only useful for displaying in this example).  The last three lines there will be repeated multiple times with different array numbers to add connections.</p>
+<p>We now send queries to the connections:</p>
+<div class="highlight"><pre><span class="n">attachsql_query</span><span class="p">(</span><span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">strlen</span><span class="p">(</span><span class="n">query1</span><span class="p">),</span> <span class="n">query1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
+<span class="n">attachsql_query</span><span class="p">(</span><span class="n">con</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">strlen</span><span class="p">(</span><span class="n">query2</span><span class="p">),</span> <span class="n">query2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
+</pre></div>
+<p>And so forth until we have sent a query to all the connections we want.</p>
+<p>Finally we want to run the connection group until complete:</p>
+<div class="highlight"><pre><span class="k">while</span><span class="p">(</span><span class="n">done_count</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span>
 <span class="p">{</span>
-  <span class="kt">attachsql_connect_t</span> <span class="o">*</span><span class="n">con</span><span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-  <span class="n">attachsql_error_st</span> <span class="o">*</span><span class="n">error</span><span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">query</span><span class="o">=</span> <span class="s">&quot;SELECT * FROM t1 WHERE name=&#39;fred&#39;&quot;</span><span class="p">;</span>
-  <span class="kt">attachsql_return_t</span> <span class="n">ret</span><span class="o">=</span> <span class="n">ATTACHSQL_RETURN_NONE</span><span class="p">;</span>
+  <span class="n">attachsql_group_run</span><span class="p">(</span><span class="n">group</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>In this example <tt class="docutils literal">done_count</tt> is simply a global integer which increments as each callback hits EOF.  You could conceivably run various other parts of your application here and then call <tt class="docutils literal">attachsql_group_run()</tt> again when ready.</p>
+<p>I'm going to paste the whole callback here because it should be mostly self-explanatory, it is called when an event occurs and the code reacts to the event:</p>
+<div class="highlight"><pre><span class="kt">void</span> <span class="nf">callbk</span><span class="p">(</span><span class="kt">attachsql_connect_t</span> <span class="o">*</span><span class="n">current_con</span><span class="p">,</span> <span class="kt">attachsql_events_t</span> <span class="n">events</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">context</span><span class="p">,</span> <span class="kt">attachsql_error_t</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">con_no</span><span class="o">=</span> <span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span><span class="n">context</span><span class="p">;</span>
   <span class="n">attachsql_query_row_st</span> <span class="o">*</span><span class="n">row</span><span class="p">;</span>
-  <span class="kt">uint16_t</span> <span class="n">columns</span><span class="p">,</span> <span class="n">current_column</span><span class="p">;</span>
-</pre></div>
-<p>Here we have setup a few required variables:</p>
-<ul class="simple">
-<li><tt class="docutils literal">con</tt> is the connection object used throughout this example</li>
-<li><tt class="docutils literal">error</tt> is an error struct which is set when an error occurs</li>
-<li><tt class="docutils literal">query</tt> this is a constant containing the query we wish to execute</li>
-<li><tt class="docutils literal">ret</tt> is where the return code is store for the network functions</li>
-<li><tt class="docutils literal">row</tt> holds the row results</li>
-<li><tt class="docutils literal">columns</tt> and <tt class="docutils literal">current_column</tt> are used for iterating though the result</li>
-</ul>
-<div class="highlight"><pre><span class="n">con</span><span class="o">=</span> <span class="n">attachsql_connect_create</span><span class="p">(</span><span class="s">&quot;localhost&quot;</span><span class="p">,</span> <span class="mi">3306</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">,</span> <span class="s">&quot;testdb&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
-</pre></div>
-<p>This function creates the connection object.  A connection is not actually made at this point, we are just setting things up.</p>
-<div class="highlight"><pre><span class="n">error</span><span class="o">=</span> <span class="n">attachsql_query</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">query</span><span class="p">),</span> <span class="n">query</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
-</pre></div>
-<p>This starts the process of connecting to the MySQL server and sending the query.  The last two parameters are for a way to escape data at the client end in a similar way to prepared statements.  I'll cover this in another blog post.</p>
-<div class="highlight"><pre><span class="k">while</span> <span class="p">((</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">ATTACHSQL_RETURN_EOF</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">error</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">))</span>
-<span class="p">{</span>
-  <span class="n">ret</span><span class="o">=</span> <span class="n">attachsql_connect_poll</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
-</pre></div>
-<p>This is where the magic happens.  Whilst we haven't hit a query EOF or an error we are repeatedly polling the connection to see if we have have a row ready in the network buffer.</p>
-<p>Not only this but a non-blocking DNS lookup, connection and handshake is made here, so it is likely poll will be called several times.  There is an API call to make the connection explicit rather than implicit on the first query and it will need to call <tt class="docutils literal">attachsql_connect_poll()</tt> in the same way.</p>
-<div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">ATTACHSQL_RETURN_ROW_READY</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="k">continue</span><span class="p">;</span>
+  <span class="kt">uint16_t</span> <span class="n">columns</span><span class="p">,</span> <span class="n">col</span><span class="p">;</span>
+  <span class="k">switch</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_CONNECTED</span>:
+      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Connected event on con %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">con_no</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_ERROR</span>:
+      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error exists on con %d: %d&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">con_no</span><span class="p">,</span> <span class="n">attachsql_error_code</span><span class="p">(</span><span class="n">error</span><span class="p">));</span>
+      <span class="n">attachsql_error_free</span><span class="p">(</span><span class="n">error</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_EOF</span>:
+      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Connection %d finished</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">con_no</span><span class="p">);</span>
+      <span class="n">done_count</span><span class="o">++</span><span class="p">;</span>
+      <span class="n">attachsql_query_close</span><span class="p">(</span><span class="n">current_con</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_ROW_READY</span>:
+      <span class="n">row</span><span class="o">=</span> <span class="n">attachsql_query_row_get</span><span class="p">(</span><span class="n">current_con</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
+      <span class="n">columns</span><span class="o">=</span> <span class="n">attachsql_query_column_count</span><span class="p">(</span><span class="n">current_con</span><span class="p">);</span>
+      <span class="k">for</span> <span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">columns</span><span class="p">;</span> <span class="n">col</span><span class="o">++</span><span class="p">)</span>
+      <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Con: %d, Column: %d, Length: %zu, Data: %.*s &quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">con_no</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="n">length</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="n">length</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="n">data</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">attachsql_query_row_next</span><span class="p">(</span><span class="n">current_con</span><span class="p">);</span>
+      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">ATTACHSQL_EVENT_NONE</span>:
+      <span class="k">break</span><span class="p">;</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
-<p>If we don't have a row yet continue polling until we do.  In a real-world application you can have other tasks on your main thread going on here and/or poll many connections on a single thread.</p>
-<div class="highlight"><pre><span class="n">row</span><span class="o">=</span> <span class="n">attachsql_query_row_get</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">);</span>
-</pre></div>
-<p>Process the row and return an array of pointers to the network read buffer for parts of the row.</p>
-<div class="highlight"><pre><span class="n">columns</span><span class="o">=</span> <span class="n">attachsql_query_column_count</span><span class="p">(</span><span class="n">con</span><span class="p">);</span>
-
-<span class="k">for</span> <span class="p">(</span><span class="n">current_column</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">current_column</span> <span class="o">&lt;</span> <span class="n">columns</span><span class="p">;</span> <span class="n">current_column</span><span class="o">++</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%.*s &quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">row</span><span class="p">[</span><span class="n">current_column</span><span class="p">].</span><span class="n">length</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">current_column</span><span class="p">].</span><span class="n">data</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</pre></div>
-<p>Iterate through the columns in the row and print out the result.  Technically we only need to call <tt class="docutils literal">attachsql_query_column_count()</tt> once when the first row is ready in the buffer.</p>
-<div class="highlight"><pre>  <span class="n">attachsql_query_row_next</span><span class="p">(</span><span class="n">con</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-<p>This tells the library that we are done with this row and are ready to retrieve the next, which brings us back to polling.</p>
-<div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">error</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error occurred: %s&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">-&gt;</span><span class="n">msg</span><span class="p">);</span>
-  <span class="n">attachsql_error_free</span><span class="p">(</span><span class="n">error</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-<p>If we have broken out of the loop due to an error, print that out and free the error object.</p>
-<div class="highlight"><pre>  <span class="n">attachsql_query_close</span><span class="p">(</span><span class="n">con</span><span class="p">);</span>
-  <span class="n">attachsql_connect_destroy</span><span class="p">(</span><span class="n">con</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-<p>Close the query and destroy the connection.  All done!</p>
+<p>The EOF call happens when we reach the end of the result set.  You could easily make this a job server here sending more queries when the previous queries are complete.  ROW_READY should be familiar to anyone who has seen previous examples of libAttachSQL.</p>
+</div>
+<div class="section" id="release-and-packages">
+<h2>Release and Packages</h2>
+<p>libAttachSQL 0.9.0RC is out today, there is a source release as well as packages for RHEL &amp; CentOS 6/7 64bit as well as an Ubuntu PPA 12.04/14.04 32bit and 64bit.  Links to all these can be found on the news section of the <a class="reference external" href="http://libattachsql.org/">libAttachSQL site</a>.</p>
+</div>
 
         </div><!-- /.entry-content -->
         <div class="comments">
         <h2>Comments !</h2>
             <div id="disqus_thread"></div>
             <script type="text/javascript">
-               var disqus_identifier = "posts/2014/Sep/23/libattachsql-query-example/";
+               var disqus_identifier = "posts/2014/Oct/14/libattachsql-090-rc-connection-groups/";
                (function() {
                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                dsq.src = 'http://linuxjedi.disqus.com/embed.js';

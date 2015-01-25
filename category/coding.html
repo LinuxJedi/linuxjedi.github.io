@@ -34,76 +34,84 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/22/c-library-visibility/">C Library Visibility</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/25/working-with-git/">Working With Git</a></h1>
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-22T09:25:00+00:00">Thu 22 Jan 2015, 09:25</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-25T16:33:00+00:00">Sun 25 Jan 2015, 16:33</abbr></p>
 
 <p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> <a href="http://linuxjedi.co.uk/tag/api.html">API</a> <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>I was surprised by the recent <a class="reference external" href="http://mysqlserverteam.com/how-to-use-ssl-and-mysql-client-library-in-the-same-binary/">announcement</a> that MySQL are going to start to conceal the hidden function calls in their C connector.  Surprised because although this is great news I had expected them to do this years ago.  Working for HP's Advanced Technology Group I realise I take such things for granted.  For this blog post I'm going to talk about why it is important and how to do it.</p>
-<p>So, when you create a dynamic library in C the default thing that happens is every function call in that library effectively becomes a potential API call.  Whether you document every single function or not to make it official API is up to you but I suspect in 99.99% of cases there are private functions you don't want users to mess with.  Additionally holding the symbol information for every function so that you can link your application to it takes a massive amount of space, one such library I can think of is 8x bigger than it should be due to exposing every function call.</p>
-<p>In MySQL's case and likely others this can cause a problem with collisions during linking.  MySQL can use its bundled in YaSSL library to supply SSL, and due to the functions being exposed this can cause problems if your application links to libmysqlclient and OpenSSL since they both use the same public API calls in many places.</p>
-<p>RedHat and other distributions actually solve this in MySQL by stripping the binaries of unneeded symbols at compile time.  This is indeed one effective solution.  But I don't believe this is the correct solution.  In fact Ulrich Drepper in <a class="reference external" href="https://software.intel.com/sites/default/files/m/a/1/e/dsohowto.pdf">How To Write Shared Libraries</a> pretty much reserves this as a last resort.</p>
-<div class="section" id="link-time-visibility">
-<h2>Link Time Visibility</h2>
-<p>The solution I and many others recommend is using visibility at link time.  There are three parts to applying this:</p>
-<ol class="arabic simple">
-<li>The compiler flag</li>
-<li>An extra include file</li>
-<li>Marking the functions you want to be in the API as public</li>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/git.html">Git</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>At a recent meeting HP's Advanced Technology Group has been agreeing on standards for working with git, covering mainly the collaboration and versioning aspects.  Today I will share with you how I do this in my Open Source projects which has some crossover with the group's work.</p>
+<div class="section" id="versioning">
+<h2>Versioning</h2>
+<p>I use <a class="reference external" href="http://semver.org/">Semantic Versioning</a> everywhere I can.  In fact I used to pretty much use it everywhere before I knew it was a standard.  This means that I have my GitHub trees layed out so that 'master' is the latest stable code, v1.0 branch is the latest stable v1.0 code, v1.1 branch is the latest in v1.1 and so on.  I then create GPG signed tags from these branches to create releases as follows:</p>
+<div class="highlight"><pre>git checkout v1.1
+git tag -s v1.1.2 -m <span class="s1">&#39;Version 1.1.2 release&#39;</span>
+git push --tags
+</pre></div>
+</div>
+<div class="section" id="forking">
+<h2>Forking</h2>
+<p>Even if it is just me working on a particular project I will always use forks and pull requests to work on code.  This model works well with <a class="reference external" href="http://semver.org/">Travis CI</a> because it can test code prior to merging and give feedback in the pull request.</p>
+<p>For this example I'm assuming you are using SSH keys and two-factor authentication with Git, if you aren't you need to do this ASAP.  Instructions can be found on <a class="reference external" href="https://github.com/blog/1614-two-factor-authentication">GitHub's blog</a>.</p>
+<p>A fork is typically created as follows:</p>
+<ol class="arabic">
+<li><p class="first">Create a fork in GitHub, you can do this by clicking the fork button on a project.</p>
+</li>
+<li><p class="first">Grab a local copy of your fork to work with (replacing <cite>USERNAME</cite> and <cite>Repository</cite> with whatever is applicable to you):</p>
+<div class="highlight"><pre>git clone git@github.com:USERNAME/Repository
+</pre></div>
+</li>
+<li><p class="first">Then you should set the upstream remote so that you can easily grab the latest code as needed.  I've used HTTPS here because you don't need to be authenticated to do this unless it is a private repository:</p>
+<div class="highlight"><pre>git remote add upstream https://github.com/PROJECT/Repository
+</pre></div>
+</li>
 </ol>
-<p>I shall go through these steps for GCC, other compilers will be very similar and there is plenty of information on the internet about this.</p>
-<div class="section" id="compiler-flag">
-<h3>Compiler Flag</h3>
-<p>You simply need to add one compiler flag which will hide all function calls by default instead of exposing them all by default:</p>
-<pre class="literal-block">
--fvisibility=hidden
-</pre>
 </div>
-<div class="section" id="include-file">
-<h3>Include File</h3>
-<p>This is one example taken from <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> and there is an example with more platform support on the <a class="reference external" href="https://gcc.gnu.org/wiki/Visibility">GCC Visibility manual page</a>.</p>
-<p>In this example you need to change <tt class="docutils literal">BUILDING_ASQL</tt> and <tt class="docutils literal">ASQL_API</tt> to suit your own naming.</p>
-<div class="highlight"><pre><span class="cp">#if defined(BUILDING_ASQL)</span>
-<span class="cp"># if defined(HAVE_VISIBILITY) &amp;&amp; HAVE_VISIBILITY</span>
-<span class="cp">#  define ASQL_API __attribute__ ((visibility(&quot;default&quot;)))</span>
-<span class="cp"># elif defined (__SUNPRO_C) &amp;&amp; (__SUNPRO_C &gt;= 0x550)</span>
-<span class="cp">#  define ASQL_API __global</span>
-<span class="cp"># elif defined(_MSC_VER)</span>
-<span class="cp">#  define ASQL_API extern __declspec(dllexport)</span>
-<span class="cp"># else</span>
-<span class="cp">#  define ASQL_API</span>
-<span class="cp"># endif </span><span class="cm">/* defined(HAVE_VISIBILITY) */</span><span class="cp"></span>
-<span class="cp">#else  </span><span class="cm">/* defined(BUILDING_ASQL) */</span><span class="cp"></span>
-<span class="cp"># if defined(_MSC_VER)</span>
-<span class="cp">#  define ASQL_API extern __declspec(dllimport)</span>
-<span class="cp"># else</span>
-<span class="cp">#  define ASQL_API</span>
-<span class="cp"># endif </span><span class="cm">/* defined(_MSC_VER) */</span><span class="cp"></span>
-<span class="cp">#endif </span><span class="cm">/* defined(BUILDING_ASQL) */</span><span class="cp"></span>
+<div class="section" id="starting-a-new-branch">
+<h2>Starting a New Branch</h2>
+<p>Whenever you are starting a new group of work, create a new branch.  This holds true for features or just basic one line fixes.  In your fork:</p>
+<div class="highlight"><pre>git checkout master
+git pull --ff-only upstream master
+git push
+git checkout -b my_feature
 </pre></div>
+<p>This pulls the latest code from the upstream master to your master, pushes that to your fork and then creates a new checkout based on that code.</p>
 </div>
-<div class="section" id="marking-public-api">
-<h3>Marking Public API</h3>
-<p>With the above include file you need to define <tt class="docutils literal">BUILDING_ASQL</tt> somewhere in your library compiling.  This makes sure that during the library compiling/linking all the functions can be seen but they will be hidden at link time from external applications.</p>
-<p>Then when you are defining an API call in your .h file you can do as follows:</p>
-<div class="highlight"><pre><span class="kt">int</span> <span class="nf">hidden_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">);</span>
-
-<span class="n">ASQL_API</span>
-<span class="kt">int</span> <span class="nf">public_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">);</span>
+<div class="section" id="syncing-fork">
+<h2>Syncing Fork</h2>
+<p>If you have worked on some code and at the same time someone else has merged code that may conflict (a pull request will tell you this straight away) you can merge upstream with your commits as follows:</p>
+<div class="highlight"><pre>git fetch upstream
+git merge upstream/master
 </pre></div>
-<p>You can see here I have prepended the function declaration with <tt class="docutils literal">ASQL_API</tt> for any function I wish to be part of the public API.</p>
+<p>This fetches the upstream code into a local cache and then will merge it.  If there are conflicts they will be flagged for you to resolve.</p>
 </div>
-<div class="section" id="conclusion">
-<h3>Conclusion</h3>
-<p>If you leave undocumented API dangling people will tend to use it, which causes all sorts of issues when you want to change some of the internal functions.  Ideally when writing an API setting the visibility should be a very early step, but thankfully it is one that can easily be added to a project at any time.</p>
-</div>
+<div class="section" id="pull-requests">
+<h2>Pull Requests</h2>
+<p>When your code is good and ready you can send it up as a pull request.  To do this you first need to push it up to your local repository:</p>
+<div class="highlight"><pre>git push --set-upstream origin my_feature
+</pre></div>
+<p>Then when you go to the project's repository you will see a button to file a pull request.  If you are using continuous integration such as Travis CI you should wait for that to give a green result and preferably peer review too before clocking the merge button.</p>
 </div>
 
         </article></aside><!-- /#featured -->
                 <h1><i class="fa fa-bars"></i> Other articles</h1>
                 <hr />
                     <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/22/c-library-visibility/" rel="bookmark" title="Permalink to C Library Visibility">C Library Visibility</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-22T09:25:00+00:00">Thu 22 Jan 2015, 09:25</abbr></p>
+
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> <a href="http://linuxjedi.co.uk/tag/api.html">API</a> <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>I was surprised by the recent <a class="reference external" href="http://mysqlserverteam.com/how-to-use-ssl-and-mysql-client-library-in-the-same-binary/">announcement</a> that MySQL are going to start to conceal the hidden function calls in their C connector.  Surprised because although this is great news I had expected them to do this years ago.  Working for HP's Advanced Technology Group I realise I take ...</p>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/22/c-library-visibility/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/20/the-pointer-corruption-bug/" rel="bookmark" title="Permalink to The Pointer Corruption Bug">The Pointer Corruption Bug</a></h1>
@@ -241,6 +249,11 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                     <li class="list-group-item tag-4">
                         <a href="http://linuxjedi.co.uk/tag/flash.html">
                             Flash
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://linuxjedi.co.uk/tag/git.html">
+                            Git
                         </a>
                     </li>
                     <li class="list-group-item tag-1">

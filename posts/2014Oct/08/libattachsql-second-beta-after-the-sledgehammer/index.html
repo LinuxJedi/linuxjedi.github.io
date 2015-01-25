@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>USB Flash Drives - Trimming the FAT</title>
+        <title>libAttachSQL Second Beta, After the Sledgehammer</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -33,100 +33,37 @@
 
 <section id="content" class="body">
 <article>
-      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/05/usb-flash-drives-trimming-the-fat/"
-        rel="bookmark" title="Permalink to USB Flash Drives - Trimming the FAT">USB Flash Drives - Trimming the FAT</a></h1>  </header>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/"
+        rel="bookmark" title="Permalink to libAttachSQL Second Beta, After the Sledgehammer">libAttachSQL Second Beta, After the Sledgehammer</a></h1>  </header>
         <div class="entry-content">
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-05T22:34:00+00:00">Mon 05 Jan 2015, 22:34</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-08T20:52:00+01:00">Wed 08 Oct 2014, 20:52</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/usb.html">USB</a> <a href="http://linuxjedi.co.uk/tag/flash.html">Flash</a> <a href="http://linuxjedi.co.uk/tag/filesystems.html">Filesystems</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-        <p>As with most of you who read this blog I carry USB flash drives around with me all the time.  Right now I have 3 Kingston DTSE9 sticks on my keyring of various sizes each with a different purpose.  Whilst these drives are nowhere near the fastest out there they are the only ones I have had so far that don't snap off keyrings.</p>
-<img alt="" src="/images/king16GB_DTSE9_2.jpg" />
-<p>For this blog post I'll be talking about data where security is not a priority.  My encrypted flash drives are currently using <a class="reference external" href="https://veracrypt.codeplex.com/">VeraCrypt</a> but that is beyond the scope of this blog post.</p>
-<div class="section" id="fat32-woes">
-<h2>FAT32 woes</h2>
-<p>The largest one I have is 64GB and due to some of the work I do for HP's Advanced Technology Group this often needs to have large files on it.  Traditionally FAT32 has been used as a file system for memory cards and flash drives, one of the biggest reasons for this is that it is compatible with pretty much every computer operating system out there.  But FAT32 has many flaws:</p>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>Last week I <a class="reference external" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">blogged about getting sysbench working with libAttachSQL</a>.  This was not only an exercise in performance but also the first real test for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a>.</p>
+<p>Before I had done this testing the most the early Alpha and Beta releases of libAttachSQL had gone through is a few basic queries.  So, the first thing I did when I got the sysbench driver working was slap it with 1,000,000 queries.  It pretty much exploded instantly on that.  Over the course of this release I have probably hit it with over 100,000,000 queries and things run a lot smoother.</p>
+<p>This has led to today's release of libAttachSQL 0.5.0.  As far as changes go this release has the <a class="reference external" href="http://docs.libattachsql.org/en/latest/appendix/version_history.html#version-0-5">biggest changelog so far</a>.  Here is a summary of the major points:</p>
 <ul class="simple">
-<li>it has a single file limit of 4GB.  That may sound huge but this rules out DVD images and large databases.</li>
-<li>it does not support POSIX based permissions which anyone who uses Linux is used to.</li>
-<li>it doesn't support journalling so with a removable drive data corruption is very common.</li>
-<li>as a minor issue it is also designed for spinning disks with many more write cycles than flash.</li>
+<li>11 major bugs fixes, most of them crashing bugs</li>
+<li>Lots more documentation and examples</li>
+<li>More tests</li>
+<li>A couple of minor features</li>
+<li>A new semi-blocking mode</li>
+<li>A more consistent API for error handling</li>
 </ul>
-<p>What I needed was something that fixes as many of those problems as possible but is also compatible with Linux, Mac OS X and Windows.</p>
-</div>
-<div class="section" id="alternatives">
-<h2>Alternatives</h2>
-<p>I looked into several alternatives to FAT32 and summarised my findings below.  I'm primarily looking for out-of-box support, I know there are paid third-party add-ons to operating systems to add support.</p>
-<div class="section" id="exfat">
-<h3>exFAT</h3>
-<p>A company looked into all the problems with FAT and created a filesystem designed for use with flash drives, they called this <em>exFAT</em>.  Unfortunately that company is Microsoft and what they created is not an open standard and is full of patents.</p>
-<p>This means that only people who have paid licenses can use exFAT.  This includes Mac OS X and digital camera manufacturers but unfortunately means Linux support is very limited.</p>
-<p>exFAT is therefore thrown out.</p>
-</div>
-<div class="section" id="hfs">
-<h3>HFS+</h3>
-<p>HFS+ is the primary file system used by Mac OS X.  There is good support for this in Macs (obviously) and Linux, but no support in Windows.</p>
-<p>Unfortunately that means HFS+ is out.</p>
-</div>
-<div class="section" id="ntfs">
-<h3>NTFS</h3>
-<p>NTFS is Microsoft's primary file system in NT based operating systems (for most people this means Windows XP onwards).  Like HFS+ it isn't a bad file system for flash drives and in recent Linux distributions has very good support.  Unfortunately in Mac OS X it can only be used in read-only mode.</p>
-<p>Another Microsoft FS thrown out.</p>
-</div>
-<div class="section" id="udf">
-<h3>UDF</h3>
-<p>Yes, you read that correctly, UDF.  It is a filesystem which was originally designed for use with optical media.  But, it has since been adapted for use with hard drives and flash drives!</p>
-<p>The maximum file size is 16EB (actually bigger than the maximum volume size).  It supports POSIX file system permissions.  But most importantly, it works with Linux, Mac OS X and Windows (Vista onwards) out of the box!</p>
-<p>In addition the UDF format was designed for packet writing so it works by appending on the end of data on the file system and expiring the old data.  In theory this could lead to less wear of the drive.  Flash drives typically use dynamic wear leveling which is similar to the static wear leveling used in SSDs but less complex.  The algorithm used may mean that the packet writing has no real advantage on the wear of the drive.  I don't have enough data to say for certain.</p>
-<p>The file system itself works like a journal.  It appends new data to the end of the log with a new version of the file table.  So, if a write was not completed successfully it will use the previous version of the log.  This also means recovery of deleted files is possible by traversing previous versions of the data log.</p>
-<p>For me this ticks all the boxes so I am using it with a 64GB UDF formatted flash.</p>
-</div>
-</div>
-<div class="section" id="making-a-udf-flash-drive">
-<h2>Making a UDF flash drive</h2>
-<div class="section" id="mac-os-x">
-<h3>Mac OS X</h3>
-<p>Unfortunately Disk Utility doesn't let you format a flash drive as UDF but you can use the command line to do it.</p>
-<p>First of all you need to figure out the drive path for your flash drive.  It will be in the format <tt class="docutils literal">/dev/disk{drive_no}</tt> where drive_no is the drive number, if it is followed by the letter <em>s</em> and another number then that is a partition and not what we need at this stage:</p>
-<div class="highlight"><pre>diskutil list
-</pre></div>
-<p>Now you need to find out the block size (it is typically 512).  Make a note of this number because you will need it later:</p>
-<div class="highlight"><pre>diskutil info /dev/disk<span class="o">{</span>drive_no<span class="o">}</span> | grep <span class="s2">&quot;Block Size&quot;</span>
-</pre></div>
-<p>The drive can't be changed until we unmount the partitions so run this for every partition that is currently in-use for your drive:</p>
-<div class="highlight"><pre>diskutil unmount /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>s<span class="o">{</span>partition_no<span class="o">}</span>
-</pre></div>
-<p>Due to the nature of the UDF format it is possible that the operating system would still detect the drive as FAT32 afterwards so we need to blank the drive with zeros.  This could take some time:</p>
-<div class="highlight"><pre>diskutil secureErase 0 /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>
-</pre></div>
-<p>Now the drive can be formatted, replace <em>block_size</em> with the number you wrote down above:</p>
-<div class="highlight"><pre>sudo newfs_udf -b <span class="o">{</span>block_size<span class="o">}</span> /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>
-</pre></div>
-<p>Finally the drive can be mounted again for use as normal:</p>
-<div class="highlight"><pre>diskutil mount /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>
-</pre></div>
-</div>
-<div class="section" id="linux">
-<h3>Linux</h3>
-<p>In Linux things get a little easier.  First of all unmount the partitions on the drive and then we need the block size, write this one down:</p>
-<div class="highlight"><pre>sudo blockdev --getbsz /dev/sd<span class="o">{</span>drive_letter<span class="o">}</span>
-</pre></div>
-<p>We then need to zero out the drive so that it isn't incorrectly detected:</p>
-<div class="highlight"><pre>sudo dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>/dev/sd<span class="o">{</span>drive_letter<span class="o">}</span> <span class="nv">bs</span><span class="o">=</span>1M <span class="nv">count</span><span class="o">=</span>1
-</pre></div>
-<p>Then we need to make the UDF format, replacing <em>block_size</em> with the number noted above:</p>
-<div class="highlight"><pre>sudo mkudffs -b <span class="o">{</span>block_size<span class="o">}</span> --media-type<span class="o">=</span>hd /dev/sd<span class="o">{</span>drive_letter<span class="o">}</span>
-</pre></div>
-</div>
-</div>
+<p>These last two points I should talk about a bit more.  The semi-blocking mode lets the networking code block until data is received (but not until it is all received).  For applications which access using one connection per thread this will increase performance, but will decrease performance for many connections per thread (which is what libAttachSQL was originally designed for).</p>
+<p>The error handling has moved from a user accessible struct to a type which is used in function calls.  In addition the way this is returned to the user application has been made consistent across the whole API.  This means that the API is not backwards compatible with 0.4.0.</p>
+<p>For those wishing to try out the connector the 0.5.0 beta source release <a class="reference external" href="https://github.com/libattachsql/libattachsql/releases/tag/v0.5.0">can be found on GitHub</a>.  The documentation is on <a class="reference external" href="http://docs.libattachsql.org/en/latest/">Read The Docs</a>.</p>
+<p>This will be the last beta for libAttachSQL.  The next release will be 0.9.0 RC which will hopefully be a short cycle to our first GA release.  We have many more goodies planned after GA.  Watch this space!</p>
+<p>As always if you have any questions please get in touch either via. the comments below, the <a class="reference external" href="irc://chat.freenode.net/libAttachSQL">#libAttachSQL Freenode channel</a> or any other means.</p>
 
         </div><!-- /.entry-content -->
         <div class="comments">
         <h2>Comments !</h2>
             <div id="disqus_thread"></div>
             <script type="text/javascript">
-               var disqus_identifier = "posts/2015/Jan/05/usb-flash-drives-trimming-the-fat/";
+               var disqus_identifier = "posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/";
                (function() {
                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                dsq.src = 'http://linuxjedi.disqus.com/embed.js';
@@ -152,8 +89,8 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                         <h2><i class="fa fa-home fa-lg"></i> Categories</h2>
                         <ul>
                            <li ><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
-                           <li class="active"><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
-                           <li ><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
+                           <li ><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
                         </ul>
                 </div>
