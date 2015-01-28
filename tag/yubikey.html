@@ -34,30 +34,70 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">YubiKey for OS Logins</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/28/yubikey-neo-with-openpgp/">YubiKey NEO with OpenPGP</a></h1>
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-28T10:24:00+00:00">Wed 28 Jan 2015, 10:24</abbr></p>
+
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/yubikey.html">YubiKey</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Last week I published a blog post on using <a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">YubiKey for OS Logins</a>.  Since then I've had a request from inside HP to create a blog post on using the YubiKey NEO with OpenPGP which is another thing I have done with my NEO.</p>
+<p>The YubiKey NEO has a built-in CCID smartcard interface which is disabled by default.  OpenGPG can use this instead of a passphrase for your keys.  This blog post will give some indication on how to do this.  It is assuming you have some experience of using gpg, I wanted to keep this as short as possible and it can be a complex topic.  As with any process I highly recommend backing up your existing gpg keys if you have any:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg -o key-backup.key --armour --export-secret-keys email@address.com
+</pre></div>
+<p>Before we start you will need to enable CCID on the YubiKey NEO, it is disabled by default.  The easiest way to do this is to use the <a class="reference external" href="https://developers.yubico.com/yubikey-neo-manager/">YubiKey NEO Manager</a>.  In this tool click on <em>Change connection mode</em> and tick the CCID box.</p>
+<p>First of all the YubiKey's CCID needs initializing.  The following enables the admin commands and starts the generation of new keys.  If you want to use the YubiKey with your old key then Ctrl-C out when it asks about the expiry.  Otherwise go through the prompts and make sure to use the <tt class="docutils literal">save</tt> command afterwards:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --card-edit
+
+gpg/card&gt; admin
+
+gpg/card&gt; generate
+</pre></div>
+<p>Now, every time you use it you will be asked for the PIN or admin PIN.  These are set to some basic defaults ('123456' and '12345678' respectively) so it would be a good idea to change these:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --change-pin
+</pre></div>
+<p>Option 1 is to change the access PIN and option 3 is to change the admin PIN.</p>
+<div class="section" id="using-an-existing-key">
+<h2>Using an existing key</h2>
+<p>If you have followed the steps above you have a primed smart card on your YubiKey ready to load your key onto.  Before we do this you need a total of three subkeys, one for encryption (you likely already have), one for signing and one for authentication.  We need to enter the key editor mode of gpg to look at this and add these:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --expert --edit-key email@address.com
+</pre></div>
+<p>You should get a list of your key and subkeys straight away.  The <em>Usage</em> column is the one we are looking for here.  You need an <tt class="docutils literal">E</tt> for Encryption, <tt class="docutils literal">A</tt> for Authentication and <tt class="docutils literal">S</tt> for Signing.  If you are missing any of these:</p>
+<div class="highlight"><pre>gpg&gt; addkey
+</pre></div>
+<p>Select option 8 (RSA) and then add whatever you need.  Repeat the process until you have one of each.</p>
+<p>You are now ready to move the keys to the YubiKey:</p>
+<div class="highlight"><pre>gpg&gt; key 1
+gpg&gt; keytocard
+gpg&gt; key 2
+gpg&gt; keytocard
+gpg&gt; key 3
+gpg&gt; keytocard
+gpg&gt; save
+</pre></div>
+<p>Your secret subkeys are now on the YubiKey which can be verified using:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --card-status
+</pre></div>
+</div>
+
+        </article></aside><!-- /#featured -->
+                <h1><i class="fa fa-bars"></i> Other articles</h1>
+                <hr />
+                    <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/" rel="bookmark" title="Permalink to YubiKey for OS Logins">YubiKey for OS Logins</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
     <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-19T16:14:00+00:00">Mon 19 Jan 2015, 16:14</abbr></p>
 
 <p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/yubikey.html">YubiKey</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>I have mentioned a few times in this blog that HP takes security very seriously and HP's Advanced Technology Group is always looking into new ways of making things secure.  Recently the team all got a <a class="reference external" href="https://www.yubico.com/products/yubikey-hardware/yubikey-neo/">YubiKey Neo</a> to use.  The initial idea was we would be trying the FIDO U2F with Google accounts but several of us went much further.</p>
-<p>Yazz Atlas from our team has been working on getting his SSH key into the NEO with some success.  I initially got my GPG key to work with the smart card feature in the NEO and have since been tinkering with a couple of other things.</p>
-<p>I happened to find an original YubiKey in a drawer which was used for OTP two-factor authentication to a server I no longer have access to.  I wanted to use this as a way of two-factor authentication for my computers.  Unfortunately there is no good way of doing this on the Mac at the moment so I came up with a different way of doing a less secure two-factor authentication with it (but more secure than a fixed password).</p>
-<p>The original YubiKey's have two &quot;slots&quot; in them.  Each slot can store either an OTP two-factor authentication identity or a static password.  You can tap a YubiKey to get the first slot and hold for around 3 seconds for the second slot.  The way I'm using this is to have the slots store static passwords, I then have a hand typed part of my password and a second static part stored on the YubiKey.  This means that if the YubiKey is stolen/used it is useless without my hand typed-part.  I have a backup of the YubiKey's static password in my <a class="reference external" href="https://lastpass.com/">LastPass</a> account (which incidentally uses two-factor authentication).</p>
-<p>There was a minor snag in this to begin with, my Macs are encrypted with FileVault which has a known login problem.  If you type a password too quickly it actually drops some of characters that you have typed.  The YubiKey is a virtual keyboard and although it deliberately doesn't type too quickly, it is too fast for FileVault.  If your YubiKey is a version 2.3 or higher this is easy to fix.  In the <a class="reference external" href="https://www.yubico.com/products/services-software/personalization-tools/">YubiKey Personalization Tool</a> you can go to settings and change the output frequency, this setting change can then be used to update a slot.  But if like me your original YubiKey is an older version you cannot do this.  There is a way around this by generating a new key, but it requires the command line (the GUI doesn't have the options to change the delay whilst generating a new key).</p>
-<p>First of all you need the command line YubiKey Personalization Tool.  There are <a class="reference external" href="https://yubico.github.io/yubikey-personalization/releases.html">Linux, Mac and Windows versions available</a> and some Linux distros have it in their repository.  Using this tool you can generate a new random static password with a typing delay as follows:</p>
-<div class="highlight"><pre>ykpersonalize -2 -opacing-20ms -ostrong-pw2 -ostrong-pw1 -ostatic-token
-</pre></div>
-<p>You can change the <tt class="docutils literal"><span class="pre">-2</span></tt> to <tt class="docutils literal"><span class="pre">-1</span></tt> if you wish to program slot 1 instead.  The typing delay is added using the <tt class="docutils literal"><span class="pre">pacing-20ms</span></tt> option.  Unfortunately this flag doesn't quite match the GUI, if you want to match the GUI options here is what you need to use:</p>
-<ul class="simple">
-<li>20ms Delay - <tt class="docutils literal"><span class="pre">pacing-10ms</span></tt></li>
-<li>40ms Delay - <tt class="docutils literal"><span class="pre">pacing-20ms</span></tt></li>
-<li>60ms Delay - <tt class="docutils literal"><span class="pre">pacing-20ms</span></tt> and <tt class="docutils literal"><span class="pre">pacing-10ms</span></tt></li>
-</ul>
-<p>For FileVault it is recommended you using the 40ms delay as a minimum.  The 20ms delay works most of the time but can still fail.</p>
-<p>So, now to log into my machines I type in the part of the password I have remembered and then press the YubiKey to fill in the rest of the password.</p>
-
-        </article></aside><!-- /#featured -->
+                <p>I have mentioned a few times in this blog that HP takes security very seriously and HP's Advanced Technology Group is always looking into new ways of making things secure.  Recently the team all got a <a class="reference external" href="https://www.yubico.com/products/yubikey-hardware/yubikey-neo/">YubiKey Neo</a> to use.  The initial idea was we would be trying the ...</p>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
 </ol><!-- /#posts-list -->
 </section><!-- /#content -->
 
@@ -86,6 +126,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             <li><a href="http://krow.net/"><i class="fa fa-globe fa-lg"></i> Brian Aker</a></li>
                             <li><a href="https://egustafson.github.io/oscon-2014-p1.html"><i class="fa fa-globe fa-lg"></i> Eric Gustafson</a></li>
                             <li><a href="http://patg.net/"><i class="fa fa-globe fa-lg"></i> Patrick Galbraith</a></li>
+                            <li><a href="http://askyazz.com/"><i class="fa fa-globe fa-lg"></i> Yazz Atlas</a></li>
                         </ul>
                 </div><!-- /.blogroll -->
                 <div class="widget social">
@@ -184,7 +225,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Python
                         </a>
                     </li>
-                    <li class="list-group-item tag-3">
+                    <li class="list-group-item tag-2">
                         <a href="http://linuxjedi.co.uk/tag/security.html">
                             Security
                         </a>
@@ -194,7 +235,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             USB
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-3">
                         <a href="http://linuxjedi.co.uk/tag/yubikey.html">
                             YubiKey
                         </a>

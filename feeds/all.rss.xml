@@ -1,11 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LinuxJedi's /dev/null</title><link>http://linuxjedi.co.uk/</link><description>The /dev/null ramblings of a Linux Jedi</description><atom:link href="http://linuxjedi.co.uk/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Sun, 25 Jan 2015 16:33:00 +0000</lastBuildDate><item><title>Working With Git</title><link>http://linuxjedi.co.uk/posts/2015/Jan/25/working-with-git/</link><description>&lt;p&gt;At a recent meeting HP's Advanced Technology Group has been agreeing on standards for working with git, covering mainly the collaboration and versioning aspects.  Today I will share with you how I do this in my Open Source projects which has some crossover with the group's work.&lt;/p&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LinuxJedi's /dev/null</title><link>http://linuxjedi.co.uk/</link><description>The /dev/null ramblings of a Linux Jedi</description><atom:link href="http://linuxjedi.co.uk/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 28 Jan 2015 10:24:00 +0000</lastBuildDate><item><title>YubiKey NEO with OpenPGP</title><link>http://linuxjedi.co.uk/posts/2015/Jan/28/yubikey-neo-with-openpgp/</link><description>&lt;p&gt;Last week I published a blog post on using &lt;a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/"&gt;YubiKey for OS Logins&lt;/a&gt;.  Since then I've had a request from inside HP to create a blog post on using the YubiKey NEO with OpenPGP which is another thing I have done with my NEO.&lt;/p&gt;
+&lt;p&gt;The YubiKey NEO has a built-in CCID smartcard interface which is disabled by default.  OpenGPG can use this instead of a passphrase for your keys.  This blog post will give some indication on how to do this.  It is assuming you have some experience of using gpg, I wanted to keep this as short as possible and it can be a complex topic.  As with any process I highly recommend backing up your existing gpg keys if you have any:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg -o key-backup.key --armour --export-secret-keys email@address.com
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Before we start you will need to enable CCID on the YubiKey NEO, it is disabled by default.  The easiest way to do this is to use the &lt;a class="reference external" href="https://developers.yubico.com/yubikey-neo-manager/"&gt;YubiKey NEO Manager&lt;/a&gt;.  In this tool click on &lt;em&gt;Change connection mode&lt;/em&gt; and tick the CCID box.&lt;/p&gt;
+&lt;p&gt;First of all the YubiKey's CCID needs initializing.  The following enables the admin commands and starts the generation of new keys.  If you want to use the YubiKey with your old key then Ctrl-C out when it asks about the expiry.  Otherwise go through the prompts and make sure to use the &lt;tt class="docutils literal"&gt;save&lt;/tt&gt; command afterwards:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --card-edit
+
+gpg/card&amp;gt; admin
+
+gpg/card&amp;gt; generate
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now, every time you use it you will be asked for the PIN or admin PIN.  These are set to some basic defaults ('123456' and '12345678' respectively) so it would be a good idea to change these:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --change-pin
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Option 1 is to change the access PIN and option 3 is to change the admin PIN.&lt;/p&gt;
+&lt;div class="section" id="using-an-existing-key"&gt;
+&lt;h2&gt;Using an existing key&lt;/h2&gt;
+&lt;p&gt;If you have followed the steps above you have a primed smart card on your YubiKey ready to load your key onto.  Before we do this you need a total of three subkeys, one for encryption (you likely already have), one for signing and one for authentication.  We need to enter the key editor mode of gpg to look at this and add these:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --expert --edit-key email@address.com
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You should get a list of your key and subkeys straight away.  The &lt;em&gt;Usage&lt;/em&gt; column is the one we are looking for here.  You need an &lt;tt class="docutils literal"&gt;E&lt;/tt&gt; for Encryption, &lt;tt class="docutils literal"&gt;A&lt;/tt&gt; for Authentication and &lt;tt class="docutils literal"&gt;S&lt;/tt&gt; for Signing.  If you are missing any of these:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;gpg&amp;gt; addkey
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Select option 8 (RSA) and then add whatever you need.  Repeat the process until you have one of each.&lt;/p&gt;
+&lt;p&gt;You are now ready to move the keys to the YubiKey:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;gpg&amp;gt; key 1
+gpg&amp;gt; keytocard
+gpg&amp;gt; key 2
+gpg&amp;gt; keytocard
+gpg&amp;gt; key 3
+gpg&amp;gt; keytocard
+gpg&amp;gt; save
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Your secret subkeys are now on the YubiKey which can be verified using:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --card-status
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+</description><pubDate>Wed, 28 Jan 2015 10:24:00 +0000</pubDate><guid>tag:linuxjedi.co.uk,2015-01-28:posts/2015/Jan/28/yubikey-neo-with-openpgp/</guid><category>YubiKey</category><category>Security</category><category>HP</category><category>Advanced Technology Group</category></item><item><title>Working With Git</title><link>http://linuxjedi.co.uk/posts/2015/Jan/25/working-with-git/</link><description>&lt;p&gt;At a recent meeting HP's Advanced Technology Group has been agreeing on standards for working with git, covering mainly the collaboration and versioning aspects.  Today I will share with you how I do this in my Open Source projects which has some crossover with the group's work.&lt;/p&gt;
 &lt;div class="section" id="versioning"&gt;
 &lt;h2&gt;Versioning&lt;/h2&gt;
 &lt;p&gt;I use &lt;a class="reference external" href="http://semver.org/"&gt;Semantic Versioning&lt;/a&gt; everywhere I can.  In fact I used to pretty much use it everywhere before I knew it was a standard.  This means that I have my GitHub trees layed out so that 'master' is the latest stable code, v1.0 branch is the latest stable v1.0 code, v1.1 branch is the latest in v1.1 and so on.  I then create GPG signed tags from these branches to create releases as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;git checkout v1.1
-git tag -s v1.1.2 -m &lt;span class="s1"&gt;&amp;#39;Version 1.1.2 release&amp;#39;&lt;/span&gt;
-git push --tags
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout v1.1
+&lt;span class="nv"&gt;$ &lt;/span&gt;git tag -s v1.1.2 -m &lt;span class="s1"&gt;&amp;#39;Version 1.1.2 release&amp;#39;&lt;/span&gt;
+&lt;span class="nv"&gt;$ &lt;/span&gt;git push --tags
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="forking"&gt;
@@ -17,11 +55,11 @@ git push --tags
 &lt;li&gt;&lt;p class="first"&gt;Create a fork in GitHub, you can do this by clicking the fork button on a project.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;Grab a local copy of your fork to work with (replacing &lt;cite&gt;USERNAME&lt;/cite&gt; and &lt;cite&gt;Repository&lt;/cite&gt; with whatever is applicable to you):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;git clone git@github.com:USERNAME/Repository
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git clone git@github.com:USERNAME/Repository
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;Then you should set the upstream remote so that you can easily grab the latest code as needed.  I've used HTTPS here because you don't need to be authenticated to do this unless it is a private repository:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;git remote add upstream https://github.com/PROJECT/Repository
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git remote add upstream https://github.com/PROJECT/Repository
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -29,25 +67,25 @@ git push --tags
 &lt;div class="section" id="starting-a-new-branch"&gt;
 &lt;h2&gt;Starting a New Branch&lt;/h2&gt;
 &lt;p&gt;Whenever you are starting a new group of work, create a new branch.  This holds true for features or just basic one line fixes.  In your fork:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;git checkout master
-git pull --ff-only upstream master
-git push
-git checkout -b my_feature
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout master
+&lt;span class="nv"&gt;$ &lt;/span&gt;git pull --ff-only upstream master
+&lt;span class="nv"&gt;$ &lt;/span&gt;git push
+&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout -b my_feature
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This pulls the latest code from the upstream master to your master, pushes that to your fork and then creates a new checkout based on that code.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="syncing-fork"&gt;
 &lt;h2&gt;Syncing Fork&lt;/h2&gt;
 &lt;p&gt;If you have worked on some code and at the same time someone else has merged code that may conflict (a pull request will tell you this straight away) you can merge upstream with your commits as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;git fetch upstream
-git merge upstream/master
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git fetch upstream
+&lt;span class="nv"&gt;$ &lt;/span&gt;git merge upstream/master
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This fetches the upstream code into a local cache and then will merge it.  If there are conflicts they will be flagged for you to resolve.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="pull-requests"&gt;
 &lt;h2&gt;Pull Requests&lt;/h2&gt;
 &lt;p&gt;When your code is good and ready you can send it up as a pull request.  To do this you first need to push it up to your local repository:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;git push --set-upstream origin my_feature
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git push --set-upstream origin my_feature
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Then when you go to the project's repository you will see a button to file a pull request.  If you are using continuous integration such as Travis CI you should wait for that to give a green result and preferably peer review too before clocking the merge button.&lt;/p&gt;
 &lt;/div&gt;
@@ -228,34 +266,34 @@ X-Powered-By:PHP/5.3.3
 &lt;h3&gt;Mac OS X&lt;/h3&gt;
 &lt;p&gt;Unfortunately Disk Utility doesn't let you format a flash drive as UDF but you can use the command line to do it.&lt;/p&gt;
 &lt;p&gt;First of all you need to figure out the drive path for your flash drive.  It will be in the format &lt;tt class="docutils literal"&gt;/dev/disk{drive_no}&lt;/tt&gt; where drive_no is the drive number, if it is followed by the letter &lt;em&gt;s&lt;/em&gt; and another number then that is a partition and not what we need at this stage:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;diskutil list
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil list
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now you need to find out the block size (it is typically 512).  Make a note of this number because you will need it later:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; | grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; | grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The drive can't be changed until we unmount the partitions so run this for every partition that is currently in-use for your drive:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;diskutil unmount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;s&lt;span class="o"&gt;{&lt;/span&gt;partition_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil unmount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;s&lt;span class="o"&gt;{&lt;/span&gt;partition_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Due to the nature of the UDF format it is possible that the operating system would still detect the drive as FAT32 afterwards so we need to blank the drive with zeros.  This could take some time:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;diskutil secureErase 0 /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil secureErase 0 /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now the drive can be formatted, replace &lt;em&gt;block_size&lt;/em&gt; with the number you wrote down above:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo newfs_udf -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo newfs_udf -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Finally the drive can be mounted again for use as normal:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;diskutil mount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil mount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="linux"&gt;
 &lt;h3&gt;Linux&lt;/h3&gt;
 &lt;p&gt;In Linux things get a little easier.  First of all unmount the partitions on the drive and then we need the block size, write this one down:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo blockdev --getbsz /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo blockdev --getbsz /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;We then need to zero out the drive so that it isn't incorrectly detected:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo dd &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/zero &lt;span class="nv"&gt;of&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;bs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1M &lt;span class="nv"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo dd &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/zero &lt;span class="nv"&gt;of&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;bs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1M &lt;span class="nv"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Then we need to make the UDF format, replacing &lt;em&gt;block_size&lt;/em&gt; with the number noted above:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sudo mkudffs -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; --media-type&lt;span class="o"&gt;=&lt;/span&gt;hd /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo mkudffs -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; --media-type&lt;span class="o"&gt;=&lt;/span&gt;hd /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -301,7 +339,7 @@ X-Powered-By:PHP/5.3.3
 &lt;div class="section" id="the-test"&gt;
 &lt;h2&gt;The Test&lt;/h2&gt;
 &lt;p&gt;I used the exact same test rig and configuration as the previous Sysbench tests and as before the test was run with 1,000,000 queries.  The AttachBench tool executed was as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;attachbench --db&lt;span class="o"&gt;=&lt;/span&gt;sbtest --user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --pass&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --db&lt;span class="o"&gt;=&lt;/span&gt;testdb --queries&lt;span class="o"&gt;=&lt;/span&gt;1000000 --connections&lt;span class="o"&gt;=&lt;/span&gt;32 --host&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --port&lt;span class="o"&gt;=&lt;/span&gt;0
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;attachbench --db&lt;span class="o"&gt;=&lt;/span&gt;sbtest --user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --pass&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --db&lt;span class="o"&gt;=&lt;/span&gt;testdb --queries&lt;span class="o"&gt;=&lt;/span&gt;1000000 --connections&lt;span class="o"&gt;=&lt;/span&gt;32 --host&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --port&lt;span class="o"&gt;=&lt;/span&gt;0
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I've added the results to the previous select test to the graph for comparison.  The two &amp;quot;Select&amp;quot; result sets are for Sysbench with one connection per thread.  The third is with AttachBench running the same queries, just with many connections in a single thread.&lt;/p&gt;
 &lt;img alt="" src="/images/select_single_thread.png" /&gt;
@@ -422,10 +460,10 @@ X-Powered-By:PHP/5.3.3
 &lt;div class="section" id="select-test"&gt;
 &lt;h2&gt;Select Test&lt;/h2&gt;
 &lt;p&gt;First the basic select test was run, which queries for random single integers in a table.  This was run with the MySQL driver as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;mysql --mysql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --mysql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;mysql --mysql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --mysql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And libAttachSQL:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;attachsql --attachsql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --attachsql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;attachsql --attachsql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --attachsql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The results were as follows:&lt;/p&gt;
 &lt;img alt="" src="/images/select_benchmark.png" /&gt;
@@ -435,10 +473,10 @@ X-Powered-By:PHP/5.3.3
 &lt;h2&gt;Select Random Points&lt;/h2&gt;
 &lt;p&gt;I used the &amp;quot;Select Random Points&amp;quot; benchmark because it is one of the only ones that comes with Sysbench which uses Prepared Statements.  It selects 10 random integers from a table per query.&lt;/p&gt;
 &lt;p&gt;As before this was run on using libmysqlclient with:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select_random_points.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;mysql --mysql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --mysql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select_random_points.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;mysql --mysql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --mysql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And with libAttachSQL:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select_random_points.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;attachsql --attachsql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --attachsql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select_random_points.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;attachsql --attachsql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --attachsql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;8 --max-requests&lt;span class="o"&gt;=&lt;/span&gt;1000000 run
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The results were as follows:&lt;/p&gt;
 &lt;img alt="" src="/images/select_random_points_benchmark.png" /&gt;

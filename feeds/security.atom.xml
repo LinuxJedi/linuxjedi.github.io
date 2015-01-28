@@ -1,5 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>LinuxJedi's /dev/null</title><link href="http://linuxjedi.co.uk/" rel="alternate"></link><link href="http://linuxjedi.co.uk/feeds/security.atom.xml" rel="self"></link><id>http://linuxjedi.co.uk/</id><updated>2015-01-21T19:30:00+00:00</updated><entry><title>Webserver Concealing</title><link href="http://linuxjedi.co.uk/posts/2015/Jan/21/webserver-concealing/" rel="alternate"></link><updated>2015-01-21T19:30:00+00:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-01-21:posts/2015/Jan/21/webserver-concealing/</id><summary type="html">&lt;p&gt;Right now there are bots on the internet scanning every IP possible for vulnerable servers.  This is a fact of life on the internet.  This means you need to keep any internet facing machines as secure as possible.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>LinuxJedi's /dev/null</title><link href="http://linuxjedi.co.uk/" rel="alternate"></link><link href="http://linuxjedi.co.uk/feeds/security.atom.xml" rel="self"></link><id>http://linuxjedi.co.uk/</id><updated>2015-01-28T10:24:00+00:00</updated><entry><title>YubiKey NEO with OpenPGP</title><link href="http://linuxjedi.co.uk/posts/2015/Jan/28/yubikey-neo-with-openpgp/" rel="alternate"></link><updated>2015-01-28T10:24:00+00:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-01-28:posts/2015/Jan/28/yubikey-neo-with-openpgp/</id><summary type="html">&lt;p&gt;Last week I published a blog post on using &lt;a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/"&gt;YubiKey for OS Logins&lt;/a&gt;.  Since then I've had a request from inside HP to create a blog post on using the YubiKey NEO with OpenPGP which is another thing I have done with my NEO.&lt;/p&gt;
+&lt;p&gt;The YubiKey NEO has a built-in CCID smartcard interface which is disabled by default.  OpenGPG can use this instead of a passphrase for your keys.  This blog post will give some indication on how to do this.  It is assuming you have some experience of using gpg, I wanted to keep this as short as possible and it can be a complex topic.  As with any process I highly recommend backing up your existing gpg keys if you have any:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg -o key-backup.key --armour --export-secret-keys email@address.com
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Before we start you will need to enable CCID on the YubiKey NEO, it is disabled by default.  The easiest way to do this is to use the &lt;a class="reference external" href="https://developers.yubico.com/yubikey-neo-manager/"&gt;YubiKey NEO Manager&lt;/a&gt;.  In this tool click on &lt;em&gt;Change connection mode&lt;/em&gt; and tick the CCID box.&lt;/p&gt;
+&lt;p&gt;First of all the YubiKey's CCID needs initializing.  The following enables the admin commands and starts the generation of new keys.  If you want to use the YubiKey with your old key then Ctrl-C out when it asks about the expiry.  Otherwise go through the prompts and make sure to use the &lt;tt class="docutils literal"&gt;save&lt;/tt&gt; command afterwards:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --card-edit
+
+gpg/card&amp;gt; admin
+
+gpg/card&amp;gt; generate
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Now, every time you use it you will be asked for the PIN or admin PIN.  These are set to some basic defaults ('123456' and '12345678' respectively) so it would be a good idea to change these:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --change-pin
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Option 1 is to change the access PIN and option 3 is to change the admin PIN.&lt;/p&gt;
+&lt;div class="section" id="using-an-existing-key"&gt;
+&lt;h2&gt;Using an existing key&lt;/h2&gt;
+&lt;p&gt;If you have followed the steps above you have a primed smart card on your YubiKey ready to load your key onto.  Before we do this you need a total of three subkeys, one for encryption (you likely already have), one for signing and one for authentication.  We need to enter the key editor mode of gpg to look at this and add these:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --expert --edit-key email@address.com
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;You should get a list of your key and subkeys straight away.  The &lt;em&gt;Usage&lt;/em&gt; column is the one we are looking for here.  You need an &lt;tt class="docutils literal"&gt;E&lt;/tt&gt; for Encryption, &lt;tt class="docutils literal"&gt;A&lt;/tt&gt; for Authentication and &lt;tt class="docutils literal"&gt;S&lt;/tt&gt; for Signing.  If you are missing any of these:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;gpg&amp;gt; addkey
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Select option 8 (RSA) and then add whatever you need.  Repeat the process until you have one of each.&lt;/p&gt;
+&lt;p&gt;You are now ready to move the keys to the YubiKey:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;gpg&amp;gt; key 1
+gpg&amp;gt; keytocard
+gpg&amp;gt; key 2
+gpg&amp;gt; keytocard
+gpg&amp;gt; key 3
+gpg&amp;gt; keytocard
+gpg&amp;gt; save
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Your secret subkeys are now on the YubiKey which can be verified using:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --card-status
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/div&gt;
+</summary><category term="YubiKey"></category><category term="Security"></category><category term="HP"></category><category term="Advanced Technology Group"></category></entry><entry><title>Webserver Concealing</title><link href="http://linuxjedi.co.uk/posts/2015/Jan/21/webserver-concealing/" rel="alternate"></link><updated>2015-01-21T19:30:00+00:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-01-21:posts/2015/Jan/21/webserver-concealing/</id><summary type="html">&lt;p&gt;Right now there are bots on the internet scanning every IP possible for vulnerable servers.  This is a fact of life on the internet.  This means you need to keep any internet facing machines as secure as possible.&lt;/p&gt;
 &lt;p&gt;Whilst it is no panacea one step you can take to hide the version of the web server software you are using.  If there is a zero-day bug a bot or malicious person is scanning for and you are vulnerable this can help hide it.&lt;/p&gt;
 &lt;p&gt;I was recently looking at an SSL problem with a local high school and found the server was reporting the following:&lt;/p&gt;
 &lt;pre class="literal-block"&gt;

@@ -44,9 +44,9 @@
 <div class="section" id="versioning">
 <h2>Versioning</h2>
 <p>I use <a class="reference external" href="http://semver.org/">Semantic Versioning</a> everywhere I can.  In fact I used to pretty much use it everywhere before I knew it was a standard.  This means that I have my GitHub trees layed out so that 'master' is the latest stable code, v1.0 branch is the latest stable v1.0 code, v1.1 branch is the latest in v1.1 and so on.  I then create GPG signed tags from these branches to create releases as follows:</p>
-<div class="highlight"><pre>git checkout v1.1
-git tag -s v1.1.2 -m <span class="s1">&#39;Version 1.1.2 release&#39;</span>
-git push --tags
+<div class="highlight"><pre><span class="nv">$ </span>git checkout v1.1
+<span class="nv">$ </span>git tag -s v1.1.2 -m <span class="s1">&#39;Version 1.1.2 release&#39;</span>
+<span class="nv">$ </span>git push --tags
 </pre></div>
 </div>
 <div class="section" id="forking">
@@ -58,11 +58,11 @@ git push --tags
 <li><p class="first">Create a fork in GitHub, you can do this by clicking the fork button on a project.</p>
 </li>
 <li><p class="first">Grab a local copy of your fork to work with (replacing <cite>USERNAME</cite> and <cite>Repository</cite> with whatever is applicable to you):</p>
-<div class="highlight"><pre>git clone git@github.com:USERNAME/Repository
+<div class="highlight"><pre><span class="nv">$ </span>git clone git@github.com:USERNAME/Repository
 </pre></div>
 </li>
 <li><p class="first">Then you should set the upstream remote so that you can easily grab the latest code as needed.  I've used HTTPS here because you don't need to be authenticated to do this unless it is a private repository:</p>
-<div class="highlight"><pre>git remote add upstream https://github.com/PROJECT/Repository
+<div class="highlight"><pre><span class="nv">$ </span>git remote add upstream https://github.com/PROJECT/Repository
 </pre></div>
 </li>
 </ol>
@@ -70,25 +70,25 @@ git push --tags
 <div class="section" id="starting-a-new-branch">
 <h2>Starting a New Branch</h2>
 <p>Whenever you are starting a new group of work, create a new branch.  This holds true for features or just basic one line fixes.  In your fork:</p>
-<div class="highlight"><pre>git checkout master
-git pull --ff-only upstream master
-git push
-git checkout -b my_feature
+<div class="highlight"><pre><span class="nv">$ </span>git checkout master
+<span class="nv">$ </span>git pull --ff-only upstream master
+<span class="nv">$ </span>git push
+<span class="nv">$ </span>git checkout -b my_feature
 </pre></div>
 <p>This pulls the latest code from the upstream master to your master, pushes that to your fork and then creates a new checkout based on that code.</p>
 </div>
 <div class="section" id="syncing-fork">
 <h2>Syncing Fork</h2>
 <p>If you have worked on some code and at the same time someone else has merged code that may conflict (a pull request will tell you this straight away) you can merge upstream with your commits as follows:</p>
-<div class="highlight"><pre>git fetch upstream
-git merge upstream/master
+<div class="highlight"><pre><span class="nv">$ </span>git fetch upstream
+<span class="nv">$ </span>git merge upstream/master
 </pre></div>
 <p>This fetches the upstream code into a local cache and then will merge it.  If there are conflicts they will be flagged for you to resolve.</p>
 </div>
 <div class="section" id="pull-requests">
 <h2>Pull Requests</h2>
 <p>When your code is good and ready you can send it up as a pull request.  To do this you first need to push it up to your local repository:</p>
-<div class="highlight"><pre>git push --set-upstream origin my_feature
+<div class="highlight"><pre><span class="nv">$ </span>git push --set-upstream origin my_feature
 </pre></div>
 <p>Then when you go to the project's repository you will see a button to file a pull request.  If you are using continuous integration such as Travis CI you should wait for that to give a green result and preferably peer review too before clocking the merge button.</p>
 </div>
@@ -122,6 +122,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             <li><a href="http://krow.net/"><i class="fa fa-globe fa-lg"></i> Brian Aker</a></li>
                             <li><a href="https://egustafson.github.io/oscon-2014-p1.html"><i class="fa fa-globe fa-lg"></i> Eric Gustafson</a></li>
                             <li><a href="http://patg.net/"><i class="fa fa-globe fa-lg"></i> Patrick Galbraith</a></li>
+                            <li><a href="http://askyazz.com/"><i class="fa fa-globe fa-lg"></i> Yazz Atlas</a></li>
                         </ul>
                 </div><!-- /.blogroll -->
                 <div class="widget social">
@@ -220,7 +221,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Python
                         </a>
                     </li>
-                    <li class="list-group-item tag-3">
+                    <li class="list-group-item tag-2">
                         <a href="http://linuxjedi.co.uk/tag/security.html">
                             Security
                         </a>
@@ -230,7 +231,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             USB
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-3">
                         <a href="http://linuxjedi.co.uk/tag/yubikey.html">
                             YubiKey
                         </a>

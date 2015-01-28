@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>libAttachSQL Second Beta, After the Sledgehammer</title>
+        <title>YubiKey NEO with OpenPGP</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -33,37 +33,59 @@
 
 <section id="content" class="body">
 <article>
-      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/"
-        rel="bookmark" title="Permalink to libAttachSQL Second Beta, After the Sledgehammer">libAttachSQL Second Beta, After the Sledgehammer</a></h1>  </header>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/28/yubikey-neo-with-openpgp/"
+        rel="bookmark" title="Permalink to YubiKey NEO with OpenPGP">YubiKey NEO with OpenPGP</a></h1>  </header>
         <div class="entry-content">
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-08T20:52:00+01:00">Wed 08 Oct 2014, 20:52</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-28T10:24:00+00:00">Wed 28 Jan 2015, 10:24</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-        <p>Last week I <a class="reference external" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">blogged about getting sysbench working with libAttachSQL</a>.  This was not only an exercise in performance but also the first real test for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a>.</p>
-<p>Before I had done this testing the most the early Alpha and Beta releases of libAttachSQL had gone through is a few basic queries.  So, the first thing I did when I got the sysbench driver working was slap it with 1,000,000 queries.  It pretty much exploded instantly on that.  Over the course of this release I have probably hit it with over 100,000,000 queries and things run a lot smoother.</p>
-<p>This has led to today's release of libAttachSQL 0.5.0.  As far as changes go this release has the <a class="reference external" href="http://docs.libattachsql.org/en/latest/appendix/version_history.html#version-0-5">biggest changelog so far</a>.  Here is a summary of the major points:</p>
-<ul class="simple">
-<li>11 major bugs fixes, most of them crashing bugs</li>
-<li>Lots more documentation and examples</li>
-<li>More tests</li>
-<li>A couple of minor features</li>
-<li>A new semi-blocking mode</li>
-<li>A more consistent API for error handling</li>
-</ul>
-<p>These last two points I should talk about a bit more.  The semi-blocking mode lets the networking code block until data is received (but not until it is all received).  For applications which access using one connection per thread this will increase performance, but will decrease performance for many connections per thread (which is what libAttachSQL was originally designed for).</p>
-<p>The error handling has moved from a user accessible struct to a type which is used in function calls.  In addition the way this is returned to the user application has been made consistent across the whole API.  This means that the API is not backwards compatible with 0.4.0.</p>
-<p>For those wishing to try out the connector the 0.5.0 beta source release <a class="reference external" href="https://github.com/libattachsql/libattachsql/releases/tag/v0.5.0">can be found on GitHub</a>.  The documentation is on <a class="reference external" href="http://docs.libattachsql.org/en/latest/">Read The Docs</a>.</p>
-<p>This will be the last beta for libAttachSQL.  The next release will be 0.9.0 RC which will hopefully be a short cycle to our first GA release.  We have many more goodies planned after GA.  Watch this space!</p>
-<p>As always if you have any questions please get in touch either via. the comments below, the <a class="reference external" href="irc://chat.freenode.net/libAttachSQL">#libAttachSQL Freenode channel</a> or any other means.</p>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/yubikey.html">YubiKey</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>Last week I published a blog post on using <a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">YubiKey for OS Logins</a>.  Since then I've had a request from inside HP to create a blog post on using the YubiKey NEO with OpenPGP which is another thing I have done with my NEO.</p>
+<p>The YubiKey NEO has a built-in CCID smartcard interface which is disabled by default.  OpenGPG can use this instead of a passphrase for your keys.  This blog post will give some indication on how to do this.  It is assuming you have some experience of using gpg, I wanted to keep this as short as possible and it can be a complex topic.  As with any process I highly recommend backing up your existing gpg keys if you have any:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg -o key-backup.key --armour --export-secret-keys email@address.com
+</pre></div>
+<p>Before we start you will need to enable CCID on the YubiKey NEO, it is disabled by default.  The easiest way to do this is to use the <a class="reference external" href="https://developers.yubico.com/yubikey-neo-manager/">YubiKey NEO Manager</a>.  In this tool click on <em>Change connection mode</em> and tick the CCID box.</p>
+<p>First of all the YubiKey's CCID needs initializing.  The following enables the admin commands and starts the generation of new keys.  If you want to use the YubiKey with your old key then Ctrl-C out when it asks about the expiry.  Otherwise go through the prompts and make sure to use the <tt class="docutils literal">save</tt> command afterwards:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --card-edit
+
+gpg/card&gt; admin
+
+gpg/card&gt; generate
+</pre></div>
+<p>Now, every time you use it you will be asked for the PIN or admin PIN.  These are set to some basic defaults ('123456' and '12345678' respectively) so it would be a good idea to change these:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --change-pin
+</pre></div>
+<p>Option 1 is to change the access PIN and option 3 is to change the admin PIN.</p>
+<div class="section" id="using-an-existing-key">
+<h2>Using an existing key</h2>
+<p>If you have followed the steps above you have a primed smart card on your YubiKey ready to load your key onto.  Before we do this you need a total of three subkeys, one for encryption (you likely already have), one for signing and one for authentication.  We need to enter the key editor mode of gpg to look at this and add these:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --expert --edit-key email@address.com
+</pre></div>
+<p>You should get a list of your key and subkeys straight away.  The <em>Usage</em> column is the one we are looking for here.  You need an <tt class="docutils literal">E</tt> for Encryption, <tt class="docutils literal">A</tt> for Authentication and <tt class="docutils literal">S</tt> for Signing.  If you are missing any of these:</p>
+<div class="highlight"><pre>gpg&gt; addkey
+</pre></div>
+<p>Select option 8 (RSA) and then add whatever you need.  Repeat the process until you have one of each.</p>
+<p>You are now ready to move the keys to the YubiKey:</p>
+<div class="highlight"><pre>gpg&gt; key 1
+gpg&gt; keytocard
+gpg&gt; key 2
+gpg&gt; keytocard
+gpg&gt; key 3
+gpg&gt; keytocard
+gpg&gt; save
+</pre></div>
+<p>Your secret subkeys are now on the YubiKey which can be verified using:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --card-status
+</pre></div>
+</div>
 
         </div><!-- /.entry-content -->
         <div class="comments">
         <h2>Comments !</h2>
             <div id="disqus_thread"></div>
             <script type="text/javascript">
-               var disqus_identifier = "posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/";
+               var disqus_identifier = "posts/2015/Jan/28/yubikey-neo-with-openpgp/";
                (function() {
                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                dsq.src = 'http://linuxjedi.disqus.com/embed.js';
@@ -90,8 +112,8 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                         <ul>
                            <li ><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
-                           <li class="active"><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
-                           <li ><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
+                           <li ><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
                         </ul>
                 </div>
                 <div class="widget blogroll">
@@ -100,6 +122,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             <li><a href="http://krow.net/"><i class="fa fa-globe fa-lg"></i> Brian Aker</a></li>
                             <li><a href="https://egustafson.github.io/oscon-2014-p1.html"><i class="fa fa-globe fa-lg"></i> Eric Gustafson</a></li>
                             <li><a href="http://patg.net/"><i class="fa fa-globe fa-lg"></i> Patrick Galbraith</a></li>
+                            <li><a href="http://askyazz.com/"><i class="fa fa-globe fa-lg"></i> Yazz Atlas</a></li>
                         </ul>
                 </div><!-- /.blogroll -->
                 <div class="widget social">
@@ -198,7 +221,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Python
                         </a>
                     </li>
-                    <li class="list-group-item tag-3">
+                    <li class="list-group-item tag-2">
                         <a href="http://linuxjedi.co.uk/tag/security.html">
                             Security
                         </a>
@@ -208,7 +231,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             USB
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-3">
                         <a href="http://linuxjedi.co.uk/tag/yubikey.html">
                             YubiKey
                         </a>
