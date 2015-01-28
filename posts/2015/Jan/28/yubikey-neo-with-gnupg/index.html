@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null</title>
+        <title>YubiKey NEO with GnuPG</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -32,46 +32,69 @@
         </header><!-- /#banner -->
 
 <section id="content" class="body">
-<h1>Archives for LinuxJedi's /dev/null</h1>
+<article>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/28/yubikey-neo-with-gnupg/"
+        rel="bookmark" title="Permalink to YubiKey NEO with GnuPG">YubiKey NEO with GnuPG</a></h1>  </header>
+        <div class="entry-content">
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-28T10:24:00+00:00">Wed 28 Jan 2015, 10:24</abbr></p>
 
-<dl>
-    <dt>Wed 28 Jan 2015, 10:24</dt>
-    <dd><a href='posts/2015/Jan/28/yubikey-neo-with-gnupg/'>YubiKey NEO with GnuPG</a></dd>
-    <dt>Sun 25 Jan 2015, 16:33</dt>
-    <dd><a href='posts/2015/Jan/25/working-with-git/'>Working With Git</a></dd>
-    <dt>Thu 22 Jan 2015, 09:25</dt>
-    <dd><a href='posts/2015/Jan/22/c-library-visibility/'>C Library Visibility</a></dd>
-    <dt>Wed 21 Jan 2015, 19:30</dt>
-    <dd><a href='posts/2015/Jan/21/webserver-concealing/'>Webserver Concealing</a></dd>
-    <dt>Tue 20 Jan 2015, 09:16</dt>
-    <dd><a href='posts/2015/Jan/20/the-pointer-corruption-bug/'>The Pointer Corruption Bug</a></dd>
-    <dt>Mon 19 Jan 2015, 16:14</dt>
-    <dd><a href='posts/2015/Jan/19/yubikey-for-os-logins/'>YubiKey for OS Logins</a></dd>
-    <dt>Mon 05 Jan 2015, 22:34</dt>
-    <dd><a href='posts/2015/Jan/05/usb-flash-drives-trimming-the-fat/'>USB Flash Drives - Trimming the FAT</a></dd>
-    <dt>Sun 28 Dec 2014, 16:18</dt>
-    <dd><a href='posts/2014/Dec/28/family-travel-technology/'>Family Travel Technology</a></dd>
-    <dt>Tue 25 Nov 2014, 16:38</dt>
-    <dd><a href='posts/2014/Nov/25/autotools-and-mac-universal-binaries/'>Autotools and Mac Universal binaries</a></dd>
-    <dt>Fri 31 Oct 2014, 15:22</dt>
-    <dd><a href='posts/2014/Oct/31/why-json-is-bad-for-applications/'>Why JSON is bad for applications</a></dd>
-    <dt>Wed 22 Oct 2014, 11:35</dt>
-    <dd><a href='posts/2014/Oct/22/libattchsql-hits-first-ga/'>libAttchSQL Hits First GA!</a></dd>
-    <dt>Wed 15 Oct 2014, 20:01</dt>
-    <dd><a href='posts/2014/Oct/15/libattachsql-single-thread-vs-libmysqlclient-multi-thread/'>libAttachSQL Single Thread vs. libmysqlclient Multi Thread</a></dd>
-    <dt>Tue 14 Oct 2014, 17:14</dt>
-    <dd><a href='posts/2014/Oct/14/libattachsql-090-rc-connection-groups/'>libAttachSQL 0.9.0 RC - Connection Groups</a></dd>
-    <dt>Wed 08 Oct 2014, 20:52</dt>
-    <dd><a href='posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/'>libAttachSQL Second Beta, After the Sledgehammer</a></dd>
-    <dt>Sat 04 Oct 2014, 22:16</dt>
-    <dd><a href='posts/2014/Oct/04/blogging-platforms/'>Blogging Platforms</a></dd>
-    <dt>Fri 03 Oct 2014, 21:28</dt>
-    <dd><a href='posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/'>libAttachSQL Benchmarks With Sysbench</a></dd>
-    <dt>Tue 23 Sep 2014, 23:02</dt>
-    <dd><a href='posts/2014/Sep/23/libattachsql-query-example/'>libAttachSQL Query Example</a></dd>
-    <dt>Tue 23 Sep 2014, 16:45</dt>
-    <dd><a href='posts/2014/Sep/23/new-blog/'>New Blog!</a></dd>
-</dl>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/yubikey.html">YubiKey</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>Last week I published a blog post on using <a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">YubiKey for OS Logins</a>.  Since then I've had a request from inside HP to create a blog post on using the YubiKey NEO with GnuPG which is another thing I have done with my NEO.</p>
+<p>The YubiKey NEO has a built-in CCID smartcard interface which is disabled by default.  GnuPG can use this instead of a passphrase for your keys.  This blog post will give some indication on how to do this.  It is assuming you have some experience of using gpg, I wanted to keep this as short as possible and it can be a complex topic.  As with any process I highly recommend backing up your existing gpg keys if you have any:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg -o key-backup.key --armour --export-secret-keys email@address.com
+</pre></div>
+<p>Before we start you will need to enable CCID on the YubiKey NEO, it is disabled by default.  The easiest way to do this is to use the <a class="reference external" href="https://developers.yubico.com/yubikey-neo-manager/">YubiKey NEO Manager</a>.  In this tool click on <em>Change connection mode</em> and tick the CCID box.</p>
+<p>First of all the YubiKey's CCID needs initializing.  The following enables the admin commands and starts the generation of new keys.  If you want to use the YubiKey with your old key then Ctrl-C out when it asks about the expiry.  Otherwise go through the prompts and make sure to use the <tt class="docutils literal">save</tt> command afterwards:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --card-edit
+
+gpg/card&gt; admin
+
+gpg/card&gt; generate
+</pre></div>
+<p>Now, every time you use it you will be asked for the PIN or admin PIN.  These are set to some basic defaults ('123456' and '12345678' respectively) so it would be a good idea to change these:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --change-pin
+</pre></div>
+<p>Option 1 is to change the access PIN and option 3 is to change the admin PIN.</p>
+<div class="section" id="using-an-existing-key">
+<h2>Using an existing key</h2>
+<p>If you have followed the steps above you have a primed smart card on your YubiKey ready to load your key onto.  Before we do this you need a total of three subkeys, one for encryption (you likely already have), one for signing and one for authentication.  We need to enter the key editor mode of gpg to look at this and add these:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --expert --edit-key email@address.com
+</pre></div>
+<p>You should get a list of your key and subkeys straight away.  The <em>Usage</em> column is the one we are looking for here.  You need an <tt class="docutils literal">E</tt> for Encryption, <tt class="docutils literal">A</tt> for Authentication and <tt class="docutils literal">S</tt> for Signing.  If you are missing any of these:</p>
+<div class="highlight"><pre>gpg&gt; addkey
+</pre></div>
+<p>Select option 8 (RSA) and then add whatever you need.  Repeat the process until you have one of each.</p>
+<p>You are now ready to move the keys to the YubiKey:</p>
+<div class="highlight"><pre>gpg&gt; key 1
+gpg&gt; keytocard
+gpg&gt; key 2
+gpg&gt; keytocard
+gpg&gt; key 3
+gpg&gt; keytocard
+gpg&gt; save
+</pre></div>
+<p>Your secret subkeys are now on the YubiKey which can be verified using:</p>
+<div class="highlight"><pre><span class="nv">$ </span>gpg --card-status
+</pre></div>
+</div>
+
+        </div><!-- /.entry-content -->
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "posts/2015/Jan/28/yubikey-neo-with-gnupg/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://linuxjedi.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
+
+</article>
 </section>
 
         <aside id="sidebar">
@@ -90,7 +113,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                            <li ><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
-                           <li ><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
                         </ul>
                 </div>
                 <div class="widget blogroll">
