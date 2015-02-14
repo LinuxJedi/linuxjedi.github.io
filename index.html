@@ -48,6 +48,13 @@
 <p>For web servers, have multiple servers load balanced, you can have multiple load balancers too.  Even multiple active MySQL servers are possible thanks to technologies such as <a class="reference external" href="http://galeracluster.com/">Galera Cluster</a>.  When the kernel needs updating you can apply a rolling reboot.  Technologies such as <a class="reference external" href="http://www.ansible.com/">Ansible</a> will even help you do this by making sure only a certain amount of servers from each tier of your architecture is updated at any time.</p>
 <p>I commend SUSE and RedHat in helping to replace a technology that otherwise was long since dead in the Open Source world.  Oracle seemingly killing the development of the Open Source KSplice was an annoyance to many.  But in today's world, is a technology we really need?</p>
 <p>I would be interested to hear in the comments if there is a use case I have missed.</p>
+<div class="section" id="update">
+<h2>Update</h2>
+<p>2015-02-14 23:11</p>
+<p>Robert Collins pointed out on Facebook that the overhead for the jump is likely to be too minimal to cause a performance issue and anything that is called too often is not worth patching (I am inclined to agree).</p>
+<p>Robert also points out that there is a cost involved in migrating many VMs when the hosts need upgrading for a zero-day.  I sort-of agree with this scenario.  For public cloud this is a problem, although I believe typically the rolling upgrade is performed by pausing VMs and resuming rather than migration.  With public cloud I feel this is acceptable with a short notice period.</p>
+<p>For private cloud there are ways around this issue, typically VMs are throw-away in private cloud so it is easy to just blow them away and recreate them in an already updated part of the data centre rather than migrate.</p>
+</div>
 
         </article></aside><!-- /#featured -->
                 <h1><i class="fa fa-bars"></i> Other articles</h1>
