@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null - USB</title>
+        <title>Why The C10K Problem is Important</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -31,98 +31,44 @@
                 </ul></nav>
         </header><!-- /#banner -->
 
-
-     <section id="content" class="body">
-        <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/05/usb-flash-drives-trimming-the-fat/">USB Flash Drives - Trimming the FAT</a></h1>
+<section id="content" class="body">
+<article>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Feb/14/why-the-c10k-problem-is-important/"
+        rel="bookmark" title="Permalink to Why The C10K Problem is Important">Why The C10K Problem is Important</a></h1>  </header>
+        <div class="entry-content">
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-05T22:34:00+00:00">Mon 05 Jan 2015, 22:34</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-02-14T17:49:00+00:00">Sat 14 Feb 2015, 17:49</abbr></p>
 
 <p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/usb.html">USB</a> <a href="http://linuxjedi.co.uk/tag/flash.html">Flash</a> <a href="http://linuxjedi.co.uk/tag/filesystems.html">Filesystems</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>As with most of you who read this blog I carry USB flash drives around with me all the time.  Right now I have 3 Kingston DTSE9 sticks on my keyring of various sizes each with a different purpose.  Whilst these drives are nowhere near the fastest out there they are the only ones I have had so far that don't snap off keyrings.</p>
-<img alt="" src="/images/king16GB_DTSE9_2.jpg" />
-<p>For this blog post I'll be talking about data where security is not a priority.  My encrypted flash drives are currently using <a class="reference external" href="https://veracrypt.codeplex.com/">VeraCrypt</a> but that is beyond the scope of this blog post.</p>
-<div class="section" id="fat32-woes">
-<h2>FAT32 woes</h2>
-<p>The largest one I have is 64GB and due to some of the work I do for HP's Advanced Technology Group this often needs to have large files on it.  Traditionally FAT32 has been used as a file system for memory cards and flash drives, one of the biggest reasons for this is that it is compatible with pretty much every computer operating system out there.  But FAT32 has many flaws:</p>
-<ul class="simple">
-<li>it has a single file limit of 4GB.  That may sound huge but this rules out DVD images and large databases.</li>
-<li>it does not support POSIX based permissions which anyone who uses Linux is used to.</li>
-<li>it doesn't support journalling so with a removable drive data corruption is very common.</li>
-<li>as a minor issue it is also designed for spinning disks with many more write cycles than flash.</li>
-</ul>
-<p>What I needed was something that fixes as many of those problems as possible but is also compatible with Linux, Mac OS X and Windows.</p>
-</div>
-<div class="section" id="alternatives">
-<h2>Alternatives</h2>
-<p>I looked into several alternatives to FAT32 and summarised my findings below.  I'm primarily looking for out-of-box support, I know there are paid third-party add-ons to operating systems to add support.</p>
-<div class="section" id="exfat">
-<h3>exFAT</h3>
-<p>A company looked into all the problems with FAT and created a filesystem designed for use with flash drives, they called this <em>exFAT</em>.  Unfortunately that company is Microsoft and what they created is not an open standard and is full of patents.</p>
-<p>This means that only people who have paid licenses can use exFAT.  This includes Mac OS X and digital camera manufacturers but unfortunately means Linux support is very limited.</p>
-<p>exFAT is therefore thrown out.</p>
-</div>
-<div class="section" id="hfs">
-<h3>HFS+</h3>
-<p>HFS+ is the primary file system used by Mac OS X.  There is good support for this in Macs (obviously) and Linux, but no support in Windows.</p>
-<p>Unfortunately that means HFS+ is out.</p>
-</div>
-<div class="section" id="ntfs">
-<h3>NTFS</h3>
-<p>NTFS is Microsoft's primary file system in NT based operating systems (for most people this means Windows XP onwards).  Like HFS+ it isn't a bad file system for flash drives and in recent Linux distributions has very good support.  Unfortunately in Mac OS X it can only be used in read-only mode.</p>
-<p>Another Microsoft FS thrown out.</p>
-</div>
-<div class="section" id="udf">
-<h3>UDF</h3>
-<p>Yes, you read that correctly, UDF.  It is a filesystem which was originally designed for use with optical media.  But, it has since been adapted for use with hard drives and flash drives!</p>
-<p>The maximum file size is 16EB (actually bigger than the maximum volume size).  It supports POSIX file system permissions.  But most importantly, it works with Linux, Mac OS X and Windows (Vista onwards) out of the box!</p>
-<p>In addition the UDF format was designed for packet writing so it works by appending on the end of data on the file system and expiring the old data.  In theory this could lead to less wear of the drive.  Flash drives typically use dynamic wear leveling which is similar to the static wear leveling used in SSDs but less complex.  The algorithm used may mean that the packet writing has no real advantage on the wear of the drive.  I don't have enough data to say for certain.</p>
-<p>The file system itself works like a journal.  It appends new data to the end of the log with a new version of the file table.  So, if a write was not completed successfully it will use the previous version of the log.  This also means recovery of deleted files is possible by traversing previous versions of the data log.</p>
-<p>For me this ticks all the boxes so I am using it with a 64GB UDF formatted flash.</p>
-</div>
-</div>
-<div class="section" id="making-a-udf-flash-drive">
-<h2>Making a UDF flash drive</h2>
-<div class="section" id="mac-os-x">
-<h3>Mac OS X</h3>
-<p>Unfortunately Disk Utility doesn't let you format a flash drive as UDF but you can use the command line to do it.</p>
-<p>First of all you need to figure out the drive path for your flash drive.  It will be in the format <tt class="docutils literal">/dev/disk{drive_no}</tt> where drive_no is the drive number, if it is followed by the letter <em>s</em> and another number then that is a partition and not what we need at this stage:</p>
-<div class="highlight"><pre><span class="nv">$ </span>diskutil list
-</pre></div>
-<p>Now you need to find out the block size (it is typically 512).  Make a note of this number because you will need it later:</p>
-<div class="highlight"><pre><span class="nv">$ </span>diskutil info /dev/disk<span class="o">{</span>drive_no<span class="o">}</span> | grep <span class="s2">&quot;Block Size&quot;</span>
-</pre></div>
-<p>The drive can't be changed until we unmount the partitions so run this for every partition that is currently in-use for your drive:</p>
-<div class="highlight"><pre><span class="nv">$ </span>diskutil unmount /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>s<span class="o">{</span>partition_no<span class="o">}</span>
-</pre></div>
-<p>Due to the nature of the UDF format it is possible that the operating system would still detect the drive as FAT32 afterwards so we need to blank the drive with zeros.  This could take some time:</p>
-<div class="highlight"><pre><span class="nv">$ </span>diskutil secureErase 0 /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>
-</pre></div>
-<p>Now the drive can be formatted, replace <em>block_size</em> with the number you wrote down above:</p>
-<div class="highlight"><pre><span class="nv">$ </span>sudo newfs_udf -b <span class="o">{</span>block_size<span class="o">}</span> /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>
-</pre></div>
-<p>Finally the drive can be mounted again for use as normal:</p>
-<div class="highlight"><pre><span class="nv">$ </span>diskutil mount /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>
-</pre></div>
-</div>
-<div class="section" id="linux">
-<h3>Linux</h3>
-<p>In Linux things get a little easier.  First of all unmount the partitions on the drive and then we need the block size, write this one down:</p>
-<div class="highlight"><pre><span class="nv">$ </span>sudo blockdev --getbsz /dev/sd<span class="o">{</span>drive_letter<span class="o">}</span>
-</pre></div>
-<p>We then need to zero out the drive so that it isn't incorrectly detected:</p>
-<div class="highlight"><pre><span class="nv">$ </span>sudo dd <span class="k">if</span><span class="o">=</span>/dev/zero <span class="nv">of</span><span class="o">=</span>/dev/sd<span class="o">{</span>drive_letter<span class="o">}</span> <span class="nv">bs</span><span class="o">=</span>1M <span class="nv">count</span><span class="o">=</span>1
-</pre></div>
-<p>Then we need to make the UDF format, replacing <em>block_size</em> with the number noted above:</p>
-<div class="highlight"><pre><span class="nv">$ </span>sudo mkudffs -b <span class="o">{</span>block_size<span class="o">}</span> --media-type<span class="o">=</span>hd /dev/sd<span class="o">{</span>drive_letter<span class="o">}</span>
-</pre></div>
-</div>
-</div>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/nginx.html">Nginx</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>For those who are not familiar with the concept the <a class="reference external" href="http://www.kegel.com/c10k.html">C10K problem</a> is about trying to handle many simultaneous clients on a web server.  Originally written about trying to handle 10,000 clients on a Gigabit Ethernet connection back in the late 90s, but this is still a problem today (with more clients and bigger connections).</p>
+<p>Websites are dealing with more and more traffic as not only more people every year are using the internet with more devices but they are also increasing their usage.  By this I mean not only in the amount they use the internet but higher resolution monitors and faster CPUs for interactive content means the amount of data for websites has increased too.  It has got to the point where dozens of files are needed to load a site such as Facebook or Twitter.</p>
+<p>Faster and faster internet connections have also meant that users are far more impatient.  I first used the Internet at home in 1995 with a 33.6Kbit/sec modem.  Websites would typically take at least 10 seconds to access and load, sometimes more.  This didn't bother us back then.  A decade later Internet speeds are much faster and sites are much bigger (javascript, css, high-res/retina images, flash, etc...), but users expect load times of only a couple of seconds and access/wait times of less than a second, even on cell phones.</p>
+<p>Although the server hardware is evolving it is difficult to keep up with client demand and thus the C10K problem is still an issue today.  One way of solving this is to have many servers or cloud instances handling the traffic.  This can cause a cost issue for many companies, especially startups.  The other solution which is gaining in popularity is event driven I/O.</p>
+<p>Typically with event driven I/O you run the server single threaded, although you can offload onto multiple threads/processes.  A single event loop is run which listens for new events such as data in or out and reacts based on the event.  In Linux this relies heavily in <tt class="docutils literal">epoll()</tt> and BSD based distributions <tt class="docutils literal">kqueue()</tt>.  These are edge-triggered <tt class="docutils literal">poll()</tt> replacements which notifies the application of a transition from a socket not-ready to ready.</p>
+<p>It does not feel natural to use a single-threaded solution in a world of multi-core CPUs but there is a wealth of evidence that this approach works very well.  It is in-general simpler to code since many of the complications of dealing with many threads such as race conditions and locking go away.  But there is the caveat that handling an event incorrectly could cause an application to hang.  The event-driven approach also typically reduces CPU usage of the application which on modern hardware can help with energy and heat savings.</p>
+<p><a class="reference external" href="http://nginx.com/">Nginx</a> is an example of a web/proxy server which uses event-driven design such as this.  Part of the reason Nginx is becoming so popular is that the design of it gives it the ability to scale much easier than more traditional web servers such as Apache.</p>
+<p>With <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> we at the Advanced Technology Group are doing something very similar, but this time on the client side.  So that client applications can handle many connections to one or more servers on a single thread with ease.  We already have plans to add even more features around this for the 2.0 release.</p>
+<p>Internally libAttachSQL uses <a class="reference external" href="https://nikhilm.github.io/uvbook/introduction.html">libuv</a> which is a high performance event driven I/O library born out of Node.js.  It also uses the event driven features of OpenSSL for SSL connections.</p>
+<p>I have heard many times that C10K is not an issue today due to the high performance hardware at much lower prices than were previously available.  It may not be a 10K problem any more, but it is still an issue.  Even the big boys of the Internet today are using event driven solutions to help them scale and keep the running costs low.  This is evident by the increased usage of technologies such as Nginx.</p>
+<p>In the last couple of years there is talk of the <a class="reference external" href="http://highscalability.com/blog/2013/5/13/the-secret-to-10-million-concurrent-connections-the-kernel-i.html">C10M problem</a> which suggests moving control of the TCP/IP stack completely away from the kernel to the user layer.  Personally I feel this is going a little too far for generic applications.  It could mean that your applications require specific OS/kernel and even specific hardware to run.  For people writing web servers and libraries this can easily bloat the code and by the time you have dealt with edge cases I suspect the performance increase will not be worth the extra work.</p>
 
-        </article></aside><!-- /#featured -->
-</ol><!-- /#posts-list -->
-</section><!-- /#content -->
+        </div><!-- /.entry-content -->
+        <div class="comments">
+        <h2>Comments !</h2>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+               var disqus_identifier = "posts/2015/Feb/14/why-the-c10k-problem-is-important/";
+               (function() {
+               var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+               dsq.src = 'http://linuxjedi.disqus.com/embed.js';
+               (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+              })();
+            </script>
+        </div>
+
+</article>
+</section>
 
         <aside id="sidebar">
 <div class="widget" id="book" role="book">
@@ -138,7 +84,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                         <h2><i class="fa fa-home fa-lg"></i> Categories</h2>
                         <ul>
                            <li ><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
-                           <li ><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
                         </ul>
