@@ -34,32 +34,58 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Feb/14/live-kernel-patching-why-you-should-not-use-it/">Live Kernel Patching - Why You Should <em>NOT</em> Use It</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Feb/24/variable-length-arrays-in-c/">Variable Length Arrays in C</a></h1>
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-02-14T22:00:00+00:00">Sat 14 Feb 2015, 22:00</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-02-24T13:25:00+00:00">Tue 24 Feb 2015, 13:25</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/kernel.html">Kernel</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Just under a year ago on my old blog I <a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/03/live-kernel-patching.html">discussed</a> and even <a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/06/live-kernel-patching-video-demo.html">demoed</a> the new Linux live kernel patching solutions.  I was reviewing these technologies out of my own curiosity as well as HP's Advanced Technology Group having an interest.  I think these technologies are great, I am personally more of a fan of the user experience of RedHat's kpatch solution but any solution is a great technical achievement.</p>
-<p>Having said this I believe that the use case for this technology is quite narrow.  Last time I looked into these technologies only patches that affected the code of functions could be modified.  Changing structs and data definitely didn't work and I suspect that changing function declarations was also dangerous.  There is also a performance overhead.  If you are replacing functions that are called many times a second the additional overhead of a jump to the replaced function will cause a performance hit.</p>
-<p>Where I can see live patching to be useful is on desktop machines that need critical patching but rebooting will cause losses in productivity or in science/academia where there are often long-running applications that cannot be paused for a reboot.</p>
-<p>The only place where I do not think it should be used and unfortunately I fear it will be the main place it is used is for Internet and network services.  Everyone should strive for 100% uptime, this is something I do not dispute.  But the 100% uptime should be for the <em>application</em>, not necessarily the underlying hardware.</p>
-<p>100% uptime of hardware is not a possible reality.  Moving parts such as fans and hard disks fail, components degrade over time, power can fail along with redundancies and at some point you may need to upgrade or move hardware.  The solution to this is the same as the solution to kernel upgrades: multiple active servers.</p>
-<p>For web servers, have multiple servers load balanced, you can have multiple load balancers too.  Even multiple active MySQL servers are possible thanks to technologies such as <a class="reference external" href="http://galeracluster.com/">Galera Cluster</a>.  When the kernel needs updating you can apply a rolling reboot.  Technologies such as <a class="reference external" href="http://www.ansible.com/">Ansible</a> will even help you do this by making sure only a certain amount of servers from each tier of your architecture is updated at any time.</p>
-<p>I commend SUSE and RedHat in helping to replace a technology that otherwise was long since dead in the Open Source world.  Oracle seemingly killing the development of the Open Source KSplice was an annoyance to many.  But in today's world, is a technology we really need?</p>
-<p>I would be interested to hear in the comments if there is a use case I have missed.</p>
-<div class="section" id="update">
-<h2>Update</h2>
-<p>2015-02-14 23:11</p>
-<p>Robert Collins pointed out on Facebook that the overhead for the jump is likely to be too minimal to cause a performance issue and anything that is called too often is not worth patching (I am inclined to agree).</p>
-<p>Robert also points out that there is a cost involved in migrating many VMs when the hosts need upgrading for a zero-day.  I sort-of agree with this scenario.  For public cloud this is a problem, although I believe typically the rolling upgrade is performed by pausing VMs and resuming rather than migration.  With public cloud I feel this is acceptable with a short notice period.</p>
-<p>For private cloud there are ways around this issue, typically VMs are throw-away in private cloud so it is easy to just blow them away and recreate them in an already updated part of the data centre rather than migrate.</p>
-</div>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>In a bid to aim this blog at multiple levels I'm going to talk today about Variable Length Arrays (VLAs) in C.  I'm covering this topic in particular because a friend who is a Harvard CS50 student recently asked me about them.</p>
+<p>As many people know, C is my favourite programming language to work in (several have questioned my sanity thanks to this).  It isn't always the right programming language for every project and where it is appropriate I will use an alternative language.  But it is my favourite to work with and HP's Advanced Technology Group allows me to do a lot of work in it.</p>
+<p>In a previous post on my old blog <a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/02/why-vlais-is-bad.html">I discussed why VLAIS (Variable Length Arrays In Structs) is a bad idea</a>.  Put simply this is a GCC only feature which can cause a lot of problems.  Unfortunately they are used a lot in the Linux kernel but this is being improved as part of the work to port the kernel to work with the CLang compiler.</p>
+<p>VLAs themselves are not as bad.  For those who don't know what they are, here is an example:</p>
+<div class="highlight"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">name</span><span class="p">[]</span><span class="o">=</span> <span class="s">&quot;fred&quot;</span><span class="p">;</span>
+    <span class="n">printname</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span> <span class="c1">// 4 chars + nul terminator</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">printname</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">name_copy</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+    <span class="n">memcpy</span><span class="p">(</span><span class="n">name_copy</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Name is: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">name_copy</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>The bit I'm referring to is &quot;<tt class="docutils literal">char name_copy[length];</tt>&quot;.  Normally array sizes are fixed at compile time but with the C99 standard VLAs were introduced.  They were in several compilers before that but it was not a standard.  The compiler will turn this into code which allocates <tt class="docutils literal">name_copy</tt> to the correct size when the function is entered and frees the memory when the function returns.</p>
+<p>This is incredibly useful but is not without problems:</p>
+<ol class="arabic simple">
+<li>You need to make sure that the application doesn't try to use <tt class="docutils literal">free()</tt> on the VLA.  This will likely end very badly</li>
+<li>If you have a pointer to a VLA you need to make sure you don't try to access it when the function has returned (just like accessing memory that has been freed)</li>
+<li>Many implementations allocate this memory on the stack instead of the main pool of memory</li>
+</ol>
+<p>This last one could be a problem because most platforms at least have a soft limit on stack size.  The default for the machine I'm typing on for example is 8MiB.  This sounds a lot but with recursion it is possible to easily blow this, especially with large arrays.  Ideally VLAs should be used just for allocations you know are going to be quite small and predictable.  If it is a user input without sanitation you could be opening yourself up to an attack vector.</p>
+<p>In summary, VLAs are useful, they make allocation and freeing much easier, especially for multi-dimension arrays.  But you need to be very careful using them and only for small allocations.</p>
 
         </article></aside><!-- /#featured -->
                 <h1><i class="fa fa-bars"></i> Other articles</h1>
                 <hr />
                     <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Feb/14/live-kernel-patching-why-you-should-not-use-it/" rel="bookmark" title="Permalink to Live Kernel Patching - Why You Should NOT Use It">Live Kernel Patching - Why You Should <em>NOT</em> Use It</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-02-14T22:00:00+00:00">Sat 14 Feb 2015, 22:00</abbr></p>
+
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/kernel.html">Kernel</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Just under a year ago on my old blog I <a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/03/live-kernel-patching.html">discussed</a> and even <a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/06/live-kernel-patching-video-demo.html">demoed</a> the new Linux live kernel patching solutions.  I was reviewing these technologies out of my own curiosity as well as HP's Advanced Technology Group having an interest.  I think these technologies are great, I am ...</p>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Feb/14/live-kernel-patching-why-you-should-not-use-it/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2015/Feb/14/why-the-c10k-problem-is-important/" rel="bookmark" title="Permalink to Why The C10K Problem is Important">Why The C10K Problem is Important</a></h1>
@@ -187,21 +213,6 @@
                 <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/05/usb-flash-drives-trimming-the-fat/">read more</a>
                 </div><!-- /.entry-content -->
         </article></li>
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Nov/25/autotools-and-mac-universal-binaries/" rel="bookmark" title="Permalink to Autotools and Mac Universal binaries">Autotools and Mac Universal binaries</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-11-25T16:38:00+00:00">Tue 25 Nov 2014, 16:38</abbr></p>
-
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/autotools.html">Autotools</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Recently I have been working on a Python based wrapper for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> and found that when testing on a Mac I was having trouble compiling the wrapper.  It turns out that Python included in Mac operating systems uses a universal binary (also called fat binary) format and since libAttachSQL is ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Nov/25/autotools-and-mac-universal-binaries/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
 </ol><!-- /#posts-list -->
         <h2><i class="fa fa-file-o"></i> Pages</h2>
         <hr />
@@ -255,7 +266,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
             <div class="widget tags">
             <h2><i class="fa fa-tags fa-lg"></i>Tags</h2>
                 <ul class="list-group list-inline tagcloud" id="tags">
-                    <li class="list-group-item tag-0">
+                    <li class="list-group-item tag-1">
                         <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">
                             Advanced Technology Group
                         </a>
@@ -285,7 +296,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Blog
                         </a>
                     </li>
-                    <li class="list-group-item tag-3">
+                    <li class="list-group-item tag-2">
                         <a href="http://linuxjedi.co.uk/tag/c.html">
                             C
                         </a>
@@ -310,7 +321,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Git
                         </a>
                     </li>
-                    <li class="list-group-item tag-0">
+                    <li class="list-group-item tag-1">
                         <a href="http://linuxjedi.co.uk/tag/hp.html">
                             HP
                         </a>

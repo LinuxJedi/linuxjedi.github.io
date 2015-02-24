@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>libAttachSQL Single Thread vs. libmysqlclient Multi Thread</title>
+        <title>Variable Length Arrays in C</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -33,33 +33,47 @@
 
 <section id="content" class="body">
 <article>
-      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/15/libattachsql-single-thread-vs-libmysqlclient-multi-thread/"
-        rel="bookmark" title="Permalink to libAttachSQL Single Thread vs. libmysqlclient Multi Thread">libAttachSQL Single Thread vs. libmysqlclient Multi Thread</a></h1>  </header>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Feb/24/variable-length-arrays-in-c/"
+        rel="bookmark" title="Permalink to Variable Length Arrays in C">Variable Length Arrays in C</a></h1>  </header>
         <div class="entry-content">
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-15T20:01:00+01:00">Wed 15 Oct 2014, 20:01</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-02-24T13:25:00+00:00">Tue 24 Feb 2015, 13:25</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-        <p>I have recently <a class="reference external" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">posted up benchmarks</a> of <a class="reference external" href="http://libattachsql.org">libAttachSQL</a> vs. libmysqlclient using sysbench.  Whilst these are great and shows the results I hoped for, this isn't what we designed libAttachSQL for.  It was designed for non-blocking many connections per thread.</p>
-<p>With this in mind I spent today knocking up a quick benchmark tool which replicates the Sysbench &quot;Select&quot; test but using libAttachSQL's connection groups on a single thread.  The code for this can be seen in the new <a class="reference external" href="https://github.com/libattachsql/attachbench">AttachBench</a> GitHub tree.  Of course the secondary reason for this is to try and hammer the connection groups feature, which of course did find a bug when I scaled to around 32 connections.  This has been fixed in libAttachSQL's master ready for the next release and is what I am using for these benchmarks.</p>
-<div class="section" id="the-test">
-<h2>The Test</h2>
-<p>I used the exact same test rig and configuration as the previous Sysbench tests and as before the test was run with 1,000,000 queries.  The AttachBench tool executed was as follows:</p>
-<div class="highlight"><pre><span class="nv">$ </span>attachbench --db<span class="o">=</span>sbtest --user<span class="o">=</span><span class="nb">test</span> --pass<span class="o">=</span><span class="nb">test</span> --db<span class="o">=</span>testdb --queries<span class="o">=</span>1000000 --connections<span class="o">=</span>32 --host<span class="o">=</span>/tmp/mysql.sock --port<span class="o">=</span>0
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>In a bid to aim this blog at multiple levels I'm going to talk today about Variable Length Arrays (VLAs) in C.  I'm covering this topic in particular because a friend who is a Harvard CS50 student recently asked me about them.</p>
+<p>As many people know, C is my favourite programming language to work in (several have questioned my sanity thanks to this).  It isn't always the right programming language for every project and where it is appropriate I will use an alternative language.  But it is my favourite to work with and HP's Advanced Technology Group allows me to do a lot of work in it.</p>
+<p>In a previous post on my old blog <a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/02/why-vlais-is-bad.html">I discussed why VLAIS (Variable Length Arrays In Structs) is a bad idea</a>.  Put simply this is a GCC only feature which can cause a lot of problems.  Unfortunately they are used a lot in the Linux kernel but this is being improved as part of the work to port the kernel to work with the CLang compiler.</p>
+<p>VLAs themselves are not as bad.  For those who don't know what they are, here is an example:</p>
+<div class="highlight"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">name</span><span class="p">[]</span><span class="o">=</span> <span class="s">&quot;fred&quot;</span><span class="p">;</span>
+    <span class="n">printname</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span> <span class="c1">// 4 chars + nul terminator</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">printname</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">name_copy</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+    <span class="n">memcpy</span><span class="p">(</span><span class="n">name_copy</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Name is: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">name_copy</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
-<p>I've added the results to the previous select test to the graph for comparison.  The two &quot;Select&quot; result sets are for Sysbench with one connection per thread.  The third is with AttachBench running the same queries, just with many connections in a single thread.</p>
-<img alt="" src="/images/select_single_thread.png" />
-<p>This exceeded my expectations.  Having many connections in a single thread actually outperforms many threads with one connection each.  It is early days and there is much more testing and improvement that can be done.  But I'm very encouraged by these results.</p>
-<p>I'll be talking more about libAttachSQL and these results at <a class="reference external" href="http://www.percona.com/live/london-2014/sessions/libattachsql-next-generation-c-connector-mysql">Percona Live London next month</a> so please come along if you are in the area.</p>
-</div>
+<p>The bit I'm referring to is &quot;<tt class="docutils literal">char name_copy[length];</tt>&quot;.  Normally array sizes are fixed at compile time but with the C99 standard VLAs were introduced.  They were in several compilers before that but it was not a standard.  The compiler will turn this into code which allocates <tt class="docutils literal">name_copy</tt> to the correct size when the function is entered and frees the memory when the function returns.</p>
+<p>This is incredibly useful but is not without problems:</p>
+<ol class="arabic simple">
+<li>You need to make sure that the application doesn't try to use <tt class="docutils literal">free()</tt> on the VLA.  This will likely end very badly</li>
+<li>If you have a pointer to a VLA you need to make sure you don't try to access it when the function has returned (just like accessing memory that has been freed)</li>
+<li>Many implementations allocate this memory on the stack instead of the main pool of memory</li>
+</ol>
+<p>This last one could be a problem because most platforms at least have a soft limit on stack size.  The default for the machine I'm typing on for example is 8MiB.  This sounds a lot but with recursion it is possible to easily blow this, especially with large arrays.  Ideally VLAs should be used just for allocations you know are going to be quite small and predictable.  If it is a user input without sanitation you could be opening yourself up to an attack vector.</p>
+<p>In summary, VLAs are useful, they make allocation and freeing much easier, especially for multi-dimension arrays.  But you need to be very careful using them and only for small allocations.</p>
 
         </div><!-- /.entry-content -->
         <div class="comments">
         <h2>Comments !</h2>
             <div id="disqus_thread"></div>
             <script type="text/javascript">
-               var disqus_identifier = "posts/2014/Oct/15/libattachsql-single-thread-vs-libmysqlclient-multi-thread/";
+               var disqus_identifier = "posts/2015/Feb/24/variable-length-arrays-in-c/";
                (function() {
                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                dsq.src = 'http://linuxjedi.disqus.com/embed.js';
@@ -84,9 +98,9 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
 </div>                <div class="widget">
                         <h2><i class="fa fa-home fa-lg"></i> Categories</h2>
                         <ul>
-                           <li ><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
-                           <li class="active"><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
+                           <li ><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
                         </ul>
                 </div>

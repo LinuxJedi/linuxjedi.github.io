@@ -34,7 +34,49 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jan/25/working-with-git/">Working With Git</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Feb/24/variable-length-arrays-in-c/">Variable Length Arrays in C</a></h1>
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-02-24T13:25:00+00:00">Tue 24 Feb 2015, 13:25</abbr></p>
+
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>In a bid to aim this blog at multiple levels I'm going to talk today about Variable Length Arrays (VLAs) in C.  I'm covering this topic in particular because a friend who is a Harvard CS50 student recently asked me about them.</p>
+<p>As many people know, C is my favourite programming language to work in (several have questioned my sanity thanks to this).  It isn't always the right programming language for every project and where it is appropriate I will use an alternative language.  But it is my favourite to work with and HP's Advanced Technology Group allows me to do a lot of work in it.</p>
+<p>In a previous post on my old blog <a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/02/why-vlais-is-bad.html">I discussed why VLAIS (Variable Length Arrays In Structs) is a bad idea</a>.  Put simply this is a GCC only feature which can cause a lot of problems.  Unfortunately they are used a lot in the Linux kernel but this is being improved as part of the work to port the kernel to work with the CLang compiler.</p>
+<p>VLAs themselves are not as bad.  For those who don't know what they are, here is an example:</p>
+<div class="highlight"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">name</span><span class="p">[]</span><span class="o">=</span> <span class="s">&quot;fred&quot;</span><span class="p">;</span>
+    <span class="n">printname</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span> <span class="c1">// 4 chars + nul terminator</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">printname</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">name_copy</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
+    <span class="n">memcpy</span><span class="p">(</span><span class="n">name_copy</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Name is: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">name_copy</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+<p>The bit I'm referring to is &quot;<tt class="docutils literal">char name_copy[length];</tt>&quot;.  Normally array sizes are fixed at compile time but with the C99 standard VLAs were introduced.  They were in several compilers before that but it was not a standard.  The compiler will turn this into code which allocates <tt class="docutils literal">name_copy</tt> to the correct size when the function is entered and frees the memory when the function returns.</p>
+<p>This is incredibly useful but is not without problems:</p>
+<ol class="arabic simple">
+<li>You need to make sure that the application doesn't try to use <tt class="docutils literal">free()</tt> on the VLA.  This will likely end very badly</li>
+<li>If you have a pointer to a VLA you need to make sure you don't try to access it when the function has returned (just like accessing memory that has been freed)</li>
+<li>Many implementations allocate this memory on the stack instead of the main pool of memory</li>
+</ol>
+<p>This last one could be a problem because most platforms at least have a soft limit on stack size.  The default for the machine I'm typing on for example is 8MiB.  This sounds a lot but with recursion it is possible to easily blow this, especially with large arrays.  Ideally VLAs should be used just for allocations you know are going to be quite small and predictable.  If it is a user input without sanitation you could be opening yourself up to an attack vector.</p>
+<p>In summary, VLAs are useful, they make allocation and freeing much easier, especially for multi-dimension arrays.  But you need to be very careful using them and only for small allocations.</p>
+
+        </article></aside><!-- /#featured -->
+                <h1><i class="fa fa-bars"></i> Other articles</h1>
+                <hr />
+                    <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/25/working-with-git/" rel="bookmark" title="Permalink to Working With Git">Working With Git</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
     <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-25T16:33:00+00:00">Sun 25 Jan 2015, 16:33</abbr></p>
 
@@ -42,61 +84,10 @@
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/git.html">Git</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>At a recent meeting HP's Advanced Technology Group has been agreeing on standards for working with git, covering mainly the collaboration and versioning aspects.  Today I will share with you how I do this in my Open Source projects which has some crossover with the group's work.</p>
 <div class="section" id="versioning">
-<h2>Versioning</h2>
-<p>I use <a class="reference external" href="http://semver.org/">Semantic Versioning</a> everywhere I can.  In fact I used to pretty much use it everywhere before I knew it was a standard.  This means that I have my GitHub trees layed out so that 'master' is the latest stable code, v1.0 branch is the latest stable v1.0 code, v1.1 branch is the latest in v1.1 and so on.  I then create GPG signed tags from these branches to create releases as follows:</p>
-<div class="highlight"><pre><span class="nv">$ </span>git checkout v1.1
-<span class="nv">$ </span>git tag -s v1.1.2 -m <span class="s1">&#39;Version 1.1.2 release&#39;</span>
-<span class="nv">$ </span>git push --tags
-</pre></div>
-</div>
-<div class="section" id="forking">
-<h2>Forking</h2>
-<p>Even if it is just me working on a particular project I will always use forks and pull requests to work on code.  This model works well with <a class="reference external" href="http://semver.org/">Travis CI</a> because it can test code prior to merging and give feedback in the pull request.</p>
-<p>For this example I'm assuming you are using SSH keys and two-factor authentication with Git, if you aren't you need to do this ASAP.  Instructions can be found on <a class="reference external" href="https://github.com/blog/1614-two-factor-authentication">GitHub's blog</a>.</p>
-<p>A fork is typically created as follows:</p>
-<ol class="arabic">
-<li><p class="first">Create a fork in GitHub, you can do this by clicking the fork button on a project.</p>
-</li>
-<li><p class="first">Grab a local copy of your fork to work with (replacing <cite>USERNAME</cite> and <cite>Repository</cite> with whatever is applicable to you):</p>
-<div class="highlight"><pre><span class="nv">$ </span>git clone git@github.com:USERNAME/Repository
-</pre></div>
-</li>
-<li><p class="first">Then you should set the upstream remote so that you can easily grab the latest code as needed.  I've used HTTPS here because you don't need to be authenticated to do this unless it is a private repository:</p>
-<div class="highlight"><pre><span class="nv">$ </span>git remote add upstream https://github.com/PROJECT/Repository
-</pre></div>
-</li>
-</ol>
-</div>
-<div class="section" id="starting-a-new-branch">
-<h2>Starting a New Branch</h2>
-<p>Whenever you are starting a new group of work, create a new branch.  This holds true for features or just basic one line fixes.  In your fork:</p>
-<div class="highlight"><pre><span class="nv">$ </span>git checkout master
-<span class="nv">$ </span>git pull --ff-only upstream master
-<span class="nv">$ </span>git push
-<span class="nv">$ </span>git checkout -b my_feature
-</pre></div>
-<p>This pulls the latest code from the upstream master to your master, pushes that to your fork and then creates a new checkout based on that code.</p>
-</div>
-<div class="section" id="syncing-fork">
-<h2>Syncing Fork</h2>
-<p>If you have worked on some code and at the same time someone else has merged code that may conflict (a pull request will tell you this straight away) you can merge upstream with your commits as follows:</p>
-<div class="highlight"><pre><span class="nv">$ </span>git fetch upstream
-<span class="nv">$ </span>git merge upstream/master
-</pre></div>
-<p>This fetches the upstream code into a local cache and then will merge it.  If there are conflicts they will be flagged for you to resolve.</p>
-</div>
-<div class="section" id="pull-requests">
-<h2>Pull Requests</h2>
-<p>When your code is good and ready you can send it up as a pull request.  To do this you first need to push it up to your local repository:</p>
-<div class="highlight"><pre><span class="nv">$ </span>git push --set-upstream origin my_feature
-</pre></div>
-<p>Then when you go to the project's repository you will see a button to file a pull request.  If you are using continuous integration such as Travis CI you should wait for that to give a green result and preferably peer review too before clocking the merge button.</p>
-</div>
-
-        </article></aside><!-- /#featured -->
-                <h1><i class="fa fa-bars"></i> Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
+<h2>Versioning ...</h2></div>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/25/working-with-git/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/22/c-library-visibility/" rel="bookmark" title="Permalink to C Library Visibility">C Library Visibility</a></h1>
@@ -202,7 +193,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
             <div class="widget tags">
             <h2><i class="fa fa-tags fa-lg"></i>Tags</h2>
                 <ul class="list-group list-inline tagcloud" id="tags">
-                    <li class="list-group-item tag-0">
+                    <li class="list-group-item tag-1">
                         <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">
                             Advanced Technology Group
                         </a>
@@ -232,7 +223,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Blog
                         </a>
                     </li>
-                    <li class="list-group-item tag-3">
+                    <li class="list-group-item tag-2">
                         <a href="http://linuxjedi.co.uk/tag/c.html">
                             C
                         </a>
@@ -257,7 +248,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Git
                         </a>
                     </li>
-                    <li class="list-group-item tag-0">
+                    <li class="list-group-item tag-1">
                         <a href="http://linuxjedi.co.uk/tag/hp.html">
                             HP
                         </a>
