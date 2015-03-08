@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Geeky ISO Time Config</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.css" />
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.3/jquery.mobile-1.4.3.min.js"></script>
+  </head>
+  <body>
+    <div data-role="page" id="main">
+      <div data-role="header" class="jqm-header">
+        <h1>Geeky Time Config</h1>
+      </div>
+
+      <div data-role="content">
+
+
+        <fieldset data-role="controlgroup">
+          <legend>Temperature Scale:</legend>
+          
+          <input type="radio" name="tempScale" id="tempScaleF" value="F"/>
+          <label for="tempScaleF">Fahrenheit</label>
+
+          <input type="radio" name="tempScale" id="tempScaleC" value="C"/>
+          <label for="tempScaleC">Celcius</label>
+        </fieldset>
+
+        <label for="tempCorrect">Temperature Correction (K):</label>
+        <input type="number" name="tempCorrect" id="tempCorrect" value="0"/>
+
+        <fieldset data-role="controlgroup">
+          <legend>Vibrate on Bluetooth dis/connect:</legend>
+          
+          <input type="radio" name="btVibrate" id="btVibrateOn" value="On"/>
+          <label for="btVibrateOn">On</label>
+
+          <input type="radio" name="btVibrate" id="btVibrateOff" value="Off"/>
+          <label for="btVibrateOff">Off</label>
+        </fieldset>
+        
+
+        <div class="ui-body ui-body-b">
+          <fieldset class="ui-grid-a">
+              <div class="ui-block-a"><button type="submit" data-theme="d" id="b-cancel">Cancel</button></div>
+              <div class="ui-block-b"><button type="submit" data-theme="a" id="b-submit">Submit</button></div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    <script>
+      function saveOptions() {
+        var options = {
+          'tempScale': $("input[name='tempScale']:checked").val(),
+          'tempCorrect': $("#tempCorrect").val(),
+          'btVibrate': $("input[name='btVibrate']:checked").val()
+        }
+        return options;
+      }
+      
+      function getUrlParamByName(name)
+      {
+        var results = new RegExp('[\?&amp;]' + name + '=([^&amp;#]*)').exec(window.location.href);
+        if (results)
+          return results[1];
+        else
+          return null;
+      }
+      
+      function applyCurrConfigFromUrl()
+      {
+        var urlTempScale = getUrlParamByName("tempScale");
+        var urlBtVibrate = getUrlParamByName("btVibrate");
+        var urlTempCorrect = getUrlParamByName("tempCorrect");
+        console.log("tempScale from url=" + urlTempScale);
+        console.log("tempCorrect from url=" + urlTempCorrect);
+        console.log("btVibrate from url=" + urlBtVibrate);
+        $("#tempScale" + urlTempScale).prop('checked', true);
+        $("#btVibrate" + urlBtVibrate).prop('checked', true);
+        $("input[type='radio'][name='tempScale']").checkboxradio("refresh");
+        $("input[type='radio'][name='btVibrate']").checkboxradio("refresh");
+        $("#tempCorrect").val(urlTempCorrect);
+      }
+
+      $().ready(function() {
+        applyCurrConfigFromUrl();
+        $("#b-cancel").click(function() {
+          console.log("Cancel");
+          document.location = "pebblejs://close";
+        });
+
+        $("#b-submit").click(function() {
+          console.log("Submit");
+          console.log("Options: " + JSON.stringify(saveOptions()));
+          var location = "pebblejs://close#" + encodeURIComponent(JSON.stringify(saveOptions()));
+          console.log("Warping to: " + location);
+          console.log(location);
+          document.location = location;
+        });
+      });
+    </script>
+  </body>
+</html>
