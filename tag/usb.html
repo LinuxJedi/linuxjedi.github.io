@@ -91,13 +91,13 @@
 <div class="highlight"><pre><span class="nv">$ </span>diskutil list
 </pre></div>
 <p>Now you need to find out the block size (it is typically 512).  Make a note of this number because you will need it later:</p>
-<div class="highlight"><pre><span class="nv">$ </span>diskutil info /dev/disk<span class="o">{</span>drive_no<span class="o">}</span> | grep <span class="s2">&quot;Block Size&quot;</span>
+<div class="highlight"><pre><span class="nv">$ </span>diskutil info /dev/disk<span class="o">{</span>drive_no<span class="o">}</span> <span class="p">|</span> grep <span class="s2">&quot;Block Size&quot;</span>
 </pre></div>
 <p>The drive can't be changed until we unmount the partitions so run this for every partition that is currently in-use for your drive:</p>
 <div class="highlight"><pre><span class="nv">$ </span>diskutil unmount /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>s<span class="o">{</span>partition_no<span class="o">}</span>
 </pre></div>
 <p>Due to the nature of the UDF format it is possible that the operating system would still detect the drive as FAT32 afterwards so we need to blank the drive with zeros.  This could take some time:</p>
-<div class="highlight"><pre><span class="nv">$ </span>diskutil secureErase 0 /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>
+<div class="highlight"><pre><span class="nv">$ </span>diskutil secureErase <span class="m">0</span> /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>
 </pre></div>
 <p>Now the drive can be formatted, replace <em>block_size</em> with the number you wrote down above:</p>
 <div class="highlight"><pre><span class="nv">$ </span>sudo newfs_udf -b <span class="o">{</span>block_size<span class="o">}</span> /dev/disk<span class="o">{</span>drive_no<span class="o">}</span>

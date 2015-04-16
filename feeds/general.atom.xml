@@ -76,13 +76,13 @@
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil list
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now you need to find out the block size (it is typically 512).  Make a note of this number because you will need it later:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; | grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The drive can't be changed until we unmount the partitions so run this for every partition that is currently in-use for your drive:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil unmount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;s&lt;span class="o"&gt;{&lt;/span&gt;partition_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Due to the nature of the UDF format it is possible that the operating system would still detect the drive as FAT32 afterwards so we need to blank the drive with zeros.  This could take some time:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil secureErase 0 /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil secureErase &lt;span class="m"&gt;0&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now the drive can be formatted, replace &lt;em&gt;block_size&lt;/em&gt; with the number you wrote down above:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo newfs_udf -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
