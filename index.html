@@ -34,43 +34,48 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Feb/24/variable-length-arrays-in-c/">Variable Length Arrays in C</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Apr/23/why-dependency-testing-is-important/">Why Dependency Testing is Important</a></h1>
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-04-23T22:27:00+01:00">Thu 23 Apr 2015, 22:27</abbr></p>
+
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/testing.html">Testing</a> <a href="http://linuxjedi.co.uk/tag/parallels.html">Parallels</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Or...</p>
+<div class="section" id="why-i-m-ditching-parallels">
+<h2>Why I'm Ditching Parallels</h2>
+<p>I've been using Parallels quite successfully for several months now and I must admit it is a great way to run all my various Linux distros that I work with on my Mac.</p>
+<p>One of my main VMs is the latest Fedora release (currently Fedora 21). Fedora can be quite bleeding edge and in recent releases they have had a policy of a rolling kernel release inside the fixed twice-annual releases.</p>
+<p>A few weeks ago my Fedora VM ran an update which included an update to a 3.19 Kernel release. After a reboot my Fedora VM didn't start Xorg and was stuck at a service startup messages.</p>
+<p>I wasn't getting much response from Parallels support so I dug in to debug what had happened. It turns out that the Parallels tools had attempted to rebuild and failed. This meant that the required kernel modules were missing and a full boot could not happen. My Parallels had also updated so I could not switch to an older kernel, because this required a module rebuild and there development packages for the older kernels were not available.</p>
+<p>I ended up creating a quick temporary patch to fix this and <a class="reference external" href="https://forum.parallels.com/threads/temporary-fix-for-kernel-3-19.328277/">posted it on Parallels forum</a>. I eventually got a response from Parallels support stating they are working on the problem and to this day (now nearly 2 weeks after I created the patch) the problem has still not officially fixed by Parallels.</p>
+<p>Now, I understand that Parallels needs time to fix these things. But, this problem could have easily been resolved months ago, before it was even a problem to the users that have needed my patch.</p>
+<p>It comes down to a type of continuous integration that is relatively easy to set up. That is to test with new versions of your dependencies when they are upgraded.</p>
+<p>In the case of Linux this could be done by having a script that updates Arch Linux or similar daily, tries to install Parallels Tools and reports on failure. If Parallels had used this process with Arch Linux the problem would have been automatically detected in early February and they would have had time to fix it before it affected the bigger distros.</p>
+<p>This would cause a few false failures but those would be easy to weed out. They could even take a Fedora release and build a new kernel and other dependencies for it daily which will probably reduce the false failures.</p>
+<p>Today we are at a point where Ubuntu 15.04 has been released. The kernel with that distro is not compatible and there is no update to the proprietary Xorg driver that comes with Parallels for Xorg 1.17 that comes with this release. Making it completely unusable with Parallels.</p>
+<p>I need to use virtual machines for my day job at Nginx as I did in HP, so this problem is a real productivity killer and has meant I've had to finally give up and ditch Parallels. Today I've been trying VMWare Fusion instead and so far it is working great with every distro I need to use, even with updated kernel and Xorg.</p>
+</div>
+
+        </article></aside><!-- /#featured -->
+                <h1><i class="fa fa-bars"></i> Other articles</h1>
+                <hr />
+                    <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Feb/24/variable-length-arrays-in-c/" rel="bookmark" title="Permalink to Variable Length Arrays in C">Variable Length Arrays in C</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
     <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-02-24T13:25:00+00:00">Tue 24 Feb 2015, 13:25</abbr></p>
 
 <p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/coding.html">Coding</a> </p>
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>In a bid to aim this blog at multiple levels I'm going to talk today about Variable Length Arrays (VLAs) in C.  I'm covering this topic in particular because a friend who is a Harvard CS50 student recently asked me about them.</p>
-<p>As many people know, C is my favourite programming language to work in (several have questioned my sanity thanks to this).  It isn't always the right programming language for every project and where it is appropriate I will use an alternative language.  But it is my favourite to work with and HP's Advanced Technology Group allows me to do a lot of work in it.</p>
-<p>In a previous post on my old blog <a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/02/why-vlais-is-bad.html">I discussed why VLAIS (Variable Length Arrays In Structs) is a bad idea</a>.  Put simply this is a GCC only feature which can cause a lot of problems.  Unfortunately they are used a lot in the Linux kernel but this is being improved as part of the work to port the kernel to work with the CLang compiler.</p>
-<p>VLAs themselves are not as bad.  For those who don't know what they are, here is an example:</p>
-<div class="highlight"><pre><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
-<span class="p">{</span>
-    <span class="kt">char</span> <span class="n">name</span><span class="p">[]</span><span class="o">=</span> <span class="s">&quot;fred&quot;</span><span class="p">;</span>
-    <span class="n">printname</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span> <span class="c1">// 4 chars + nul terminator</span>
-<span class="p">}</span>
-
-<span class="kt">void</span> <span class="nf">printname</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="kt">char</span> <span class="n">name_copy</span><span class="p">[</span><span class="n">length</span><span class="p">];</span>
-    <span class="n">memcpy</span><span class="p">(</span><span class="n">name_copy</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">length</span><span class="p">);</span>
-    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Name is: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">name_copy</span><span class="p">);</span>
-<span class="p">}</span>
-</pre></div>
-<p>The bit I'm referring to is &quot;<tt class="docutils literal">char name_copy[length];</tt>&quot;.  Normally array sizes are fixed at compile time but with the C99 standard VLAs were introduced.  They were in several compilers before that but it was not a standard.  The compiler will turn this into code which allocates <tt class="docutils literal">name_copy</tt> to the correct size when the function is entered and frees the memory when the function returns.</p>
-<p>This is incredibly useful but is not without problems:</p>
-<ol class="arabic simple">
-<li>You need to make sure that the application doesn't try to use <tt class="docutils literal">free()</tt> on the VLA.  This will likely end very badly</li>
-<li>If you have a pointer to a VLA you need to make sure you don't try to access it when the function has returned (just like accessing memory that has been freed)</li>
-<li>Many implementations allocate this memory on the stack instead of the main pool of memory</li>
-</ol>
-<p>This last one could be a problem because most platforms at least have a soft limit on stack size.  The default for the machine I'm typing on for example is 8MiB.  This sounds a lot but with recursion it is possible to easily blow this, especially with large arrays.  Ideally VLAs should be used just for allocations you know are going to be quite small and predictable.  If it is a user input without sanitation you could be opening yourself up to an attack vector.</p>
-<p>In summary, VLAs are useful, they make allocation and freeing much easier, especially for multi-dimension arrays.  But you need to be very careful using them and only for small allocations.</p>
-
-        </article></aside><!-- /#featured -->
-                <h1><i class="fa fa-bars"></i> Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
+<p>As many people know, C is ...</p>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Feb/24/variable-length-arrays-in-c/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2015/Feb/14/live-kernel-patching-why-you-should-not-use-it/" rel="bookmark" title="Permalink to Live Kernel Patching - Why You Should NOT Use It">Live Kernel Patching - Why You Should <em>NOT</em> Use It</a></h1>
@@ -196,21 +201,6 @@
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/yubikey.html">YubiKey</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>I have mentioned a few times in this blog that HP takes security very seriously and HP's Advanced Technology Group is always looking into new ways of making things secure.  Recently the team all got a <a class="reference external" href="https://www.yubico.com/products/yubikey-hardware/yubikey-neo/">YubiKey Neo</a> to use.  The initial idea was we would be trying the ...</p>
                 <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/05/usb-flash-drives-trimming-the-fat/" rel="bookmark" title="Permalink to USB Flash Drives - Trimming the FAT">USB Flash Drives - Trimming the FAT</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-05T22:34:00+00:00">Mon 05 Jan 2015, 22:34</abbr></p>
-
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/usb.html">USB</a> <a href="http://linuxjedi.co.uk/tag/flash.html">Flash</a> <a href="http://linuxjedi.co.uk/tag/filesystems.html">Filesystems</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>As with most of you who read this blog I carry USB flash drives around with me all the time.  Right now I have 3 Kingston DTSE9 sticks on my keyring of various sizes each with a different purpose.  Whilst these drives are nowhere near the fastest out there they ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/05/usb-flash-drives-trimming-the-fat/">read more</a>
                 </div><!-- /.entry-content -->
         </article></li>
 </ol><!-- /#posts-list -->
@@ -359,6 +349,11 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                         </a>
                     </li>
                     <li class="list-group-item tag-4">
+                        <a href="http://linuxjedi.co.uk/tag/parallels.html">
+                            Parallels
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
                         <a href="http://linuxjedi.co.uk/tag/python.html">
                             Python
                         </a>
@@ -366,6 +361,11 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                     <li class="list-group-item tag-2">
                         <a href="http://linuxjedi.co.uk/tag/security.html">
                             Security
+                        </a>
+                    </li>
+                    <li class="list-group-item tag-4">
+                        <a href="http://linuxjedi.co.uk/tag/testing.html">
+                            Testing
                         </a>
                     </li>
                     <li class="list-group-item tag-4">

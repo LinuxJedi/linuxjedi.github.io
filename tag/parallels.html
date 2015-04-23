@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>LinuxJedi's /dev/null - LinuxJedi</title>
+        <title>LinuxJedi's /dev/null - Parallels</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -34,42 +34,29 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/04/blogging-platforms/">Blogging Platforms</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Apr/23/why-dependency-testing-is-important/">Why Dependency Testing is Important</a></h1>
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-04T22:16:00+01:00">Sat 04 Oct 2014, 22:16</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-04-23T22:27:00+01:00">Thu 23 Apr 2015, 22:27</abbr></p>
 
 <p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/blog.html">Blog</a> <a href="http://linuxjedi.co.uk/tag/linuxjedi.html">LinuxJedi</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>A couple of weeks ago I ditched Blogger as my main blogging platform.  The main reason for this was the editing tools were breaking posts containing code.  Whilst it is a great platform for basic blogging, it is not suitable for developers blogs.</p>
-<p>So, I was on the hunt for blogging platforms that would make it easy for me to write posts that contain technical content and is not expensive to run.  I also don't want to be maintaining my own web server, I may be capable of doing this but I don't want the time overhead.</p>
-<p>I tried several things out that met some of my requirements but many didn't fit all.  Wordpress was probably the closest, but I had trouble bending the free templates to my will.</p>
-<p>With many on my team at HP's Advanced Technology Group using <a class="reference external" href="https://pages.github.com/">GitHub Pages</a> for blog posts I thought I would give it a try.  Most of the team are trying out Jekyll which looks really good, but isn't for me.  I prefer <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> to Markdown and use it every day for the <a class="reference external" href="http://docs.libattachsql.org">libAttachSQL documentation</a>.</p>
-<p>On my journey I came across <a class="reference external" href="http://tinkerer.me/">Tinkerer</a> which is a layer on top of <a class="reference external" href="http://sphinx-doc.org/">Python Sphinx</a> to generate a blog site from RST files.  This was great for me because Sphinx is the renderer used for libAttachSQL's docs both in the build system and <a class="reference external" href="https://readthedocs.org/">Read The Docs</a>.  I created a new blog on this hosted on GitHub Pages and <a class="reference external" href="https://disqus.com/">Disqus</a> for comments.</p>
-<p>I had several minor problems with Tinkerer, many of which I worked around, but the main flaw was no timestamp support for blog posts.  All blog posts would have a date but not a time, so in the RSS feeds it would be as if they were posted at midnight.  If you are posting at 22:00 it means in feed aggregators your post would end up below many others posted that day and multiple posts in a day could be in any order.</p>
-<p>Today I bumped into a blogging platform called <a class="reference external" href="http://blog.getpelican.com/">Pelican</a>.  It too uses RST files to generate the site, but supports metadata in the RST files to signify things such as time of post.  It was incredibly easy to port my Tinkerer posts over so I gave it a try.</p>
-<p>I have ended up with generation scripts, RST files and a theme I have modified in a <a class="reference external" href="https://github.com/LinuxJedi/linuxjedi.co.uk">GitHub repo</a> and the generated content in my <a class="reference external" href="https://github.com/LinuxJedi/linuxjedi.github.io">GitHub Pages Repo</a>.  Pelican has a built-in HTTP server which makes it easy to preview your generated HTML before it is uploaded to the site.</p>
-<p>In conclusion, Tinkerer is a great platform, but Pelican feels more mature and it seems to have a wider community around it.  I also found its templates much easier to edit.  Both platforms have an Open Source feel to the way you create and publish content which is fantastic for my usage.  I think I have finally found a blogging platform I can settle with.</p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/testing.html">Testing</a> <a href="http://linuxjedi.co.uk/tag/parallels.html">Parallels</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>Or...</p>
+<div class="section" id="why-i-m-ditching-parallels">
+<h2>Why I'm Ditching Parallels</h2>
+<p>I've been using Parallels quite successfully for several months now and I must admit it is a great way to run all my various Linux distros that I work with on my Mac.</p>
+<p>One of my main VMs is the latest Fedora release (currently Fedora 21). Fedora can be quite bleeding edge and in recent releases they have had a policy of a rolling kernel release inside the fixed twice-annual releases.</p>
+<p>A few weeks ago my Fedora VM ran an update which included an update to a 3.19 Kernel release. After a reboot my Fedora VM didn't start Xorg and was stuck at a service startup messages.</p>
+<p>I wasn't getting much response from Parallels support so I dug in to debug what had happened. It turns out that the Parallels tools had attempted to rebuild and failed. This meant that the required kernel modules were missing and a full boot could not happen. My Parallels had also updated so I could not switch to an older kernel, because this required a module rebuild and there development packages for the older kernels were not available.</p>
+<p>I ended up creating a quick temporary patch to fix this and <a class="reference external" href="https://forum.parallels.com/threads/temporary-fix-for-kernel-3-19.328277/">posted it on Parallels forum</a>. I eventually got a response from Parallels support stating they are working on the problem and to this day (now nearly 2 weeks after I created the patch) the problem has still not officially fixed by Parallels.</p>
+<p>Now, I understand that Parallels needs time to fix these things. But, this problem could have easily been resolved months ago, before it was even a problem to the users that have needed my patch.</p>
+<p>It comes down to a type of continuous integration that is relatively easy to set up. That is to test with new versions of your dependencies when they are upgraded.</p>
+<p>In the case of Linux this could be done by having a script that updates Arch Linux or similar daily, tries to install Parallels Tools and reports on failure. If Parallels had used this process with Arch Linux the problem would have been automatically detected in early February and they would have had time to fix it before it affected the bigger distros.</p>
+<p>This would cause a few false failures but those would be easy to weed out. They could even take a Fedora release and build a new kernel and other dependencies for it daily which will probably reduce the false failures.</p>
+<p>Today we are at a point where Ubuntu 15.04 has been released. The kernel with that distro is not compatible and there is no update to the proprietary Xorg driver that comes with Parallels for Xorg 1.17 that comes with this release. Making it completely unusable with Parallels.</p>
+<p>I need to use virtual machines for my day job at Nginx as I did in HP, so this problem is a real productivity killer and has meant I've had to finally give up and ditch Parallels. Today I've been trying VMWare Fusion instead and so far it is working great with every distro I need to use, even with updated kernel and Xorg.</p>
+</div>
 
         </article></aside><!-- /#featured -->
-                <h1><i class="fa fa-bars"></i> Other articles</h1>
-                <hr />
-                    <ol id="posts-list" class="hfeed">
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2014/Sep/23/new-blog/" rel="bookmark" title="Permalink to New Blog!">New Blog!</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-09-23T16:45:00+01:00">Tue 23 Sep 2014, 16:45</abbr></p>
-
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/general.html">General</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/linuxjedi.html">LinuxJedi</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Blogger is a great blogging platform.  Unfortunately it is really difficut to create content that has marked-up code in it.  Which as a developer is a requirement.  Therefore LinuxJedi's /dev/null has now moved to this GitHub pages site using <a class="reference external" href="http://tinkerer.me/">Tinkerer</a> to build it.</p>
-<p>The old site and content ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2014/Sep/23/new-blog/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
 </ol><!-- /#posts-list -->
 </section><!-- /#content -->
 
