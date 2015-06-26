@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <title>libAttachSQL Second Beta, After the Sledgehammer</title>
+        <title>The LinuxJedi at NGINX</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/main.css" type="text/css" />
         <link rel="stylesheet" href="http://linuxjedi.co.uk/theme/css/font-awesome.min.css" type="text/css" />
@@ -33,37 +33,39 @@
 
 <section id="content" class="body">
 <article>
-      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/"
-        rel="bookmark" title="Permalink to libAttachSQL Second Beta, After the Sledgehammer">libAttachSQL Second Beta, After the Sledgehammer</a></h1>  </header>
+      <header> <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jun/26/the-linuxjedi-at-nginx/"
+        rel="bookmark" title="Permalink to The LinuxJedi at NGINX">The LinuxJedi at NGINX</a></h1>  </header>
         <div class="entry-content">
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2014-10-08T20:52:00+01:00">Wed 08 Oct 2014, 20:52</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-06-26T21:40:00+01:00">Fri 26 Jun 2015, 21:40</abbr></p>
 
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/mysql.html">MySQL</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> <a href="http://linuxjedi.co.uk/tag/libattachsql.html">libAttachSQL</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-        <p>Last week I <a class="reference external" href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/">blogged about getting sysbench working with libAttachSQL</a>.  This was not only an exercise in performance but also the first real test for <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a>.</p>
-<p>Before I had done this testing the most the early Alpha and Beta releases of libAttachSQL had gone through is a few basic queries.  So, the first thing I did when I got the sysbench driver working was slap it with 1,000,000 queries.  It pretty much exploded instantly on that.  Over the course of this release I have probably hit it with over 100,000,000 queries and things run a lot smoother.</p>
-<p>This has led to today's release of libAttachSQL 0.5.0.  As far as changes go this release has the <a class="reference external" href="http://docs.libattachsql.org/en/latest/appendix/version_history.html#version-0-5">biggest changelog so far</a>.  Here is a summary of the major points:</p>
-<ul class="simple">
-<li>11 major bugs fixes, most of them crashing bugs</li>
-<li>Lots more documentation and examples</li>
-<li>More tests</li>
-<li>A couple of minor features</li>
-<li>A new semi-blocking mode</li>
-<li>A more consistent API for error handling</li>
-</ul>
-<p>These last two points I should talk about a bit more.  The semi-blocking mode lets the networking code block until data is received (but not until it is all received).  For applications which access using one connection per thread this will increase performance, but will decrease performance for many connections per thread (which is what libAttachSQL was originally designed for).</p>
-<p>The error handling has moved from a user accessible struct to a type which is used in function calls.  In addition the way this is returned to the user application has been made consistent across the whole API.  This means that the API is not backwards compatible with 0.4.0.</p>
-<p>For those wishing to try out the connector the 0.5.0 beta source release <a class="reference external" href="https://github.com/libattachsql/libattachsql/releases/tag/v0.5.0">can be found on GitHub</a>.  The documentation is on <a class="reference external" href="http://docs.libattachsql.org/en/latest/">Read The Docs</a>.</p>
-<p>This will be the last beta for libAttachSQL.  The next release will be 0.9.0 RC which will hopefully be a short cycle to our first GA release.  We have many more goodies planned after GA.  Watch this space!</p>
-<p>As always if you have any questions please get in touch either via. the comments below, the <a class="reference external" href="irc://chat.freenode.net/libAttachSQL">#libAttachSQL Freenode channel</a> or any other means.</p>
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/nginx.html">Nginx</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/nginx.html">Nginx</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+        <p>Several months ago I was having a Sunday brunch with some friends in Seattle. One of the discussions that came up was the fact that <a class="reference external" href="http://nginx.com/">NGINX</a> needed to expand their developer relations team and we were thinking up names of likely candidates for the role. Fast forward to today and I've somehow wound up working at NGINX on the developer relations team!</p>
+<p>My role is &quot;Senior Developer Advocate&quot; and there are many parts of my role, but I guess it could be summarised as a cross between a community manager and community developer.</p>
+<p>I made many friends during my time at HP and it was hard leaving them, the Advanced Technology Group in particular since this was the last team I worked in. Brian Aker has been my boss and mentor for many years through several companies and in particular he will always be a good friend.</p>
+<div class="section" id="nginx-conference">
+<h2>NGINX Conference</h2>
+<p>The day it became public that I was joining NGINX I got lots of people coming up to me telling me that NGINX had solved problems for them in the past. Even giving me thanks (which was a little strange because I hadn't even started yet).</p>
+<p>It seems everyone I meet has a unique and interesting story about their NGINX implemention. It is fantastic to work with a team that creates a tool that can be used in so many unique ways, many of which we could never imagine.</p>
+<p>This is where NGINX needs you, everyone has a unique story about NGINX and we want to give you the opportunity to tell yours. We have the <a class="reference external" href="http://nginx.com/nginxconf/">NGINX Conference</a> on September 22-24th 2015 and the CfP is still open for just under 1 week. So please come and submit your story!</p>
+<p>I will be at the conference and we have lots of fun and interesting things already planned.</p>
+</div>
+<div class="section" id="nginx-so-far">
+<h2>NGINX so far</h2>
+<p>The reason I haven't written a post in a while is NGINX has kept me so incredibly busy, but it has been a lot of fun too. That isn't to say I haven't been blogging, you can see a post I wrote called <a class="reference external" href="http://nginx.com/blog/socket-sharding-nginx-release-1-9-1/">Socket Sharding in NGINX Release 1.9.1</a> on the NGINX blog.</p>
+<p>I've flown to San Francisco and Moscow to meet the teams there. Everyone at NGINX is passionate about the product and it is a fantastic thing to see.</p>
+<p>I have also spoken to many members of the NGINX community as well as companies big and small who use NGINX as a part of their stack. All of them very enthusiastic about NGINX and excited to see what we have lined up for future releases (trust me, we have some amazing features lined up).</p>
+<p>There is a lot of work for me to do here but I'm enjoying every minute of it. I'm here to help the Open Source community and we have an awesome community, so lively that it is hard for me to keep up. I will try and take time out to blog more about things I'm working on at NGINX over the coming months.</p>
+<p>I look forward to the future of NGINX and seeing as many of you as I can at the <a class="reference external" href="http://nginx.com/nginxconf/">NGINX Conference</a>.</p>
+</div>
 
         </div><!-- /.entry-content -->
         <div class="comments">
         <h2>Comments !</h2>
             <div id="disqus_thread"></div>
             <script type="text/javascript">
-               var disqus_identifier = "posts/2014/Oct/08/libattachsql-second-beta-after-the-sledgehammer/";
+               var disqus_identifier = "posts/2015/Jun/26/the-linuxjedi-at-nginx/";
                (function() {
                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                dsq.src = 'http://linuxjedi.disqus.com/embed.js';
@@ -90,8 +92,8 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                         <ul>
                            <li ><a href="http://linuxjedi.co.uk/category/coding.html"><i class="fa fa-folder-open fa-lg"></i> Coding</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/general.html"><i class="fa fa-folder-open fa-lg"></i> General</a></li>
-                           <li class="active"><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
-                           <li ><a href="http://linuxjedi.co.uk/category/nginx.html"><i class="fa fa-folder-open fa-lg"></i> Nginx</a></li>
+                           <li ><a href="http://linuxjedi.co.uk/category/mysql.html"><i class="fa fa-folder-open fa-lg"></i> MySQL</a></li>
+                           <li class="active"><a href="http://linuxjedi.co.uk/category/nginx.html"><i class="fa fa-folder-open fa-lg"></i> Nginx</a></li>
                            <li ><a href="http://linuxjedi.co.uk/category/security.html"><i class="fa fa-folder-open fa-lg"></i> Security</a></li>
                         </ul>
                 </div>

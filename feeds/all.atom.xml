@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>LinuxJedi's /dev/null</title><link href="http://linuxjedi.co.uk/" rel="alternate"></link><link href="http://linuxjedi.co.uk/feeds/all.atom.xml" rel="self"></link><id>http://linuxjedi.co.uk/</id><updated>2015-04-23T22:27:00+01:00</updated><entry><title>Why Dependency Testing is Important</title><link href="http://linuxjedi.co.uk/posts/2015/Apr/23/why-dependency-testing-is-important/" rel="alternate"></link><updated>2015-04-23T22:27:00+01:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-04-23:posts/2015/Apr/23/why-dependency-testing-is-important/</id><summary type="html">&lt;p&gt;Or...&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>LinuxJedi's /dev/null</title><link href="http://linuxjedi.co.uk/" rel="alternate"></link><link href="http://linuxjedi.co.uk/feeds/all.atom.xml" rel="self"></link><id>http://linuxjedi.co.uk/</id><updated>2015-06-26T21:40:00+01:00</updated><entry><title>The LinuxJedi at NGINX</title><link href="http://linuxjedi.co.uk/posts/2015/Jun/26/the-linuxjedi-at-nginx/" rel="alternate"></link><updated>2015-06-26T21:40:00+01:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-06-26:posts/2015/Jun/26/the-linuxjedi-at-nginx/</id><summary type="html">&lt;p&gt;Several months ago I was having a Sunday brunch with some friends in Seattle. One of the discussions that came up was the fact that &lt;a class="reference external" href="http://nginx.com/"&gt;NGINX&lt;/a&gt; needed to expand their developer relations team and we were thinking up names of likely candidates for the role. Fast forward to today and I've somehow wound up working at NGINX on the developer relations team!&lt;/p&gt;
+&lt;p&gt;My role is &amp;quot;Senior Developer Advocate&amp;quot; and there are many parts of my role, but I guess it could be summarised as a cross between a community manager and community developer.&lt;/p&gt;
+&lt;p&gt;I made many friends during my time at HP and it was hard leaving them, the Advanced Technology Group in particular since this was the last team I worked in. Brian Aker has been my boss and mentor for many years through several companies and in particular he will always be a good friend.&lt;/p&gt;
+&lt;div class="section" id="nginx-conference"&gt;
+&lt;h2&gt;NGINX Conference&lt;/h2&gt;
+&lt;p&gt;The day it became public that I was joining NGINX I got lots of people coming up to me telling me that NGINX had solved problems for them in the past. Even giving me thanks (which was a little strange because I hadn't even started yet).&lt;/p&gt;
+&lt;p&gt;It seems everyone I meet has a unique and interesting story about their NGINX implemention. It is fantastic to work with a team that creates a tool that can be used in so many unique ways, many of which we could never imagine.&lt;/p&gt;
+&lt;p&gt;This is where NGINX needs you, everyone has a unique story about NGINX and we want to give you the opportunity to tell yours. We have the &lt;a class="reference external" href="http://nginx.com/nginxconf/"&gt;NGINX Conference&lt;/a&gt; on September 22-24th 2015 and the CfP is still open for just under 1 week. So please come and submit your story!&lt;/p&gt;
+&lt;p&gt;I will be at the conference and we have lots of fun and interesting things already planned.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="nginx-so-far"&gt;
+&lt;h2&gt;NGINX so far&lt;/h2&gt;
+&lt;p&gt;The reason I haven't written a post in a while is NGINX has kept me so incredibly busy, but it has been a lot of fun too. That isn't to say I haven't been blogging, you can see a post I wrote called &lt;a class="reference external" href="http://nginx.com/blog/socket-sharding-nginx-release-1-9-1/"&gt;Socket Sharding in NGINX Release 1.9.1&lt;/a&gt; on the NGINX blog.&lt;/p&gt;
+&lt;p&gt;I've flown to San Francisco and Moscow to meet the teams there. Everyone at NGINX is passionate about the product and it is a fantastic thing to see.&lt;/p&gt;
+&lt;p&gt;I have also spoken to many members of the NGINX community as well as companies big and small who use NGINX as a part of their stack. All of them very enthusiastic about NGINX and excited to see what we have lined up for future releases (trust me, we have some amazing features lined up).&lt;/p&gt;
+&lt;p&gt;There is a lot of work for me to do here but I'm enjoying every minute of it. I'm here to help the Open Source community and we have an awesome community, so lively that it is hard for me to keep up. I will try and take time out to blog more about things I'm working on at NGINX over the coming months.&lt;/p&gt;
+&lt;p&gt;I look forward to the future of NGINX and seeing as many of you as I can at the &lt;a class="reference external" href="http://nginx.com/nginxconf/"&gt;NGINX Conference&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+</summary><category term="Nginx"></category></entry><entry><title>Why Dependency Testing is Important</title><link href="http://linuxjedi.co.uk/posts/2015/Apr/23/why-dependency-testing-is-important/" rel="alternate"></link><updated>2015-04-23T22:27:00+01:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2015-04-23:posts/2015/Apr/23/why-dependency-testing-is-important/</id><summary type="html">&lt;p&gt;Or...&lt;/p&gt;
 &lt;div class="section" id="why-i-m-ditching-parallels"&gt;
 &lt;h2&gt;Why I'm Ditching Parallels&lt;/h2&gt;
 &lt;p&gt;I've been using Parallels quite successfully for several months now and I must admit it is a great way to run all my various Linux distros that I work with on my Mac.&lt;/p&gt;
@@ -503,56 +521,4 @@ X-Powered-By:PHP/5.3.3
 &lt;p&gt;Today I bumped into a blogging platform called &lt;a class="reference external" href="http://blog.getpelican.com/"&gt;Pelican&lt;/a&gt;.  It too uses RST files to generate the site, but supports metadata in the RST files to signify things such as time of post.  It was incredibly easy to port my Tinkerer posts over so I gave it a try.&lt;/p&gt;
 &lt;p&gt;I have ended up with generation scripts, RST files and a theme I have modified in a &lt;a class="reference external" href="https://github.com/LinuxJedi/linuxjedi.co.uk"&gt;GitHub repo&lt;/a&gt; and the generated content in my &lt;a class="reference external" href="https://github.com/LinuxJedi/linuxjedi.github.io"&gt;GitHub Pages Repo&lt;/a&gt;.  Pelican has a built-in HTTP server which makes it easy to preview your generated HTML before it is uploaded to the site.&lt;/p&gt;
 &lt;p&gt;In conclusion, Tinkerer is a great platform, but Pelican feels more mature and it seems to have a wider community around it.  I also found its templates much easier to edit.  Both platforms have an Open Source feel to the way you create and publish content which is fantastic for my usage.  I think I have finally found a blogging platform I can settle with.&lt;/p&gt;
-</summary><category term="Blog"></category><category term="LinuxJedi"></category></entry><entry><title>libAttachSQL Benchmarks With Sysbench</title><link href="http://linuxjedi.co.uk/posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/" rel="alternate"></link><updated>2014-10-03T21:28:00+01:00</updated><author><name></name></author><id>tag:linuxjedi.co.uk,2014-10-03:posts/2014/Oct/03/libattachsql-benchmarks-with-sysbench/</id><summary type="html">&lt;p&gt;This week I have been spending a little bit of time creating a module for &lt;a class="reference external" href="https://launchpad.net/sysbench"&gt;Sysbench&lt;/a&gt; so that it can use &lt;a class="reference external" href="http://libattachsql.org/"&gt;libAttachSQL&lt;/a&gt; as a database driver.  The reason for doing this is twofold:&lt;/p&gt;
-&lt;ol class="arabic simple"&gt;
-&lt;li&gt;&lt;a class="reference external" href="http://krow.net/"&gt;Brian&lt;/a&gt; (my boss at HP's Advanced Technology Group) said now would be a good time to benchmark libAttachSQL&lt;/li&gt;
-&lt;li&gt;I really needed more than a few basic queries to shake out bugs in the library, and a benchmark is a good way to shove a few million through it&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;On the bug front, it did find a total of 5 bugs, a couple of them serious.  Which is great, the more testing and bug finding the better.  These have all been fixed in &lt;a class="reference external" href="http://github.com/libattachsql/libattachsql"&gt;GitHub&lt;/a&gt; and will be part of the upcoming 0.5.0 release.&lt;/p&gt;
-&lt;div class="section" id="the-test-setup"&gt;
-&lt;h2&gt;The Test Setup&lt;/h2&gt;
-&lt;p&gt;To benchmark I used an HP Z620, 6-core Xeon with 16GB RAM and an SSD.  The OS was Antergos Linux (Arch with a nicer theme) and the server was MySQL 5.6.20 compiled from source.  The only real tweaks I've made to the out-of-box config that would make any difference are:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="na"&gt;innodb_buffer_pool_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;3G&lt;/span&gt;
-&lt;span class="na"&gt;innodb_locks_unsafe_for_binlog&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;1&lt;/span&gt;
-&lt;span class="na"&gt;innodb_buffer_pool_instances&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;8&lt;/span&gt;
-&lt;span class="na"&gt;thread_cache&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;256&lt;/span&gt;
-&lt;span class="na"&gt;query_cache_type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;0&lt;/span&gt;
-&lt;span class="na"&gt;query_cache_size&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;0&lt;/span&gt;
-&lt;span class="na"&gt;max_connections&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;20020&lt;/span&gt;
-&lt;span class="na"&gt;max_user_connections&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;20000&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The &lt;a class="reference external" href="https://github.com/libattachsql/sysbench"&gt;Sysbench in libAttachSQL's GitHub&lt;/a&gt; was used which just has the additional driver for libAttachSQL.  Once I'm 100% happy with the driver I offer it as an upstream branch.  libAttachSQL master is used, partly due to the bug fixes and partly because there has been a large API change in master for improved error handling.&lt;/p&gt;
-&lt;p&gt;For both libmysqlclient and libAttachSQL the connections were made using Unix Domain Sockets.  For the sysbench setup I just left it at the default number of rows.  The Sysbench driver for libAttachSQL enables the semi-blocking mode which is better performance for single-connection-per-thread applications.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="section" id="select-test"&gt;
-&lt;h2&gt;Select Test&lt;/h2&gt;
-&lt;p&gt;First the basic select test was run, which queries for random single integers in a table.  This was run with the MySQL driver as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;mysql --mysql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --mysql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt; --max-requests&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1000000&lt;/span&gt; run
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;And libAttachSQL:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;attachsql --attachsql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --attachsql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt; --max-requests&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1000000&lt;/span&gt; run
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The results were as follows:&lt;/p&gt;
-&lt;img alt="" src="/images/select_benchmark.png" /&gt;
-&lt;p&gt;I am pretty impressed with these results so far, since I have done no optimisation work on the code.  I originally wanted the first GA to have performance on-par with libmysqlclient and it looks like that goal has been met.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="section" id="select-random-points"&gt;
-&lt;h2&gt;Select Random Points&lt;/h2&gt;
-&lt;p&gt;I used the &amp;quot;Select Random Points&amp;quot; benchmark because it is one of the only ones that comes with Sysbench which uses Prepared Statements.  It selects 10 random integers from a table per query.&lt;/p&gt;
-&lt;p&gt;As before this was run on using libmysqlclient with:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select_random_points.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;mysql --mysql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --mysql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --mysql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt; --max-requests&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1000000&lt;/span&gt; run
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;And with libAttachSQL:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sysbench --test&lt;span class="o"&gt;=&lt;/span&gt;sysbench/tests/db/select_random_points.lua --db-driver&lt;span class="o"&gt;=&lt;/span&gt;attachsql --attachsql-socket&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --attachsql-user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-password&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --attachsql-db&lt;span class="o"&gt;=&lt;/span&gt;testdb --num-threads&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt; --max-requests&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1000000&lt;/span&gt; run
-&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;The results were as follows:&lt;/p&gt;
-&lt;img alt="" src="/images/select_random_points_benchmark.png" /&gt;
-&lt;p&gt;Again there isn't a lot in it.  libmysqlclient is edging slightly over libAttachSQL in most of this chart.  I believe it is because in the libAttachSQL driver I told it to convert all results to string outputs.  This will add additional overhead.  Next week I will tweak the driver to make sure that the conversion isn't done.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="section" id="conclusion"&gt;
-&lt;h2&gt;Conclusion&lt;/h2&gt;
-&lt;p&gt;I'm very happy with these Sysbench tests because not only has it bashed libAttachSQL with a sledgehammer it has given me some idea of the performance.  I'm happy enough with these figures to not do any performance tuning until after the first GA release.&lt;/p&gt;
-&lt;p&gt;At some point soon I will also benchmark the single-threaded multi-connection performance of libAttachSQL.  This is not something I can easily compare to libmysqlclient (there is an API to do it, but it is an unofficial/unsupported API).  But it will be a good test for the use case I originally designed the library for.&lt;/p&gt;
-&lt;p&gt;I am no benchmarking expert and I know many of you who reading this are (especially Percona).  Is there anything I missed or could have done better?  Please let me know in the comments.&lt;/p&gt;
-&lt;/div&gt;
-</summary><category term="MySQL"></category><category term="libAttachSQL"></category><category term="HP"></category><category term="Advanced Technology Group"></category></entry></feed>
+</summary><category term="Blog"></category><category term="LinuxJedi"></category></entry></feed>
