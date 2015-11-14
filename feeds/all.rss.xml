@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LinuxJedi's /dev/null</title><link>http://linuxjedi.co.uk/</link><description>The /dev/null ramblings of a Linux Jedi</description><atom:link href="http://linuxjedi.co.uk/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 06 Jul 2015 18:10:00 +0100</lastBuildDate><item><title>Hitting Network Limits</title><link>http://linuxjedi.co.uk/posts/2015/Jul/06/hitting-network-limits/</link><description>&lt;p&gt;I recently wrote a high-level blog post for NGINX &lt;a class="reference external" href="https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/"&gt;outlining the new SO_REUSEPORT feature in NGINX&lt;/a&gt;. One of the problems I was having whilst doing the benchmarks for this was that I was hitting some kind of bottleneck before hitting the limit of what NGINX could process. This meant that it was difficult to get useful benchmarks.&lt;/p&gt;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>LinuxJedi's /dev/null</title><link>http://linuxjedi.co.uk/</link><description>The /dev/null ramblings of a Linux Jedi</description><atom:link href="http://linuxjedi.co.uk/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Mon, 06 Jul 2015 18:10:00 +0100</lastBuildDate><item><title>Hitting Network Limits</title><link>http://linuxjedi.co.uk/posts/2015/Jul/06/hitting-network-limits/</link><description>&lt;p&gt;I recently wrote a high-level blog post for NGINX &lt;a class="reference external" href="https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/"&gt;outlining the new SO_REUSEPORT feature in NGINX&lt;/a&gt;. One of the problems I was having whilst doing the benchmarks for this was that I was hitting some kind of bottleneck before hitting the limit of what NGINX could process. This meant that it was difficult to get useful benchmarks.&lt;/p&gt;
 &lt;p&gt;The main reason was down to hitting a limit on the maximum number of interrupts per second that could be processed. Despite the evidence staring me in the face it didn't click with me that all the interrupts were being processed on just one CPU.&lt;/p&gt;
 &lt;pre class="literal-block"&gt;
 PID   USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
@@ -379,13 +379,13 @@ X-Powered-By:PHP/5.3.3
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil list
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now you need to find out the block size (it is typically 512).  Make a note of this number because you will need it later:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; | grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The drive can't be changed until we unmount the partitions so run this for every partition that is currently in-use for your drive:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil unmount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;s&lt;span class="o"&gt;{&lt;/span&gt;partition_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Due to the nature of the UDF format it is possible that the operating system would still detect the drive as FAT32 afterwards so we need to blank the drive with zeros.  This could take some time:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil secureErase &lt;span class="m"&gt;0&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil secureErase 0 /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now the drive can be formatted, replace &lt;em&gt;block_size&lt;/em&gt; with the number you wrote down above:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo newfs_udf -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
@@ -449,7 +449,7 @@ X-Powered-By:PHP/5.3.3
 &lt;div class="section" id="the-test"&gt;
 &lt;h2&gt;The Test&lt;/h2&gt;
 &lt;p&gt;I used the exact same test rig and configuration as the previous Sysbench tests and as before the test was run with 1,000,000 queries.  The AttachBench tool executed was as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;attachbench --db&lt;span class="o"&gt;=&lt;/span&gt;sbtest --user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --pass&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --db&lt;span class="o"&gt;=&lt;/span&gt;testdb --queries&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1000000&lt;/span&gt; --connections&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt; --host&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --port&lt;span class="o"&gt;=&lt;/span&gt;0
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;attachbench --db&lt;span class="o"&gt;=&lt;/span&gt;sbtest --user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --pass&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --db&lt;span class="o"&gt;=&lt;/span&gt;testdb --queries&lt;span class="o"&gt;=&lt;/span&gt;1000000 --connections&lt;span class="o"&gt;=&lt;/span&gt;32 --host&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --port&lt;span class="o"&gt;=&lt;/span&gt;0
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I've added the results to the previous select test to the graph for comparison.  The two &amp;quot;Select&amp;quot; result sets are for Sysbench with one connection per thread.  The third is with AttachBench running the same queries, just with many connections in a single thread.&lt;/p&gt;
 &lt;img alt="" src="/images/select_single_thread.png" /&gt;
@@ -488,19 +488,19 @@ X-Powered-By:PHP/5.3.3
   &lt;span class="kt"&gt;uint16_t&lt;/span&gt; &lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;col&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
   &lt;span class="k"&gt;switch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
   &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nl"&gt;ATTACHSQL_EVENT_CONNECTED&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;ATTACHSQL_EVENT_CONNECTED&lt;/span&gt;:
       &lt;span class="n"&gt;printf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Connected event on con %d&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;con_no&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
       &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nl"&gt;ATTACHSQL_EVENT_ERROR&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;ATTACHSQL_EVENT_ERROR&lt;/span&gt;:
       &lt;span class="n"&gt;printf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Error exists on con %d: %d&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;con_no&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;attachsql_error_code&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
       &lt;span class="n"&gt;attachsql_error_free&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
       &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nl"&gt;ATTACHSQL_EVENT_EOF&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;ATTACHSQL_EVENT_EOF&lt;/span&gt;:
       &lt;span class="n"&gt;printf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Connection %d finished&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;con_no&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
       &lt;span class="n"&gt;done_count&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
       &lt;span class="n"&gt;attachsql_query_close&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current_con&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
       &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nl"&gt;ATTACHSQL_EVENT_ROW_READY&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;ATTACHSQL_EVENT_ROW_READY&lt;/span&gt;:
       &lt;span class="n"&gt;row&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;attachsql_query_row_get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current_con&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
       &lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;attachsql_query_column_count&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current_con&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
       &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;col&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;col&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;columns&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;col&lt;/span&gt;&lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -510,7 +510,7 @@ X-Powered-By:PHP/5.3.3
       &lt;span class="n"&gt;attachsql_query_row_next&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current_con&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
       &lt;span class="n"&gt;printf&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
       &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
-    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nl"&gt;ATTACHSQL_EVENT_NONE&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;ATTACHSQL_EVENT_NONE&lt;/span&gt;:
       &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
   &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
