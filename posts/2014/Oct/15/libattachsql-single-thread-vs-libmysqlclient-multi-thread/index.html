@@ -46,7 +46,7 @@
 <div class="section" id="the-test">
 <h2>The Test</h2>
 <p>I used the exact same test rig and configuration as the previous Sysbench tests and as before the test was run with 1,000,000 queries.  The AttachBench tool executed was as follows:</p>
-<div class="highlight"><pre><span class="nv">$ </span>attachbench --db<span class="o">=</span>sbtest --user<span class="o">=</span><span class="nb">test</span> --pass<span class="o">=</span><span class="nb">test</span> --db<span class="o">=</span>testdb --queries<span class="o">=</span>1000000 --connections<span class="o">=</span>32 --host<span class="o">=</span>/tmp/mysql.sock --port<span class="o">=</span>0
+<div class="highlight"><pre><span class="nv">$ </span>attachbench --db<span class="o">=</span>sbtest --user<span class="o">=</span><span class="nb">test</span> --pass<span class="o">=</span><span class="nb">test</span> --db<span class="o">=</span>testdb --queries<span class="o">=</span><span class="m">1000000</span> --connections<span class="o">=</span><span class="m">32</span> --host<span class="o">=</span>/tmp/mysql.sock --port<span class="o">=</span>0
 </pre></div>
 <p>I've added the results to the previous select test to the graph for comparison.  The two &quot;Select&quot; result sets are for Sysbench with one connection per thread.  The third is with AttachBench running the same queries, just with many connections in a single thread.</p>
 <img alt="" src="/images/select_single_thread.png" />
@@ -196,7 +196,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Netgear
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-3">
                         <a href="http://linuxjedi.co.uk/tag/networking.html">
                             networking
                         </a>

@@ -34,42 +34,67 @@
 
      <section id="content" class="body">
         <aside id="featured"><article>
-                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2015/Jul/06/hitting-network-limits/">Hitting Network Limits</a></h1>
+                <h1 class="entry-title"><a href="http://linuxjedi.co.uk/posts/2016/Jan/02/multi-gigabit-networking-on-a-budget/">Multi-Gigabit Networking on a Budget</a></h1>
 <footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-07-06T18:10:00+01:00">Mon 06 Jul 2015, 18:10</abbr></p>
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2016-01-02T14:10:00+00:00">Sat 02 Jan 2016, 14:10</abbr></p>
 
 <p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/nginx.html">Nginx</a> </p>
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/nginx.html">Nginx</a> <a href="http://linuxjedi.co.uk/tag/networking.html">networking</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>I recently wrote a high-level blog post for NGINX <a class="reference external" href="https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/">outlining the new SO_REUSEPORT feature in NGINX</a>. One of the problems I was having whilst doing the benchmarks for this was that I was hitting some kind of bottleneck before hitting the limit of what NGINX could process. This meant that it was difficult to get useful benchmarks.</p>
-<p>The main reason was down to hitting a limit on the maximum number of interrupts per second that could be processed. Despite the evidence staring me in the face it didn't click with me that all the interrupts were being processed on just one CPU.</p>
-<pre class="literal-block">
-PID   USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
-3     root      20   0       0      0      0 R  95.4  0.0   0:10.28 ksoftirqd/0
-21076 nobody    20   0   57208  31140   2272 S  26.5  1.0   9:41.90 nginx
-21075 nobody    20   0   57164  31200   2376 S  26.2  1.0   9:47.15 nginx
-21078 nobody    20   0   57236  31272   2376 S  25.8  1.0   9:40.71 nginx
-21077 nobody    20   0   57184  31112   2268 R  25.2  1.0   9:40.94 nginx
-</pre>
-<p>This is an example on my home test rig. The server is based on a Core2Quad CPU, nothing special but it helps pin bottlenecks a lot of the time. NGINX in this example has been configured with <tt class="docutils literal">SO_REUSEPORT</tt> enabled and we are returning just a very small packet response. The thing to notice here is that each NGINX worker is only using around 25-26% CPU (theoretically this machine has 400% CPU possible), and 95% CPU is being used for <tt class="docutils literal">ksoftirqd</tt>. This last part is the key, it basically means that CPU 0 is being used up nearly 100% dealing with network interrupts, hitting a limit of what the machine can process. Whilst I very quickly figured that network interrupts were the bottleneck the above didn't click with me at the time to be the issue.</p>
-<p>It turns out in Linux there is a way to spread these interrupts across all CPUs, I stumbled upon it by accident earlier today (and am kicking myself that I wasn't aware of it before). It is called <strong>Receive Packet Steering</strong> (RPS). <a class="reference external" href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/network-rps.html">RedHat's Performance Tuning Guide</a> has a good description of what it does and how to use it. To enable it on a quad-core machine simply do:</p>
-<div class="highlight"><pre><span class="nv">$ </span><span class="nb">echo </span>f &gt; /sys/class/net/eth0/queues/rx-0/rps_cpus
+                <p>I've recently acquired two &quot;refurbished&quot; Xeon workstations from eBay to do some <a class="reference external" href="https://www.nginx.com/">NGINX</a> testing with. These are:</p>
+<ul class="simple">
+<li>A Lenovo ThinkStation S30 - 6 core / 12 thread E5-1650v2 &#64;3.5GHz, 4GB ECC RAM (upgraded to 12GB ECC - £10) - £650</li>
+<li>A Lenovo ThinkStation C20 - 2x 4 core / 8 thread (8 core / 16 thread total) E5620 &#64;2.4GHz, 12GB ECC RAM - £200</li>
+</ul>
+<p>As you can maybe tell, I'm a fan of Lenovo hardware, I use a Thinkpad x220 still as my primary laptop despite also having newer laptops.</p>
+<img alt="Lenovo ThinkStation S30 and C20" src="/images/xeon_workstations.jpg" style="width: 400px;" />
+<p>The S30 was actually brand new, still sealed in box with Lenovo tape. Both machines were in great condition and run NGINX very well... Too well... The gigabit LAN in these was easily saturated without any real effort from the rest of the machines.</p>
+<p>I decided to look into ways of upgrading the network on these machines but without spending a fortune doing it.</p>
+<div class="section" id="quad-port-bonded-gigabit">
+<h2>Quad-port Bonded Gigabit</h2>
+<p>First up I looked into 4-port Gigabit network cards. For £40 each I got hold of an Intel Pro 1000 ET and an Intel Pro 1000 PT. The main difference between these cards appears to be the number of interrupt channels per port. The ET has 4 per port, the PT has 1. I have an HP ProCurve 16-port Gigabit switch I luckily picked up on eBay for £10 a while back so both cards were hooked into this using lots of short runs of CAT5e cabling.</p>
+<p>Intel Pro 1000 ET:</p>
+<img alt="Intel Pro 1000 ET" src="/images/1000et.jpg" style="width: 400px;" />
+<p>Intel Pro 1000 PT:</p>
+<img alt="Intel Pro 1000 PT" src="/images/1000pt.jpg" style="width: 400px;" />
+<p>I was using Fedora 23 in both machines, RedHat have an excellent guide on how to bond network connections using NetworkManager's CLI tool which can be seen <a class="reference external" href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Networking_Guide/sec-Network_Bonding_Using_the_NetworkManager_Command_Line_Tool_nmcli.html">here</a>. I also installed irqbalance so that I didn't have to worry too much about pinning the network card interrupts to specific CPUs (by default they are all pinned to the first CPU). This generally isn't the recommended way of doing it, <a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jul/06/hitting-network-limits/">setting RPS</a> is considered better, but worked fine for my testing.</p>
+<p>I used <a class="reference external" href="http://software.es.net/iperf/">iperf3</a> for measuring the bandwidth between the cards and did no tuning apart from setting up irqbalance.</p>
+<div class="highlight"><pre><span class="nv">$ </span>iperf3 -Z -N -P4 -c ngx4
 </pre></div>
-<p>Obviously replacing <em>eth0</em> with the name of your network card. Once enabled I was getting much better results:</p>
-<pre class="literal-block">
-PID   USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
-21076 nobody    20   0   56140  29988   2272 R  93.8  1.0   9:12.14 nginx
-21075 nobody    20   0   56152  30008   2376 R  92.9  1.0   9:17.54 nginx
-21077 nobody    20   0   55996  29844   2268 R  92.4  1.0   9:11.67 nginx
-21078 nobody    20   0   56160  30196   2376 R  91.7  1.0   9:11.85 nginx
-</pre>
-<p>The client machine (which was also configured with this parameter) was reading 2.5x the traffic and nearly half the latency. In addition there is <a class="reference external" href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/network-rfs.html">Receive Flow Steering (RFS)</a> which can reduce latency when RPS is used, in my testing the average latency was the same but the standard deviation was reduced.</p>
-<p>Network cards that can spread the hardware interrupts and stacks using DPDK or similar probably won't have this issue. But for cloud environments I suspect this option will help a great deal. As always &quot;Your Mileage May Vary&quot;.</p>
-<p>If you have any tips for increasing performance please feel free to leave them in the comments.</p>
+<p>The result summary showed almost exactly 3GBit/sec being transferred between the cards. This tallys with what was being observed using NGINX which was peaking at around 3.5GBit/sec with a little bit of tuning. The biggest problem with these cards and NGINX was the amount of connections-per-second. Whilst the Pro 1000 ET could easily handle the number of interrupts required for a high number of Packets Per Second, the Pro 1000 PT got very saturated quickly. Having a high number of PPS is vital to handling many connections per second with small amounts of data being transferred.</p>
+</div>
+<div class="section" id="gigabit-ethernet">
+<h2>10 Gigabit Ethernet</h2>
+<p>I spent a while looking at alternative solutions for even faster networks. I looked into Inifiband, Dolphin Interconnect and other similar technologies. All designed for fast low-latency connections. I almost bought an Inifiband based solution when I stumbled across a pair of Mellanox ConnectX 2 10GbE adaptors. Ordering the pair of these came to £24.81 (plus £10.71 shipping from the US). They use SFP+ connectors so I bought a copper 1 meter SFP+ cable for £4.</p>
+<p>Mellanox ConnectX 2:</p>
+<img alt="Mellanox ConnectX 2" src="/images/connectx.jpg" style="width: 400px;" />
+<p>I plugged them in to each and set them up with static IPs and they worked great out-the-box. The Linux driver is showing 8 interrupts for the cards and irqbalance handles these nicely. With iperf executed as before the results are 9.4GBit/sec transferred through these cards.</p>
+</div>
+<div class="section" id="summary">
+<h2>Summary</h2>
+<p>I have learned a lot from this, especially since this is my first physical exposure to 10GBit networking (I've configured software for them, just never wired them). The 4-port Intel NICs are amazing and I would highly recommend the Intel Pro 1000 ET or VT if you are in the market for a used card, the PT cards are good too but can't handle as many PPS.</p>
+<p>I'm extremely impressed by the performance of the 10GbE cards for such a low price and they would make great cards to do large file transfers (video work?) between machines in a home. I haven't yet found an affordable switch yet that has more than 2 SFP+ ports but I'm keeping my eye out for one. I'm also on the lookout for a cheap way of doing 40GbE connections but it may be a little too soon to do this kind of testing.</p>
+<p>I love the Lenovo ThinkStations and would have been equally happy with HP's Z-series, but couldn't find them at the right price-point. The Ivy-Bridge based S30 would actually make an amazing gaming machine if paired with a good graphics card. For me, they are both fantastic dev/test machines (and very fast at compiling). I've already used them to debug a lot of code and I'm looking forward to testing more hardware and software with them in the future.</p>
+</div>
 
         </article></aside><!-- /#featured -->
                 <h1><i class="fa fa-bars"></i> Other articles</h1>
                 <hr />
                     <ol id="posts-list" class="hfeed">
+        <li><article class="hentry">
+                <header>
+                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Jul/06/hitting-network-limits/" rel="bookmark" title="Permalink to Hitting Network Limits">Hitting Network Limits</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-07-06T18:10:00+01:00">Mon 06 Jul 2015, 18:10</abbr></p>
+
+<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/nginx.html">Nginx</a> </p>
+<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/nginx.html">Nginx</a> <a href="http://linuxjedi.co.uk/tag/networking.html">networking</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
+                <p>I recently wrote a high-level blog post for NGINX <a class="reference external" href="https://www.nginx.com/blog/socket-sharding-nginx-release-1-9-1/">outlining the new SO_REUSEPORT feature in NGINX</a>. One of the problems I was having whilst doing the benchmarks for this was that I was hitting some kind of bottleneck before hitting the limit of what NGINX could process. This meant that ...</p>
+                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jul/06/hitting-network-limits/">read more</a>
+                </div><!-- /.entry-content -->
+        </article></li>
         <li><article class="hentry">
                 <header>
                         <h1><a href="http://linuxjedi.co.uk/posts/2015/Jun/26/the-linuxjedi-at-nginx/" rel="bookmark" title="Permalink to The LinuxJedi at NGINX">The LinuxJedi at NGINX</a></h1>
@@ -196,22 +221,6 @@ PID   USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/c.html">C</a> <a href="http://linuxjedi.co.uk/tag/api.html">API</a> <a href="http://linuxjedi.co.uk/tag/mysql.html">MySQL</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
                 <p>I was surprised by the recent <a class="reference external" href="http://mysqlserverteam.com/how-to-use-ssl-and-mysql-client-library-in-the-same-binary/">announcement</a> that MySQL are going to start to conceal the hidden function calls in their C connector.  Surprised because although this is great news I had expected them to do this years ago.  Working for HP's Advanced Technology Group I realise I take ...</p>
                 <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/22/c-library-visibility/">read more</a>
-                </div><!-- /.entry-content -->
-        </article></li>
-        <li><article class="hentry">
-                <header>
-                        <h1><a href="http://linuxjedi.co.uk/posts/2015/Jan/21/webserver-concealing/" rel="bookmark" title="Permalink to Webserver Concealing">Webserver Concealing</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-    <p><i class="fa fa-calendar-o fa-fw"></i> <abbr style="padding: 0 1px" class="published" title="2015-01-21T19:30:00+00:00">Wed 21 Jan 2015, 19:30</abbr></p>
-
-<p><i class="fa fa-folder-open fa-fw"></i> <a href="http://linuxjedi.co.uk/category/security.html">Security</a> </p>
-<p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
-                <p>Right now there are bots on the internet scanning every IP possible for vulnerable servers.  This is a fact of life on the internet.  This means you need to keep any internet facing machines as secure as possible.</p>
-<p>Whilst it is no panacea one step you can take to hide ...</p>
-                <a class="readmore" href="http://linuxjedi.co.uk/posts/2015/Jan/21/webserver-concealing/">read more</a>
                 </div><!-- /.entry-content -->
         </article></li>
 </ol><!-- /#posts-list -->
@@ -355,7 +364,7 @@ MySQL 5.1 Plugins Development by Andrew Hutchings and Sergei Golubchik is now av
                             Netgear
                         </a>
                     </li>
-                    <li class="list-group-item tag-4">
+                    <li class="list-group-item tag-3">
                         <a href="http://linuxjedi.co.uk/tag/networking.html">
                             networking
                         </a>
