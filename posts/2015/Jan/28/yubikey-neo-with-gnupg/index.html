@@ -43,31 +43,31 @@
 <p><i class="fa fa-tags fa-fw"></i>&nbsp;<a href="http://linuxjedi.co.uk/tag/yubikey.html">YubiKey</a> <a href="http://linuxjedi.co.uk/tag/security.html">Security</a> <a href="http://linuxjedi.co.uk/tag/hp.html">HP</a> <a href="http://linuxjedi.co.uk/tag/advanced-technology-group.html">Advanced Technology Group</a> </p></p></footer><!-- /.post-info --><!-- /.post-info -->
         <p>Last week I published a blog post on using <a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/">YubiKey for OS Logins</a>.  Since then I've had a request from inside HP to create a blog post on using the YubiKey NEO with GnuPG which is another thing I have done with my NEO.</p>
 <p>The YubiKey NEO has a built-in CCID smartcard interface which is disabled by default.  GnuPG can use this instead of a passphrase for your keys.  This blog post will give some indication on how to do this.  It is assuming you have some experience of using gpg, I wanted to keep this as short as possible and it can be a complex topic.  As with any process I highly recommend backing up your existing gpg keys if you have any:</p>
-<div class="highlight"><pre><span class="nv">$ </span>gpg -o key-backup.key --armour --export-secret-keys email@address.com
+<div class="highlight"><pre><span></span>$ gpg -o key-backup.key --armour --export-secret-keys email@address.com
 </pre></div>
 <p>Before we start you will need to enable CCID on the YubiKey NEO, it is disabled by default.  The easiest way to do this is to use the <a class="reference external" href="https://developers.yubico.com/yubikey-neo-manager/">YubiKey NEO Manager</a>.  In this tool click on <em>Change connection mode</em> and tick the CCID box.</p>
 <p>First of all the YubiKey's CCID needs initializing.  The following enables the admin commands and starts the generation of new keys.  If you want to use the YubiKey with your old key then Ctrl-C out when it asks about the expiry.  Otherwise go through the prompts and make sure to use the <tt class="docutils literal">save</tt> command afterwards:</p>
-<div class="highlight"><pre><span class="nv">$ </span>gpg --card-edit
+<div class="highlight"><pre><span></span>$ gpg --card-edit
 
 gpg/card&gt; admin
 
 gpg/card&gt; generate
 </pre></div>
 <p>Now, every time you use it you will be asked for the PIN or admin PIN.  These are set to some basic defaults ('123456' and '12345678' respectively) so it would be a good idea to change these:</p>
-<div class="highlight"><pre><span class="nv">$ </span>gpg --change-pin
+<div class="highlight"><pre><span></span>$ gpg --change-pin
 </pre></div>
 <p>Option 1 is to change the access PIN and option 3 is to change the admin PIN.</p>
 <div class="section" id="using-an-existing-key">
 <h2>Using an existing key</h2>
 <p>If you have followed the steps above you have a primed smart card on your YubiKey ready to load your key onto.  Before we do this you need a total of three subkeys, one for encryption (you likely already have), one for signing and one for authentication.  We need to enter the key editor mode of gpg to look at this and add these:</p>
-<div class="highlight"><pre><span class="nv">$ </span>gpg --expert --edit-key email@address.com
+<div class="highlight"><pre><span></span>$ gpg --expert --edit-key email@address.com
 </pre></div>
 <p>You should get a list of your key and subkeys straight away.  The <em>Usage</em> column is the one we are looking for here.  You need an <tt class="docutils literal">E</tt> for Encryption, <tt class="docutils literal">A</tt> for Authentication and <tt class="docutils literal">S</tt> for Signing.  If you are missing any of these:</p>
-<div class="highlight"><pre>gpg&gt; addkey
+<div class="highlight"><pre><span></span>gpg&gt; addkey
 </pre></div>
 <p>Select option 8 (RSA) and then add whatever you need.  Repeat the process until you have one of each.</p>
 <p>You are now ready to move the keys to the YubiKey:</p>
-<div class="highlight"><pre>gpg&gt; key 1
+<div class="highlight"><pre><span></span>gpg&gt; key 1
 gpg&gt; keytocard
 gpg&gt; key 2
 gpg&gt; keytocard
@@ -76,7 +76,7 @@ gpg&gt; keytocard
 gpg&gt; save
 </pre></div>
 <p>Your secret subkeys are now on the YubiKey which can be verified using:</p>
-<div class="highlight"><pre><span class="nv">$ </span>gpg --card-status
+<div class="highlight"><pre><span></span>$ gpg --card-status
 </pre></div>
 </div>
 

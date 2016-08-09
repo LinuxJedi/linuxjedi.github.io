@@ -17,7 +17,7 @@
 &lt;img alt="Intel Pro 1000 PT" src="/images/1000pt.jpg" style="width: 400px;" /&gt;
 &lt;p&gt;I was using Fedora 23 in both machines, RedHat have an excellent guide on how to bond network connections using NetworkManager's CLI tool which can be seen &lt;a class="reference external" href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Networking_Guide/sec-Network_Bonding_Using_the_NetworkManager_Command_Line_Tool_nmcli.html"&gt;here&lt;/a&gt;. I also installed irqbalance so that I didn't have to worry too much about pinning the network card interrupts to specific CPUs (by default they are all pinned to the first CPU). This generally isn't the recommended way of doing it, &lt;a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jul/06/hitting-network-limits/"&gt;setting RPS&lt;/a&gt; is considered better, but worked fine for my testing.&lt;/p&gt;
 &lt;p&gt;I used &lt;a class="reference external" href="http://software.es.net/iperf/"&gt;iperf3&lt;/a&gt; for measuring the bandwidth between the cards and did no tuning apart from setting up irqbalance.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;iperf3 -Z -N -P4 -c ngx4
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ iperf3 -Z -N -P4 -c ngx4
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The result summary showed almost exactly 3GBit/sec being transferred between the cards. This tallys with what was being observed using NGINX which was peaking at around 3.5GBit/sec with a little bit of tuning. The biggest problem with these cards and NGINX was the amount of connections-per-second. Whilst the Pro 1000 ET could easily handle the number of interrupts required for a high number of Packets Per Second, the Pro 1000 PT got very saturated quickly. Having a high number of PPS is vital to handling many connections per second with small amounts of data being transferred.&lt;/p&gt;
 &lt;/div&gt;
@@ -46,7 +46,7 @@ PID   USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
 &lt;/pre&gt;
 &lt;p&gt;This is an example on my home test rig. The server is based on a Core2Quad CPU, nothing special but it helps pin bottlenecks a lot of the time. NGINX in this example has been configured with &lt;tt class="docutils literal"&gt;SO_REUSEPORT&lt;/tt&gt; enabled and we are returning just a very small packet response. The thing to notice here is that each NGINX worker is only using around 25-26% CPU (theoretically this machine has 400% CPU possible), and 95% CPU is being used for &lt;tt class="docutils literal"&gt;ksoftirqd&lt;/tt&gt;. This last part is the key, it basically means that CPU 0 is being used up nearly 100% dealing with network interrupts, hitting a limit of what the machine can process. Whilst I very quickly figured that network interrupts were the bottleneck the above didn't click with me at the time to be the issue.&lt;/p&gt;
 &lt;p&gt;It turns out in Linux there is a way to spread these interrupts across all CPUs, I stumbled upon it by accident earlier today (and am kicking myself that I wasn't aware of it before). It is called &lt;strong&gt;Receive Packet Steering&lt;/strong&gt; (RPS). &lt;a class="reference external" href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/network-rps.html"&gt;RedHat's Performance Tuning Guide&lt;/a&gt; has a good description of what it does and how to use it. To enable it on a quad-core machine simply do:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;&lt;span class="nb"&gt;echo &lt;/span&gt;f &amp;gt; /sys/class/net/eth0/queues/rx-0/rps_cpus
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;echo&lt;/span&gt; f &amp;gt; /sys/class/net/eth0/queues/rx-0/rps_cpus
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Obviously replacing &lt;em&gt;eth0&lt;/em&gt; with the name of your network card. Once enabled I was getting much better results:&lt;/p&gt;
 &lt;pre class="literal-block"&gt;
@@ -96,7 +96,7 @@ PID   USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
 &lt;p&gt;As many people know, C is my favourite programming language to work in (several have questioned my sanity thanks to this).  It isn't always the right programming language for every project and where it is appropriate I will use an alternative language.  But it is my favourite to work with and HP's Advanced Technology Group allows me to do a lot of work in it.&lt;/p&gt;
 &lt;p&gt;In a previous post on my old blog &lt;a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/02/why-vlais-is-bad.html"&gt;I discussed why VLAIS (Variable Length Arrays In Structs) is a bad idea&lt;/a&gt;.  Put simply this is a GCC only feature which can cause a lot of problems.  Unfortunately they are used a lot in the Linux kernel but this is being improved as part of the work to port the kernel to work with the CLang compiler.&lt;/p&gt;
 &lt;p&gt;VLAs themselves are not as bad.  For those who don't know what they are, here is an example:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;argc&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;argc&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[])&lt;/span&gt;
 &lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="kt"&gt;char&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;fred&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
     &lt;span class="n"&gt;printname&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// 4 chars + nul terminator&lt;/span&gt;
@@ -146,31 +146,31 @@ PID   USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
 &lt;p&gt;In the last couple of years there is talk of the &lt;a class="reference external" href="http://highscalability.com/blog/2013/5/13/the-secret-to-10-million-concurrent-connections-the-kernel-i.html"&gt;C10M problem&lt;/a&gt; which suggests moving control of the TCP/IP stack completely away from the kernel to the user layer.  Personally I feel this is going a little too far for generic applications.  It could mean that your applications require specific OS/kernel and even specific hardware to run.  For people writing web servers and libraries this can easily bloat the code and by the time you have dealt with edge cases I suspect the performance increase will not be worth the extra work.&lt;/p&gt;
 </summary><category term="HP"></category><category term="Advanced Technology Group"></category><category term="Nginx"></category><category term="libAttachSQL"></category></entry><entry><title>YubiKey NEO with GnuPG</title><link href="http://linuxjedi.co.uk/posts/2015/Jan/28/yubikey-neo-with-gnupg/" rel="alternate"></link><published>2015-01-28T10:24:00+00:00</published><author><name></name></author><id>tag:linuxjedi.co.uk,2015-01-28:posts/2015/Jan/28/yubikey-neo-with-gnupg/</id><summary type="html">&lt;p&gt;Last week I published a blog post on using &lt;a class="reference external" href="http://linuxjedi.co.uk/posts/2015/Jan/19/yubikey-for-os-logins/"&gt;YubiKey for OS Logins&lt;/a&gt;.  Since then I've had a request from inside HP to create a blog post on using the YubiKey NEO with GnuPG which is another thing I have done with my NEO.&lt;/p&gt;
 &lt;p&gt;The YubiKey NEO has a built-in CCID smartcard interface which is disabled by default.  GnuPG can use this instead of a passphrase for your keys.  This blog post will give some indication on how to do this.  It is assuming you have some experience of using gpg, I wanted to keep this as short as possible and it can be a complex topic.  As with any process I highly recommend backing up your existing gpg keys if you have any:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg -o key-backup.key --armour --export-secret-keys email@address.com
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ gpg -o key-backup.key --armour --export-secret-keys email@address.com
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Before we start you will need to enable CCID on the YubiKey NEO, it is disabled by default.  The easiest way to do this is to use the &lt;a class="reference external" href="https://developers.yubico.com/yubikey-neo-manager/"&gt;YubiKey NEO Manager&lt;/a&gt;.  In this tool click on &lt;em&gt;Change connection mode&lt;/em&gt; and tick the CCID box.&lt;/p&gt;
 &lt;p&gt;First of all the YubiKey's CCID needs initializing.  The following enables the admin commands and starts the generation of new keys.  If you want to use the YubiKey with your old key then Ctrl-C out when it asks about the expiry.  Otherwise go through the prompts and make sure to use the &lt;tt class="docutils literal"&gt;save&lt;/tt&gt; command afterwards:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --card-edit
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ gpg --card-edit
 
 gpg/card&amp;gt; admin
 
 gpg/card&amp;gt; generate
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now, every time you use it you will be asked for the PIN or admin PIN.  These are set to some basic defaults ('123456' and '12345678' respectively) so it would be a good idea to change these:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --change-pin
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ gpg --change-pin
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Option 1 is to change the access PIN and option 3 is to change the admin PIN.&lt;/p&gt;
 &lt;div class="section" id="using-an-existing-key"&gt;
 &lt;h2&gt;Using an existing key&lt;/h2&gt;
 &lt;p&gt;If you have followed the steps above you have a primed smart card on your YubiKey ready to load your key onto.  Before we do this you need a total of three subkeys, one for encryption (you likely already have), one for signing and one for authentication.  We need to enter the key editor mode of gpg to look at this and add these:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --expert --edit-key email@address.com
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ gpg --expert --edit-key email@address.com
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;You should get a list of your key and subkeys straight away.  The &lt;em&gt;Usage&lt;/em&gt; column is the one we are looking for here.  You need an &lt;tt class="docutils literal"&gt;E&lt;/tt&gt; for Encryption, &lt;tt class="docutils literal"&gt;A&lt;/tt&gt; for Authentication and &lt;tt class="docutils literal"&gt;S&lt;/tt&gt; for Signing.  If you are missing any of these:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;gpg&amp;gt; addkey
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;gpg&amp;gt; addkey
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Select option 8 (RSA) and then add whatever you need.  Repeat the process until you have one of each.&lt;/p&gt;
 &lt;p&gt;You are now ready to move the keys to the YubiKey:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;gpg&amp;gt; key 1
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;gpg&amp;gt; key 1
 gpg&amp;gt; keytocard
 gpg&amp;gt; key 2
 gpg&amp;gt; keytocard
@@ -179,16 +179,16 @@ gpg&amp;gt; keytocard
 gpg&amp;gt; save
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Your secret subkeys are now on the YubiKey which can be verified using:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;gpg --card-status
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ gpg --card-status
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 </summary><category term="YubiKey"></category><category term="Security"></category><category term="HP"></category><category term="Advanced Technology Group"></category></entry><entry><title>Working With Git</title><link href="http://linuxjedi.co.uk/posts/2015/Jan/25/working-with-git/" rel="alternate"></link><published>2015-01-25T16:33:00+00:00</published><author><name></name></author><id>tag:linuxjedi.co.uk,2015-01-25:posts/2015/Jan/25/working-with-git/</id><summary type="html">&lt;p&gt;At a recent meeting HP's Advanced Technology Group has been agreeing on standards for working with git, covering mainly the collaboration and versioning aspects.  Today I will share with you how I do this in my Open Source projects which has some crossover with the group's work.&lt;/p&gt;
 &lt;div class="section" id="versioning"&gt;
 &lt;h2&gt;Versioning&lt;/h2&gt;
 &lt;p&gt;I use &lt;a class="reference external" href="http://semver.org/"&gt;Semantic Versioning&lt;/a&gt; everywhere I can.  In fact I used to pretty much use it everywhere before I knew it was a standard.  This means that I have my GitHub trees layed out so that 'master' is the latest stable code, v1.0 branch is the latest stable v1.0 code, v1.1 branch is the latest in v1.1 and so on.  I then create GPG signed tags from these branches to create releases as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout v1.1
-&lt;span class="nv"&gt;$ &lt;/span&gt;git tag -s v1.1.2 -m &lt;span class="s1"&gt;&amp;#39;Version 1.1.2 release&amp;#39;&lt;/span&gt;
-&lt;span class="nv"&gt;$ &lt;/span&gt;git push --tags
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git checkout v1.1
+$ git tag -s v1.1.2 -m &lt;span class="s1"&gt;&amp;#39;Version 1.1.2 release&amp;#39;&lt;/span&gt;
+$ git push --tags
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="forking"&gt;
@@ -200,11 +200,11 @@ gpg&amp;gt; save
 &lt;li&gt;&lt;p class="first"&gt;Create a fork in GitHub, you can do this by clicking the fork button on a project.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;Grab a local copy of your fork to work with (replacing &lt;cite&gt;USERNAME&lt;/cite&gt; and &lt;cite&gt;Repository&lt;/cite&gt; with whatever is applicable to you):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git clone git@github.com:USERNAME/Repository
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone git@github.com:USERNAME/Repository
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;Then you should set the upstream remote so that you can easily grab the latest code as needed.  I've used HTTPS here because you don't need to be authenticated to do this unless it is a private repository:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git remote add upstream https://github.com/PROJECT/Repository
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git remote add upstream https://github.com/PROJECT/Repository
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -212,25 +212,25 @@ gpg&amp;gt; save
 &lt;div class="section" id="starting-a-new-branch"&gt;
 &lt;h2&gt;Starting a New Branch&lt;/h2&gt;
 &lt;p&gt;Whenever you are starting a new group of work, create a new branch.  This holds true for features or just basic one line fixes.  In your fork:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout master
-&lt;span class="nv"&gt;$ &lt;/span&gt;git pull --ff-only upstream master
-&lt;span class="nv"&gt;$ &lt;/span&gt;git push
-&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout -b my_feature
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git checkout master
+$ git pull --ff-only upstream master
+$ git push
+$ git checkout -b my_feature
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This pulls the latest code from the upstream master to your master, pushes that to your fork and then creates a new checkout based on that code.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="syncing-fork"&gt;
 &lt;h2&gt;Syncing Fork&lt;/h2&gt;
 &lt;p&gt;If you have worked on some code and at the same time someone else has merged code that may conflict (a pull request will tell you this straight away) you can merge upstream with your commits as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git fetch upstream
-&lt;span class="nv"&gt;$ &lt;/span&gt;git merge upstream/master
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git fetch upstream
+$ git merge upstream/master
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This fetches the upstream code into a local cache and then will merge it.  If there are conflicts they will be flagged for you to resolve.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="pull-requests"&gt;
 &lt;h2&gt;Pull Requests&lt;/h2&gt;
 &lt;p&gt;When your code is good and ready you can send it up as a pull request.  To do this you first need to push it up to your local repository:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git push --set-upstream origin my_feature
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git push --set-upstream origin my_feature
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Then when you go to the project's repository you will see a button to file a pull request.  If you are using continuous integration such as Travis CI you should wait for that to give a green result and preferably peer review too before clocking the merge button.&lt;/p&gt;
 &lt;/div&gt;
@@ -258,7 +258,7 @@ gpg&amp;gt; save
 &lt;h3&gt;Include File&lt;/h3&gt;
 &lt;p&gt;This is one example taken from &lt;a class="reference external" href="http://libattachsql.org/"&gt;libAttachSQL&lt;/a&gt; and there is an example with more platform support on the &lt;a class="reference external" href="https://gcc.gnu.org/wiki/Visibility"&gt;GCC Visibility manual page&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;In this example you need to change &lt;tt class="docutils literal"&gt;BUILDING_ASQL&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;ASQL_API&lt;/tt&gt; to suit your own naming.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;#if defined(BUILDING_ASQL)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#if defined(BUILDING_ASQL)&lt;/span&gt;
 &lt;span class="cp"&gt;# if defined(HAVE_VISIBILITY) &amp;amp;&amp;amp; HAVE_VISIBILITY&lt;/span&gt;
 &lt;span class="cp"&gt;#  define ASQL_API __attribute__ ((visibility(&amp;quot;default&amp;quot;)))&lt;/span&gt;
 &lt;span class="cp"&gt;# elif defined (__SUNPRO_C) &amp;amp;&amp;amp; (__SUNPRO_C &amp;gt;= 0x550)&lt;/span&gt;
@@ -281,7 +281,7 @@ gpg&amp;gt; save
 &lt;h3&gt;Marking Public API&lt;/h3&gt;
 &lt;p&gt;With the above include file you need to define &lt;tt class="docutils literal"&gt;BUILDING_ASQL&lt;/tt&gt; somewhere in your library compiling.  This makes sure that during the library compiling/linking all the functions can be seen but they will be hidden at link time from external applications.&lt;/p&gt;
 &lt;p&gt;Then when you are defining an API call in your .h file you can do as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;hidden_function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;hidden_function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 
 &lt;span class="n"&gt;ASQL_API&lt;/span&gt;
 &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;public_function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
@@ -308,11 +308,11 @@ X-Powered-By:PHP/5.3.3
 &lt;/ol&gt;
 &lt;p&gt;Clearly the first thing that should be done here is to update the server and its software packages.  But in addition it is possible to hide the versions used so at least one of these three points is eliminated.&lt;/p&gt;
 &lt;p&gt;First to hide the Apache server version we simply need to add one line to the configuration file:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nb"&gt;ServerTokens&lt;/span&gt; prod
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;ServerTokens&lt;/span&gt; prod
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The server will now only announce that it is running Apache but no server version or OS used.&lt;/p&gt;
 &lt;p&gt;As for PHP, you can turn the announcement off completely with the following in your php.ini file:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="na"&gt;expose_php&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;off&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="na"&gt;expose_php&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;off&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This is only one small security improvement, but having many layers of security will help dramatically to protect your servers.  I only recommend this after dealing with things like software updates, firewalls, code security audits, etc...&lt;/p&gt;
 &lt;p&gt;As a side note, if you are using PHP I highly recommend using &lt;a class="reference external" href="http://suhosin.org/"&gt;Suhosin&lt;/a&gt; to help secure your server installation.&lt;/p&gt;
@@ -325,7 +325,7 @@ X-Powered-By:PHP/5.3.3
 &lt;div class="section" id="the-crash"&gt;
 &lt;h2&gt;The Crash&lt;/h2&gt;
 &lt;p&gt;Whilst writing the group connection functions I was using a &lt;a class="reference external" href="https://docs.python.org/2/c-api/arg.html#c.Py_BuildValue"&gt;Py_BuildValue&lt;/a&gt; call to generate parameters to use in a callback &lt;a class="reference external" href="https://docs.python.org/2/c-api/object.html#c.PyObject_CallObject"&gt;PyObject_CallObject&lt;/a&gt;.  So the code looked a little like this:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;cbargs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Py_BuildValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;iOOO&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;pycon&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;pycon&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;cb_args&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;cbargs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Py_BuildValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;iOOO&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;pycon&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;pycon&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;cb_args&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="p"&gt;...&lt;/span&gt;
 &lt;span class="n"&gt;PyObject_CallObject&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;cb_func&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cbargs&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="n"&gt;Py_DECREF&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cbargs&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
@@ -353,7 +353,7 @@ X-Powered-By:PHP/5.3.3
 &lt;p&gt;The original YubiKey's have two &amp;quot;slots&amp;quot; in them.  Each slot can store either an OTP two-factor authentication identity or a static password.  You can tap a YubiKey to get the first slot and hold for around 3 seconds for the second slot.  The way I'm using this is to have the slots store static passwords, I then have a hand typed part of my password and a second static part stored on the YubiKey.  This means that if the YubiKey is stolen/used it is useless without my hand typed-part.  I have a backup of the YubiKey's static password in my &lt;a class="reference external" href="https://lastpass.com/"&gt;LastPass&lt;/a&gt; account (which incidentally uses two-factor authentication).&lt;/p&gt;
 &lt;p&gt;There was a minor snag in this to begin with, my Macs are encrypted with FileVault which has a known login problem.  If you type a password too quickly it actually drops some of characters that you have typed.  The YubiKey is a virtual keyboard and although it deliberately doesn't type too quickly, it is too fast for FileVault.  If your YubiKey is a version 2.3 or higher this is easy to fix.  In the &lt;a class="reference external" href="https://www.yubico.com/products/services-software/personalization-tools/"&gt;YubiKey Personalization Tool&lt;/a&gt; you can go to settings and change the output frequency, this setting change can then be used to update a slot.  But if like me your original YubiKey is an older version you cannot do this.  There is a way around this by generating a new key, but it requires the command line (the GUI doesn't have the options to change the delay whilst generating a new key).&lt;/p&gt;
 &lt;p&gt;First of all you need the command line YubiKey Personalization Tool.  There are &lt;a class="reference external" href="https://yubico.github.io/yubikey-personalization/releases.html"&gt;Linux, Mac and Windows versions available&lt;/a&gt; and some Linux distros have it in their repository.  Using this tool you can generate a new random static password with a typing delay as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;ykpersonalize -2 -opacing-20ms -ostrong-pw2 -ostrong-pw1 -ostatic-token
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ykpersonalize -2 -opacing-20ms -ostrong-pw2 -ostrong-pw1 -ostatic-token
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;You can change the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-2&lt;/span&gt;&lt;/tt&gt; to &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;-1&lt;/span&gt;&lt;/tt&gt; if you wish to program slot 1 instead.  The typing delay is added using the &lt;tt class="docutils literal"&gt;&lt;span class="pre"&gt;pacing-20ms&lt;/span&gt;&lt;/tt&gt; option.  Unfortunately this flag doesn't quite match the GUI, if you want to match the GUI options here is what you need to use:&lt;/p&gt;
 &lt;ul class="simple"&gt;
@@ -411,34 +411,34 @@ X-Powered-By:PHP/5.3.3
 &lt;h3&gt;Mac OS X&lt;/h3&gt;
 &lt;p&gt;Unfortunately Disk Utility doesn't let you format a flash drive as UDF but you can use the command line to do it.&lt;/p&gt;
 &lt;p&gt;First of all you need to figure out the drive path for your flash drive.  It will be in the format &lt;tt class="docutils literal"&gt;/dev/disk{drive_no}&lt;/tt&gt; where drive_no is the drive number, if it is followed by the letter &lt;em&gt;s&lt;/em&gt; and another number then that is a partition and not what we need at this stage:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil list
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil list
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now you need to find out the block size (it is typically 512).  Make a note of this number because you will need it later:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The drive can't be changed until we unmount the partitions so run this for every partition that is currently in-use for your drive:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil unmount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;s&lt;span class="o"&gt;{&lt;/span&gt;partition_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil unmount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;s&lt;span class="o"&gt;{&lt;/span&gt;partition_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Due to the nature of the UDF format it is possible that the operating system would still detect the drive as FAT32 afterwards so we need to blank the drive with zeros.  This could take some time:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil secureErase &lt;span class="m"&gt;0&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil secureErase &lt;span class="m"&gt;0&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now the drive can be formatted, replace &lt;em&gt;block_size&lt;/em&gt; with the number you wrote down above:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo newfs_udf -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo newfs_udf -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Finally the drive can be mounted again for use as normal:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil mount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil mount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="linux"&gt;
 &lt;h3&gt;Linux&lt;/h3&gt;
 &lt;p&gt;In Linux things get a little easier.  First of all unmount the partitions on the drive and then we need the block size, write this one down:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo blockdev --getbsz /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo blockdev --getbsz /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;We then need to zero out the drive so that it isn't incorrectly detected:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo dd &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/zero &lt;span class="nv"&gt;of&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;bs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1M &lt;span class="nv"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo dd &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/zero &lt;span class="nv"&gt;of&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;bs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1M &lt;span class="nv"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Then we need to make the UDF format, replacing &lt;em&gt;block_size&lt;/em&gt; with the number noted above:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo mkudffs -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; --media-type&lt;span class="o"&gt;=&lt;/span&gt;hd /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo mkudffs -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; --media-type&lt;span class="o"&gt;=&lt;/span&gt;hd /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -484,7 +484,7 @@ X-Powered-By:PHP/5.3.3
 &lt;div class="section" id="the-test"&gt;
 &lt;h2&gt;The Test&lt;/h2&gt;
 &lt;p&gt;I used the exact same test rig and configuration as the previous Sysbench tests and as before the test was run with 1,000,000 queries.  The AttachBench tool executed was as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;attachbench --db&lt;span class="o"&gt;=&lt;/span&gt;sbtest --user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --pass&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --db&lt;span class="o"&gt;=&lt;/span&gt;testdb --queries&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1000000&lt;/span&gt; --connections&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt; --host&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --port&lt;span class="o"&gt;=&lt;/span&gt;0
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ attachbench --db&lt;span class="o"&gt;=&lt;/span&gt;sbtest --user&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --pass&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --db&lt;span class="o"&gt;=&lt;/span&gt;testdb --queries&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1000000&lt;/span&gt; --connections&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt; --host&lt;span class="o"&gt;=&lt;/span&gt;/tmp/mysql.sock --port&lt;span class="o"&gt;=&lt;/span&gt;0
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I've added the results to the previous select test to the graph for comparison.  The two &amp;quot;Select&amp;quot; result sets are for Sysbench with one connection per thread.  The third is with AttachBench running the same queries, just with many connections in a single thread.&lt;/p&gt;
 &lt;img alt="" src="/images/select_single_thread.png" /&gt;
@@ -497,26 +497,26 @@ X-Powered-By:PHP/5.3.3
 &lt;p&gt;The only real new feature that has been added to 0.9.0 is the concept of connection groups which is something I'm pretty excited about.  Internally libAttachSQL uses event loops to supply the non-blocking API.  Connection Groups join a bunch of connections together into a group that uses a single event loop.  This makes things much more efficient internally and makes applications easier to code too.&lt;/p&gt;
 &lt;p&gt;Here is a simplified example of how to use it (for a more detailed example see our &lt;a class="reference external" href="http://docs.libattachsql.org/en/latest/api/examples.html#group-conncetions"&gt;example in the documentation&lt;/a&gt;).&lt;/p&gt;
 &lt;p&gt;First we need to create the group and add connections to it:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;attachsql_group_create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;NULL&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;attachsql_group_create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;NULL&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="n"&gt;con&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;attachsql_connect_create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;localhost&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3306&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;test&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;testdb&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;NULL&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="n"&gt;attachsql_group_add_connection&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;con&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="n"&gt;attachsql_connect_set_callback&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;con&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;callbk&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;con_no&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]);&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The &lt;tt class="docutils literal"&gt;con&lt;/tt&gt; array is just an array of connection objects and &lt;tt class="docutils literal"&gt;con_no&lt;/tt&gt; is just an array of integers so that the callback that I'll show shortly knows which connection number it is (only useful for displaying in this example).  The last three lines there will be repeated multiple times with different array numbers to add connections.&lt;/p&gt;
 &lt;p&gt;We now send queries to the connections:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;attachsql_query&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;con&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;strlen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;query1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;NULL&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;attachsql_query&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;con&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;strlen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;query1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;NULL&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="n"&gt;attachsql_query&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;con&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="n"&gt;strlen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;query2&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;query2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;NULL&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;And so forth until we have sent a query to all the connections we want.&lt;/p&gt;
 &lt;p&gt;Finally we want to run the connection group until complete:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;while&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;done_count&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;while&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;done_count&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="p"&gt;{&lt;/span&gt;
   &lt;span class="n"&gt;attachsql_group_run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;In this example &lt;tt class="docutils literal"&gt;done_count&lt;/tt&gt; is simply a global integer which increments as each callback hits EOF.  You could conceivably run various other parts of your application here and then call &lt;tt class="docutils literal"&gt;attachsql_group_run()&lt;/tt&gt; again when ready.&lt;/p&gt;
 &lt;p&gt;I'm going to paste the whole callback here because it should be mostly self-explanatory, it is called when an event occurs and the code reacts to the event:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;callbk&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;attachsql_connect_t&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;current_con&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;attachsql_events_t&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;attachsql_error_t&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;callbk&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;attachsql_connect_t&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;current_con&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;attachsql_events_t&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;attachsql_error_t&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="p"&gt;{&lt;/span&gt;
   &lt;span class="kt"&gt;uint8_t&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;con_no&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;uint8_t&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="n"&gt;context&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
   &lt;span class="n"&gt;attachsql_query_row_st&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;row&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;

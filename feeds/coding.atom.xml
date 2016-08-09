@@ -3,7 +3,7 @@
 &lt;p&gt;As many people know, C is my favourite programming language to work in (several have questioned my sanity thanks to this).  It isn't always the right programming language for every project and where it is appropriate I will use an alternative language.  But it is my favourite to work with and HP's Advanced Technology Group allows me to do a lot of work in it.&lt;/p&gt;
 &lt;p&gt;In a previous post on my old blog &lt;a class="reference external" href="http://thelinuxjedi.blogspot.co.uk/2014/02/why-vlais-is-bad.html"&gt;I discussed why VLAIS (Variable Length Arrays In Structs) is a bad idea&lt;/a&gt;.  Put simply this is a GCC only feature which can cause a lot of problems.  Unfortunately they are used a lot in the Linux kernel but this is being improved as part of the work to port the kernel to work with the CLang compiler.&lt;/p&gt;
 &lt;p&gt;VLAs themselves are not as bad.  For those who don't know what they are, here is an example:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;argc&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[])&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;argc&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;argv&lt;/span&gt;&lt;span class="p"&gt;[])&lt;/span&gt;
 &lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="kt"&gt;char&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;fred&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
     &lt;span class="n"&gt;printname&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// 4 chars + nul terminator&lt;/span&gt;
@@ -29,9 +29,9 @@
 &lt;div class="section" id="versioning"&gt;
 &lt;h2&gt;Versioning&lt;/h2&gt;
 &lt;p&gt;I use &lt;a class="reference external" href="http://semver.org/"&gt;Semantic Versioning&lt;/a&gt; everywhere I can.  In fact I used to pretty much use it everywhere before I knew it was a standard.  This means that I have my GitHub trees layed out so that 'master' is the latest stable code, v1.0 branch is the latest stable v1.0 code, v1.1 branch is the latest in v1.1 and so on.  I then create GPG signed tags from these branches to create releases as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout v1.1
-&lt;span class="nv"&gt;$ &lt;/span&gt;git tag -s v1.1.2 -m &lt;span class="s1"&gt;&amp;#39;Version 1.1.2 release&amp;#39;&lt;/span&gt;
-&lt;span class="nv"&gt;$ &lt;/span&gt;git push --tags
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git checkout v1.1
+$ git tag -s v1.1.2 -m &lt;span class="s1"&gt;&amp;#39;Version 1.1.2 release&amp;#39;&lt;/span&gt;
+$ git push --tags
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="forking"&gt;
@@ -43,11 +43,11 @@
 &lt;li&gt;&lt;p class="first"&gt;Create a fork in GitHub, you can do this by clicking the fork button on a project.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;Grab a local copy of your fork to work with (replacing &lt;cite&gt;USERNAME&lt;/cite&gt; and &lt;cite&gt;Repository&lt;/cite&gt; with whatever is applicable to you):&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git clone git@github.com:USERNAME/Repository
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git clone git@github.com:USERNAME/Repository
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p class="first"&gt;Then you should set the upstream remote so that you can easily grab the latest code as needed.  I've used HTTPS here because you don't need to be authenticated to do this unless it is a private repository:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git remote add upstream https://github.com/PROJECT/Repository
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git remote add upstream https://github.com/PROJECT/Repository
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
@@ -55,25 +55,25 @@
 &lt;div class="section" id="starting-a-new-branch"&gt;
 &lt;h2&gt;Starting a New Branch&lt;/h2&gt;
 &lt;p&gt;Whenever you are starting a new group of work, create a new branch.  This holds true for features or just basic one line fixes.  In your fork:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout master
-&lt;span class="nv"&gt;$ &lt;/span&gt;git pull --ff-only upstream master
-&lt;span class="nv"&gt;$ &lt;/span&gt;git push
-&lt;span class="nv"&gt;$ &lt;/span&gt;git checkout -b my_feature
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git checkout master
+$ git pull --ff-only upstream master
+$ git push
+$ git checkout -b my_feature
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This pulls the latest code from the upstream master to your master, pushes that to your fork and then creates a new checkout based on that code.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="syncing-fork"&gt;
 &lt;h2&gt;Syncing Fork&lt;/h2&gt;
 &lt;p&gt;If you have worked on some code and at the same time someone else has merged code that may conflict (a pull request will tell you this straight away) you can merge upstream with your commits as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git fetch upstream
-&lt;span class="nv"&gt;$ &lt;/span&gt;git merge upstream/master
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git fetch upstream
+$ git merge upstream/master
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This fetches the upstream code into a local cache and then will merge it.  If there are conflicts they will be flagged for you to resolve.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="section" id="pull-requests"&gt;
 &lt;h2&gt;Pull Requests&lt;/h2&gt;
 &lt;p&gt;When your code is good and ready you can send it up as a pull request.  To do this you first need to push it up to your local repository:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;git push --set-upstream origin my_feature
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ git push --set-upstream origin my_feature
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Then when you go to the project's repository you will see a button to file a pull request.  If you are using continuous integration such as Travis CI you should wait for that to give a green result and preferably peer review too before clocking the merge button.&lt;/p&gt;
 &lt;/div&gt;
@@ -101,7 +101,7 @@
 &lt;h3&gt;Include File&lt;/h3&gt;
 &lt;p&gt;This is one example taken from &lt;a class="reference external" href="http://libattachsql.org/"&gt;libAttachSQL&lt;/a&gt; and there is an example with more platform support on the &lt;a class="reference external" href="https://gcc.gnu.org/wiki/Visibility"&gt;GCC Visibility manual page&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;In this example you need to change &lt;tt class="docutils literal"&gt;BUILDING_ASQL&lt;/tt&gt; and &lt;tt class="docutils literal"&gt;ASQL_API&lt;/tt&gt; to suit your own naming.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;#if defined(BUILDING_ASQL)&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#if defined(BUILDING_ASQL)&lt;/span&gt;
 &lt;span class="cp"&gt;# if defined(HAVE_VISIBILITY) &amp;amp;&amp;amp; HAVE_VISIBILITY&lt;/span&gt;
 &lt;span class="cp"&gt;#  define ASQL_API __attribute__ ((visibility(&amp;quot;default&amp;quot;)))&lt;/span&gt;
 &lt;span class="cp"&gt;# elif defined (__SUNPRO_C) &amp;amp;&amp;amp; (__SUNPRO_C &amp;gt;= 0x550)&lt;/span&gt;
@@ -124,7 +124,7 @@
 &lt;h3&gt;Marking Public API&lt;/h3&gt;
 &lt;p&gt;With the above include file you need to define &lt;tt class="docutils literal"&gt;BUILDING_ASQL&lt;/tt&gt; somewhere in your library compiling.  This makes sure that during the library compiling/linking all the functions can be seen but they will be hidden at link time from external applications.&lt;/p&gt;
 &lt;p&gt;Then when you are defining an API call in your .h file you can do as follows:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;hidden_function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;hidden_function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 
 &lt;span class="n"&gt;ASQL_API&lt;/span&gt;
 &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;public_function&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
@@ -145,7 +145,7 @@
 &lt;div class="section" id="the-crash"&gt;
 &lt;h2&gt;The Crash&lt;/h2&gt;
 &lt;p&gt;Whilst writing the group connection functions I was using a &lt;a class="reference external" href="https://docs.python.org/2/c-api/arg.html#c.Py_BuildValue"&gt;Py_BuildValue&lt;/a&gt; call to generate parameters to use in a callback &lt;a class="reference external" href="https://docs.python.org/2/c-api/object.html#c.PyObject_CallObject"&gt;PyObject_CallObject&lt;/a&gt;.  So the code looked a little like this:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;cbargs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Py_BuildValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;iOOO&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;pycon&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;pycon&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;cb_args&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;cbargs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Py_BuildValue&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;iOOO&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;pycon&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;pycon&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;query&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;cb_args&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="p"&gt;...&lt;/span&gt;
 &lt;span class="n"&gt;PyObject_CallObject&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;cb_func&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cbargs&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;span class="n"&gt;Py_DECREF&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cbargs&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;

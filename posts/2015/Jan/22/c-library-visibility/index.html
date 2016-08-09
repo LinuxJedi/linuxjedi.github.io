@@ -65,7 +65,7 @@
 <h3>Include File</h3>
 <p>This is one example taken from <a class="reference external" href="http://libattachsql.org/">libAttachSQL</a> and there is an example with more platform support on the <a class="reference external" href="https://gcc.gnu.org/wiki/Visibility">GCC Visibility manual page</a>.</p>
 <p>In this example you need to change <tt class="docutils literal">BUILDING_ASQL</tt> and <tt class="docutils literal">ASQL_API</tt> to suit your own naming.</p>
-<div class="highlight"><pre><span class="cp">#if defined(BUILDING_ASQL)</span>
+<div class="highlight"><pre><span></span><span class="cp">#if defined(BUILDING_ASQL)</span>
 <span class="cp"># if defined(HAVE_VISIBILITY) &amp;&amp; HAVE_VISIBILITY</span>
 <span class="cp">#  define ASQL_API __attribute__ ((visibility(&quot;default&quot;)))</span>
 <span class="cp"># elif defined (__SUNPRO_C) &amp;&amp; (__SUNPRO_C &gt;= 0x550)</span>
@@ -88,7 +88,7 @@
 <h3>Marking Public API</h3>
 <p>With the above include file you need to define <tt class="docutils literal">BUILDING_ASQL</tt> somewhere in your library compiling.  This makes sure that during the library compiling/linking all the functions can be seen but they will be hidden at link time from external applications.</p>
 <p>Then when you are defining an API call in your .h file you can do as follows:</p>
-<div class="highlight"><pre><span class="kt">int</span> <span class="nf">hidden_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">hidden_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">);</span>
 
 <span class="n">ASQL_API</span>
 <span class="kt">int</span> <span class="nf">public_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">);</span>

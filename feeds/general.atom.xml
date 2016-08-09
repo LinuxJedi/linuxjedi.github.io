@@ -88,34 +88,34 @@
 &lt;h3&gt;Mac OS X&lt;/h3&gt;
 &lt;p&gt;Unfortunately Disk Utility doesn't let you format a flash drive as UDF but you can use the command line to do it.&lt;/p&gt;
 &lt;p&gt;First of all you need to figure out the drive path for your flash drive.  It will be in the format &lt;tt class="docutils literal"&gt;/dev/disk{drive_no}&lt;/tt&gt; where drive_no is the drive number, if it is followed by the letter &lt;em&gt;s&lt;/em&gt; and another number then that is a partition and not what we need at this stage:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil list
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil list
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now you need to find out the block size (it is typically 512).  Make a note of this number because you will need it later:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil info /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; grep &lt;span class="s2"&gt;&amp;quot;Block Size&amp;quot;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The drive can't be changed until we unmount the partitions so run this for every partition that is currently in-use for your drive:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil unmount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;s&lt;span class="o"&gt;{&lt;/span&gt;partition_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil unmount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;s&lt;span class="o"&gt;{&lt;/span&gt;partition_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Due to the nature of the UDF format it is possible that the operating system would still detect the drive as FAT32 afterwards so we need to blank the drive with zeros.  This could take some time:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil secureErase &lt;span class="m"&gt;0&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil secureErase &lt;span class="m"&gt;0&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Now the drive can be formatted, replace &lt;em&gt;block_size&lt;/em&gt; with the number you wrote down above:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo newfs_udf -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo newfs_udf -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Finally the drive can be mounted again for use as normal:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;diskutil mount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ diskutil mount /dev/disk&lt;span class="o"&gt;{&lt;/span&gt;drive_no&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;div class="section" id="linux"&gt;
 &lt;h3&gt;Linux&lt;/h3&gt;
 &lt;p&gt;In Linux things get a little easier.  First of all unmount the partitions on the drive and then we need the block size, write this one down:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo blockdev --getbsz /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo blockdev --getbsz /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;We then need to zero out the drive so that it isn't incorrectly detected:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo dd &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/zero &lt;span class="nv"&gt;of&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;bs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1M &lt;span class="nv"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo dd &lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/zero &lt;span class="nv"&gt;of&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="nv"&gt;bs&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1M &lt;span class="nv"&gt;count&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;1
 &lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Then we need to make the UDF format, replacing &lt;em&gt;block_size&lt;/em&gt; with the number noted above:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="nv"&gt;$ &lt;/span&gt;sudo mkudffs -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; --media-type&lt;span class="o"&gt;=&lt;/span&gt;hd /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo mkudffs -b &lt;span class="o"&gt;{&lt;/span&gt;block_size&lt;span class="o"&gt;}&lt;/span&gt; --media-type&lt;span class="o"&gt;=&lt;/span&gt;hd /dev/sd&lt;span class="o"&gt;{&lt;/span&gt;drive_letter&lt;span class="o"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;

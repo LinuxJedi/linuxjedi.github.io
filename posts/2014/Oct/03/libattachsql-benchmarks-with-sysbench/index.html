@@ -50,7 +50,7 @@
 <div class="section" id="the-test-setup">
 <h2>The Test Setup</h2>
 <p>To benchmark I used an HP Z620, 6-core Xeon with 16GB RAM and an SSD.  The OS was Antergos Linux (Arch with a nicer theme) and the server was MySQL 5.6.20 compiled from source.  The only real tweaks I've made to the out-of-box config that would make any difference are:</p>
-<div class="highlight"><pre><span class="na">innodb_buffer_pool_size</span><span class="o">=</span><span class="s">3G</span>
+<div class="highlight"><pre><span></span><span class="na">innodb_buffer_pool_size</span><span class="o">=</span><span class="s">3G</span>
 <span class="na">innodb_locks_unsafe_for_binlog</span><span class="o">=</span><span class="s">1</span>
 <span class="na">innodb_buffer_pool_instances</span><span class="o">=</span><span class="s">8</span>
 <span class="na">thread_cache</span><span class="o">=</span><span class="s">256</span>
@@ -65,10 +65,10 @@
 <div class="section" id="select-test">
 <h2>Select Test</h2>
 <p>First the basic select test was run, which queries for random single integers in a table.  This was run with the MySQL driver as follows:</p>
-<div class="highlight"><pre><span class="nv">$ </span>sysbench --test<span class="o">=</span>sysbench/tests/db/select.lua --db-driver<span class="o">=</span>mysql --mysql-socket<span class="o">=</span>/tmp/mysql.sock --mysql-user<span class="o">=</span><span class="nb">test</span> --mysql-password<span class="o">=</span><span class="nb">test</span> --mysql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span><span class="m">8</span> --max-requests<span class="o">=</span><span class="m">1000000</span> run
+<div class="highlight"><pre><span></span>$ sysbench --test<span class="o">=</span>sysbench/tests/db/select.lua --db-driver<span class="o">=</span>mysql --mysql-socket<span class="o">=</span>/tmp/mysql.sock --mysql-user<span class="o">=</span><span class="nb">test</span> --mysql-password<span class="o">=</span><span class="nb">test</span> --mysql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span><span class="m">8</span> --max-requests<span class="o">=</span><span class="m">1000000</span> run
 </pre></div>
 <p>And libAttachSQL:</p>
-<div class="highlight"><pre><span class="nv">$ </span>sysbench --test<span class="o">=</span>sysbench/tests/db/select.lua --db-driver<span class="o">=</span>attachsql --attachsql-socket<span class="o">=</span>/tmp/mysql.sock --attachsql-user<span class="o">=</span><span class="nb">test</span> --attachsql-password<span class="o">=</span><span class="nb">test</span> --attachsql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span><span class="m">8</span> --max-requests<span class="o">=</span><span class="m">1000000</span> run
+<div class="highlight"><pre><span></span>$ sysbench --test<span class="o">=</span>sysbench/tests/db/select.lua --db-driver<span class="o">=</span>attachsql --attachsql-socket<span class="o">=</span>/tmp/mysql.sock --attachsql-user<span class="o">=</span><span class="nb">test</span> --attachsql-password<span class="o">=</span><span class="nb">test</span> --attachsql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span><span class="m">8</span> --max-requests<span class="o">=</span><span class="m">1000000</span> run
 </pre></div>
 <p>The results were as follows:</p>
 <img alt="" src="/images/select_benchmark.png" />
@@ -78,10 +78,10 @@
 <h2>Select Random Points</h2>
 <p>I used the &quot;Select Random Points&quot; benchmark because it is one of the only ones that comes with Sysbench which uses Prepared Statements.  It selects 10 random integers from a table per query.</p>
 <p>As before this was run on using libmysqlclient with:</p>
-<div class="highlight"><pre><span class="nv">$ </span>sysbench --test<span class="o">=</span>sysbench/tests/db/select_random_points.lua --db-driver<span class="o">=</span>mysql --mysql-socket<span class="o">=</span>/tmp/mysql.sock --mysql-user<span class="o">=</span><span class="nb">test</span> --mysql-password<span class="o">=</span><span class="nb">test</span> --mysql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span><span class="m">8</span> --max-requests<span class="o">=</span><span class="m">1000000</span> run
+<div class="highlight"><pre><span></span>$ sysbench --test<span class="o">=</span>sysbench/tests/db/select_random_points.lua --db-driver<span class="o">=</span>mysql --mysql-socket<span class="o">=</span>/tmp/mysql.sock --mysql-user<span class="o">=</span><span class="nb">test</span> --mysql-password<span class="o">=</span><span class="nb">test</span> --mysql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span><span class="m">8</span> --max-requests<span class="o">=</span><span class="m">1000000</span> run
 </pre></div>
 <p>And with libAttachSQL:</p>
-<div class="highlight"><pre><span class="nv">$ </span>sysbench --test<span class="o">=</span>sysbench/tests/db/select_random_points.lua --db-driver<span class="o">=</span>attachsql --attachsql-socket<span class="o">=</span>/tmp/mysql.sock --attachsql-user<span class="o">=</span><span class="nb">test</span> --attachsql-password<span class="o">=</span><span class="nb">test</span> --attachsql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span><span class="m">8</span> --max-requests<span class="o">=</span><span class="m">1000000</span> run
+<div class="highlight"><pre><span></span>$ sysbench --test<span class="o">=</span>sysbench/tests/db/select_random_points.lua --db-driver<span class="o">=</span>attachsql --attachsql-socket<span class="o">=</span>/tmp/mysql.sock --attachsql-user<span class="o">=</span><span class="nb">test</span> --attachsql-password<span class="o">=</span><span class="nb">test</span> --attachsql-db<span class="o">=</span>testdb --num-threads<span class="o">=</span><span class="m">8</span> --max-requests<span class="o">=</span><span class="m">1000000</span> run
 </pre></div>
 <p>The results were as follows:</p>
 <img alt="" src="/images/select_random_points_benchmark.png" />
